@@ -1,12 +1,20 @@
 package org.conqueror.lion.cluster.schedule;
 
 import akka.actor.ActorRef;
+import akka.cluster.Cluster;
 import org.conqueror.lion.cluster.actor.NodeComponentActor;
+import org.conqueror.lion.config.JobConfig;
 import org.conqueror.lion.config.NodeConfig;
 import org.conqueror.lion.exceptions.schedule.JobScheduleException;
+import org.conqueror.lion.job.ScheduledMessagingJob;
 import org.conqueror.lion.message.IDIssuerMessage;
+import org.conqueror.lion.message.JobMasterMessage;
+import org.conqueror.lion.message.ScheduleManagerMessage;
 import org.conqueror.lion.schedule.JobScheduler;
 import org.conqueror.lion.schedule.JobSchedulerFactory;
+import org.conqueror.lion.schedule.store.JobScheduleDDataStore;
+import org.conqueror.lion.schedule.store.JobScheduleStore;
+import org.quartz.JobDataMap;
 
 
 public class ScheduleManager extends NodeComponentActor {
@@ -15,11 +23,17 @@ public class ScheduleManager extends NodeComponentActor {
 
     public ScheduleManager(NodeConfig config, ActorRef nodeMaster) throws JobScheduleException {
         super(config, nodeMaster);
+
+        String name = "DURABLE_" + getSelf().path().toStringWithoutAddress();
+        JobScheduleStore store = new JobScheduleDDataStore(name, Cluster.get(getContext().getSystem()), getSelf(), getNode(), config.getAskTimeout());
+        scheduler = JobSchedulerFactory.getInstance().getOrCreateScheduler(name, store);
     }
 
     @Override
     public Receive buildWorkingReceive() {
         return receiveBuilder()
+            .match(ScheduleManagerMessage.JobRegisterRequest.class, this::processRegisterJob)
+            .match(ScheduleManagerMessage.JobRemoveRequest.class, this::processRemoveJob)
             .matchAny(message -> {
                 log().warning("received an unhandled request : {}", message);
                 unhandled(message);
@@ -30,13 +44,11 @@ public class ScheduleManager extends NodeComponentActor {
     @Override
     public void preStart() throws Exception {
         super.preStart();
-
-        scheduler.startup();
     }
 
     @Override
     protected void postWorking() throws JobScheduleException {
-        scheduler = JobSchedulerFactory.getInstance().getOrCreateScheduler(getSelf().path().name());
+        scheduler.startup();
     }
 
     @Override
@@ -49,6 +61,29 @@ public class ScheduleManager extends NodeComponentActor {
     @Override
     protected IDIssuerMessage.IDIssuerRequest idIssuerRequest() {
         return new IDIssuerMessage.ScheduleManagerIssueIDRequest();
+    }
+
+    private void processRegisterJob(ScheduleManagerMessage.JobRegisterRequest request) throws JobScheduleException {
+        registerJob(request.getConfig());
+    }
+
+    private void processRemoveJob(ScheduleManagerMessage.JobRemoveRequest request) throws JobScheduleException {
+        unregisterJob(request.getConfig());
+    }
+
+    public void registerJob(JobConfig config) throws JobScheduleException {
+        JobDataMap jobData = new JobDataMap();
+        jobData.put(ScheduledMessagingJob.ReceiverKey, getNode());
+        jobData.put(ScheduledMessagingJob.SenderKey, getSelf());
+        jobData.put(ScheduledMessagingJob.MessageKey, new JobMasterMessage.JobManagerCreateRequest(config));
+
+        scheduler.registerJob(ScheduledMessagingJob.class, config.getSchedule(), config.getJobID(), config.getGroup(), config.getDescription(), jobData);
+        getSender().tell(new ScheduleManagerMessage.JobRegisterResponse(), getSelf());
+    }
+
+    public void unregisterJob(JobConfig config) throws JobScheduleException {
+        scheduler.removeJob(config.getJobID());
+        getSender().tell(new ScheduleManagerMessage.JobRemoveResponse(), getSelf());
     }
 
 }

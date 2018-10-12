@@ -3,8 +3,13 @@ package org.conqueror.lion.cluster.job;
 import akka.actor.ActorRef;
 import org.conqueror.lion.config.JobConfig;
 import org.conqueror.lion.config.TestJobConfig;
+import org.conqueror.lion.exceptions.Serialize.SerializableException;
 import org.conqueror.lion.message.JobManagerMessage;
+import org.conqueror.lion.serialize.LionSerializable;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 import java.util.*;
 
 
@@ -21,6 +26,23 @@ public class TestJobManager extends JobManager<TestJobConfig> {
             return source;
         }
 
+        @Override
+        public void writeObject(DataOutput output) throws SerializableException {
+            try {
+                output.writeUTF(source);
+            } catch (IOException e) {
+                throw new SerializableException(e);
+            }
+        }
+
+        @Override
+        public LionSerializable readObject(DataInput input) throws SerializableException {
+            try {
+                return new TestTaskAssignResponse(input.readUTF());
+            } catch (IOException e) {
+                throw new SerializableException(e);
+            }
+        }
     }
 
     public Queue<String> sources = new ArrayDeque<>(10);

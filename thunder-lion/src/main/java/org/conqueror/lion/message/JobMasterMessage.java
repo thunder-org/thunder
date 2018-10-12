@@ -1,6 +1,12 @@
 package org.conqueror.lion.message;
 
 import org.conqueror.lion.config.JobConfig;
+import org.conqueror.lion.exceptions.Serialize.SerializableException;
+import org.conqueror.lion.serialize.LionSerializable;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 
 
 public abstract class JobMasterMessage implements LionMessage {
@@ -26,9 +32,33 @@ public abstract class JobMasterMessage implements LionMessage {
             return config;
         }
 
+        @Override
+        public void writeObject(DataOutput output) throws SerializableException {
+            LionSerializable.writeSerializableObject(output, config);
+        }
+
+        @Override
+        public LionSerializable readObject(DataInput input) throws SerializableException {
+            return new JobManagerCreateRequest(LionSerializable.readSerializableObject(input));
+        }
+
     }
 
     public static class JobManagerCreateResponse extends JobMasterResponse {
+
+        @Override
+        public void writeObject(DataOutput output) throws SerializableException {
+
+        }
+
+        @Override
+        public JobManagerCreateResponse readObject(DataInput input) throws SerializableException {
+            return new JobManagerCreateResponse();
+        }
+
+    }
+
+    public static class JobManagerExistResponse extends JobManagerCreateResponse {
 
     }
 
@@ -44,6 +74,23 @@ public abstract class JobMasterMessage implements LionMessage {
             return jobName;
         }
 
+        @Override
+        public void writeObject(DataOutput output) throws SerializableException {
+            try {
+                output.writeUTF(jobName);
+            } catch (IOException e) {
+                throw new SerializableException(e);
+            }
+        }
+
+        @Override
+        public JobManagerFinishRequest readObject(DataInput input) throws SerializableException {
+            try {
+                return new JobManagerFinishRequest(input.readUTF());
+            } catch (IOException e) {
+                throw new SerializableException(e);
+            }
+        }
     }
 
 }

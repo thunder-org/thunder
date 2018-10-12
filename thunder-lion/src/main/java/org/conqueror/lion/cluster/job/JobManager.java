@@ -76,17 +76,10 @@ public abstract class JobManager<T extends JobConfig> extends ManagerActor {
 
     protected abstract JobManagerMessage.TaskAssignResponse assignTask(JobManagerMessage.TaskAssignRequest request) throws Exception;
 
-    /*
-     * task master 할당이 되면
-     * TODO : 각 마스터에 task manager 생성 요청
-     * TODO : task manager 리스트 얻기
-     * TODO : 각 task manager 는 task worker 생성
-     * TODO : task manager가 준비되면 JobManagerStartedTaskRequest 요청으로 준비됨을 알림
-     * TODO : task worker는 task manager를 통해 task를 요청하고 task manager가 job manager에게 task를 요청함
-     */
     protected void processAssignTaskManagers(TaskMasterMessage.TaskMasterAssignResponse response) {
+        log().info("TASK-MANAGERS : {} / {}", getConfig().getMaxNumberOfTaskManagers(), taskMasters.size());
         if (getConfig().getMaxNumberOfTaskManagers() > taskMasters.size()) {
-            ActorRef taskMaster = response.getTaskMaster();
+            ActorRef taskMaster = response.getTaskMaster(getContext().getSystem());
             taskMasters.put(response.getId(), taskMaster);
 
             taskMaster.tell(new TaskMasterMessage.TaskManagerCreateRequest(getJobName(), getConfig()), getSelf());
@@ -94,8 +87,10 @@ public abstract class JobManager<T extends JobConfig> extends ManagerActor {
     }
 
     protected void processAssignTaskManagers(TaskMasterMessage.TaskManagerCreateResponse response) {
-        if (Objects.nonNull(response.getTaskManager())) {
-            taskManagers.put(response.getTaskManagerName(), response.getTaskManager());
+        ActorRef taskManager = response.getTaskManager(getContext().getSystem());
+        log().info("TASK-MANAGER : {}", taskManager);
+        if (Objects.nonNull(taskManager)) {
+            taskManagers.put(response.getTaskManagerName(), taskManager);
         }
     }
 
@@ -118,6 +113,7 @@ public abstract class JobManager<T extends JobConfig> extends ManagerActor {
 
     @Override
     protected T getConfig() {
+        //noinspection unchecked
         return (T) super.getConfig();
     }
 

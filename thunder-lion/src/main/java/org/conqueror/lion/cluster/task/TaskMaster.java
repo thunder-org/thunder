@@ -31,6 +31,7 @@ public class TaskMaster extends NodeComponentActor {
             // task-manager
             .match(TaskManagerCreateRequest.class, this::processCreateTaskManager)
             .match(TaskManagerRemoveRequest.class, this::processRemoveTaskManager)
+            .match(TaskMasterMessage.TaskManagerRemoveAllRequest.class, this::processRemoveAllTaskManagers)
             .build();
     }
 
@@ -68,17 +69,31 @@ public class TaskMaster extends NodeComponentActor {
             log().error(e, "failed to create the task-manager ({})"
                 , request.getConfig().getJobManagerClass());
 
-            getSender().tell(new TaskMasterMessage.TaskManagerCreateResponse(getId(), null), getSender());
+            getSender().tell(new TaskMasterMessage.TaskManagerCreateResponse(getId(), (String) null), getSender());
         }
     }
 
     private void processRemoveTaskManager(TaskManagerRemoveRequest request) {
-        String taskManagerName = getSender().path().name();
-        registeredTaskManagers.remove(taskManagerName);
-        getContext().unwatch(getSender());
-        getContext().stop(getSender());
+        ActorRef taskManager = getSender();
+        String taskManagerName = taskManager.path().name();
 
-        log().info("task-manager was removed ({})", taskManagerName);
+        if (getContext().getChild(taskManagerName) != null && registeredTaskManagers.containsKey(taskManagerName)) {
+            registeredTaskManagers.remove(taskManagerName);
+            getContext().unwatch(taskManager);
+            getContext().stop(taskManager);
+
+            log().info("task-manager was removed ({})", taskManagerName);
+        }
+    }
+
+    private void processRemoveAllTaskManagers(TaskMasterMessage.TaskManagerRemoveAllRequest request) {
+        for (String taskManagerName : registeredTaskManagers.keySet()) {
+            ActorRef taskManager = registeredTaskManagers.remove(taskManagerName);
+            getContext().unwatch(taskManager);
+            getContext().stop(taskManager);
+
+            log().info("task-manager was removed ({})", taskManagerName);
+        }
     }
 
     private String makeTaskManagerName(String jobName) {

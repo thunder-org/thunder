@@ -1,8 +1,20 @@
 package org.conqueror.lion.message;
 
+import org.conqueror.lion.exceptions.Serialize.SerializableException;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+
+
 public abstract class IDIssuerMessage implements LionMessage {
 
     public static abstract class IDIssuerRequest extends IDIssuerMessage {
+
+        @Override
+        public void writeObject(DataOutput output) throws SerializableException {
+
+        }
 
     }
 
@@ -26,6 +38,16 @@ public abstract class IDIssuerMessage implements LionMessage {
             return id;
         }
 
+        @Override
+        public void writeObject(DataOutput output) throws SerializableException {
+            try {
+                output.writeUTF(result.name());
+                output.writeUTF(id);
+            } catch (IOException e) {
+                throw new SerializableException(e);
+            }
+        }
+
     }
 
     public static final class NodeMasterIssueIDRequest extends IDIssuerRequest {
@@ -35,10 +57,14 @@ public abstract class IDIssuerMessage implements LionMessage {
             return "[REQUEST] issue node-master id";
         }
 
+        @Override
+        public NodeMasterIssueIDRequest readObject(DataInput input) {
+            return new NodeMasterIssueIDRequest();
+        }
+
     }
 
     public static final class NodeMasterIssueIDResponse extends IDIssuerResponse {
-
 
         public NodeMasterIssueIDResponse(Result result, String id) {
             super(result, id);
@@ -47,6 +73,15 @@ public abstract class IDIssuerMessage implements LionMessage {
         @Override
         public String toString() {
             return "[RESPONSE] issue node-master id (id:" + getId() + ")";
+        }
+
+        @Override
+        public NodeMasterIssueIDResponse readObject(DataInput input) throws SerializableException {
+            try {
+                return new NodeMasterIssueIDResponse(Result.valueOf(input.readUTF()), input.readUTF());
+            } catch (IOException e) {
+                throw new SerializableException(e);
+            }
         }
 
     }
@@ -59,6 +94,11 @@ public abstract class IDIssuerMessage implements LionMessage {
         @Override
         public String toString() {
             return "[REQUEST] issue node-worker id";
+        }
+
+        @Override
+        public NodeWorkerIssueIDRequest readObject(DataInput input) {
+            return new NodeWorkerIssueIDRequest();
         }
 
     }
@@ -74,6 +114,15 @@ public abstract class IDIssuerMessage implements LionMessage {
             return "[RESPONSE] issue node-worker id (id:" + getId() + ")";
         }
 
+        @Override
+        public NodeWorkerIssueIDResponse readObject(DataInput input) throws SerializableException {
+            try {
+                return new NodeWorkerIssueIDResponse(Result.valueOf(input.readUTF()), input.readUTF());
+            } catch (IOException e) {
+                throw new SerializableException(e);
+            }
+        }
+
     }
 
     public static final class NodeWorkerManagerIssueIDRequest extends IDIssuerRequest {
@@ -84,6 +133,11 @@ public abstract class IDIssuerMessage implements LionMessage {
         @Override
         public String toString() {
             return "[REQUEST] issue node-worker-manager id";
+        }
+
+        @Override
+        public NodeWorkerManagerIssueIDRequest readObject(DataInput input) {
+            return new NodeWorkerManagerIssueIDRequest();
         }
 
     }
@@ -99,6 +153,15 @@ public abstract class IDIssuerMessage implements LionMessage {
             return "[RESPONSE] issue node-worker-manager id (id:" + getId() + ")";
         }
 
+        @Override
+        public NodeWorkerManagerIssueIDResponse readObject(DataInput input) throws SerializableException {
+            try {
+                return new NodeWorkerManagerIssueIDResponse(Result.valueOf(input.readUTF()), input.readUTF());
+            } catch (IOException e) {
+                throw new SerializableException(e);
+            }
+        }
+
     }
 
     public static final class ScheduleManagerIssueIDRequest extends IDIssuerRequest {
@@ -109,6 +172,11 @@ public abstract class IDIssuerMessage implements LionMessage {
         @Override
         public String toString() {
             return "[REQUEST] issue schedule-manager id";
+        }
+
+        @Override
+        public ScheduleManagerIssueIDRequest readObject(DataInput input) {
+            return new ScheduleManagerIssueIDRequest();
         }
 
     }
@@ -124,6 +192,15 @@ public abstract class IDIssuerMessage implements LionMessage {
             return "[RESPONSE] issue schedule-manager id (id:" + getId() + ")";
         }
 
+        @Override
+        public ScheduleManagerIssueIDResponse readObject(DataInput input) throws SerializableException {
+            try {
+                return new ScheduleManagerIssueIDResponse(Result.valueOf(input.readUTF()), input.readUTF());
+            } catch (IOException e) {
+                throw new SerializableException(e);
+            }
+        }
+
     }
 
     public static final class JobMasterIssueIDRequest extends IDIssuerRequest {
@@ -134,6 +211,11 @@ public abstract class IDIssuerMessage implements LionMessage {
         @Override
         public String toString() {
             return "[REQUEST] issue job-master id";
+        }
+
+        @Override
+        public JobMasterIssueIDRequest readObject(DataInput input) {
+            return new JobMasterIssueIDRequest();
         }
 
     }
@@ -147,6 +229,15 @@ public abstract class IDIssuerMessage implements LionMessage {
         @Override
         public String toString() {
             return "[RESPONSE] issue job-master id (id:" + getId() + ")";
+        }
+
+        @Override
+        public JobMasterIssueIDResponse readObject(DataInput input) throws SerializableException {
+            try {
+                return new JobMasterIssueIDResponse(Result.valueOf(input.readUTF()), input.readUTF());
+            } catch (IOException e) {
+                throw new SerializableException(e);
+            }
         }
 
     }
@@ -168,6 +259,24 @@ public abstract class IDIssuerMessage implements LionMessage {
             return "[REQUEST] issue job-manager id";
         }
 
+        @Override
+        public void writeObject(DataOutput output) throws SerializableException {
+            try {
+                output.writeUTF(jobMasterID);
+            } catch (IOException e) {
+                throw new SerializableException(e);
+            }
+        }
+
+        @Override
+        public JobManagerIssueIDRequest readObject(DataInput input) throws SerializableException {
+            try {
+                return new JobManagerIssueIDRequest(input.readUTF());
+            } catch (IOException e) {
+                throw new SerializableException(e);
+            }
+        }
+
     }
 
     public static final class JobManagerIssueIDResponse extends IDIssuerResponse {
@@ -179,6 +288,15 @@ public abstract class IDIssuerMessage implements LionMessage {
         @Override
         public String toString() {
             return "[RESPONSE] issue job-manager id (id:" + getId() + ")";
+        }
+
+        @Override
+        public JobManagerIssueIDResponse readObject(DataInput input) throws SerializableException {
+            try {
+                return new JobManagerIssueIDResponse(Result.valueOf(input.readUTF()), input.readUTF());
+            } catch (IOException e) {
+                throw new SerializableException(e);
+            }
         }
 
     }
@@ -193,6 +311,11 @@ public abstract class IDIssuerMessage implements LionMessage {
             return "[REQUEST] issue task-master id";
         }
 
+        @Override
+        public TaskMasterIssueIDRequest readObject(DataInput input) {
+            return new TaskMasterIssueIDRequest();
+        }
+
     }
 
     public static final class TaskMasterIssueIDResponse extends IDIssuerResponse {
@@ -204,6 +327,15 @@ public abstract class IDIssuerMessage implements LionMessage {
         @Override
         public String toString() {
             return "[RESPONSE] issue task-master id (id:" + getId() + ")";
+        }
+
+        @Override
+        public TaskMasterIssueIDResponse readObject(DataInput input) throws SerializableException {
+            try {
+                return new TaskMasterIssueIDResponse(Result.valueOf(input.readUTF()), input.readUTF());
+            } catch (IOException e) {
+                throw new SerializableException(e);
+            }
         }
 
     }
@@ -225,6 +357,24 @@ public abstract class IDIssuerMessage implements LionMessage {
             return "[REQUEST] issue task-manager id";
         }
 
+        @Override
+        public void writeObject(DataOutput output) throws SerializableException {
+            try {
+                output.writeUTF(taskMasterID);
+            } catch (IOException e) {
+                throw new SerializableException(e);
+            }
+        }
+
+        @Override
+        public TaskManagerIssueIDRequest readObject(DataInput input) throws SerializableException {
+            try {
+                return new TaskManagerIssueIDRequest(input.readUTF());
+            } catch (IOException e) {
+                throw new SerializableException(e);
+            }
+        }
+
     }
 
     public static final class TaskManagerIssueIDResponse extends IDIssuerResponse {
@@ -236,6 +386,15 @@ public abstract class IDIssuerMessage implements LionMessage {
         @Override
         public String toString() {
             return "[RESPONSE] issue task-manager id (id:" + getId() + ")";
+        }
+
+        @Override
+        public TaskManagerIssueIDResponse readObject(DataInput input) throws SerializableException {
+            try {
+                return new TaskManagerIssueIDResponse(Result.valueOf(input.readUTF()), input.readUTF());
+            } catch (IOException e) {
+                throw new SerializableException(e);
+            }
         }
 
     }
@@ -257,6 +416,24 @@ public abstract class IDIssuerMessage implements LionMessage {
             return "[REQUEST] issue task-worker id";
         }
 
+        @Override
+        public void writeObject(DataOutput output) throws SerializableException {
+            try {
+                output.writeUTF(taskManagerID);
+            } catch (IOException e) {
+                throw new SerializableException(e);
+            }
+        }
+
+        @Override
+        public TaskWorkerIssueIDRequest readObject(DataInput input) throws SerializableException {
+            try {
+                return new TaskWorkerIssueIDRequest(input.readUTF());
+            } catch (IOException e) {
+                throw new SerializableException(e);
+            }
+        }
+
     }
 
     public static final class TaskWorkerIssueIDResponse extends IDIssuerResponse {
@@ -268,6 +445,15 @@ public abstract class IDIssuerMessage implements LionMessage {
         @Override
         public String toString() {
             return "[RESPONSE] issue task-worker id (id:" + getId() + ")";
+        }
+
+        @Override
+        public TaskWorkerIssueIDResponse readObject(DataInput input) throws SerializableException {
+            try {
+                return new TaskWorkerIssueIDResponse(Result.valueOf(input.readUTF()), input.readUTF());
+            } catch (IOException e) {
+                throw new SerializableException(e);
+            }
         }
 
     }
@@ -289,6 +475,24 @@ public abstract class IDIssuerMessage implements LionMessage {
             return "[REQUEST] issued id (" + id + ")";
         }
 
+        @Override
+        public void writeObject(DataOutput output) throws SerializableException {
+            try {
+                output.writeUTF(id);
+            } catch (IOException e) {
+                throw new SerializableException(e);
+            }
+        }
+
+        @Override
+        public IssuedIDRequest readObject(DataInput input) throws SerializableException {
+            try {
+                return new IssuedIDRequest(input.readUTF());
+            } catch (IOException e) {
+                throw new SerializableException(e);
+            }
+        }
+
     }
 
     public static final class IssuedIDResponse extends IDIssuerResponse {
@@ -307,6 +511,25 @@ public abstract class IDIssuerMessage implements LionMessage {
         @Override
         public String toString() {
             return "[RESPONSE] issued id (" + isIssuedID() + ")";
+        }
+
+        @Override
+        public void writeObject(DataOutput output) throws SerializableException {
+            try {
+                output.writeUTF(getResult().name());
+                output.writeBoolean(isIssuedID);
+            } catch (IOException e) {
+                throw new SerializableException(e);
+            }
+        }
+
+        @Override
+        public IssuedIDResponse readObject(DataInput input) throws SerializableException {
+            try {
+                return new IssuedIDResponse(Result.valueOf(input.readUTF()), input.readBoolean());
+            } catch (IOException e) {
+                throw new SerializableException(e);
+            }
         }
 
     }

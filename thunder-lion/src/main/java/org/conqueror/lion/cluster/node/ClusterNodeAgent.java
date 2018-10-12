@@ -1,6 +1,7 @@
 package org.conqueror.lion.cluster.node;
 
 import akka.actor.ActorSystem;
+import akka.cluster.ddata.DistributedData;
 import akka.cluster.singleton.ClusterSingletonManager;
 import akka.cluster.singleton.ClusterSingletonManagerSettings;
 import org.conqueror.lion.cluster.client.NodeClusterClient;
@@ -21,9 +22,11 @@ public class ClusterNodeAgent {
 
     public void startup(String configFile) {
         NodeConfig config = new NodeConfig(configFile);
+
         ActorSystem nodeClusterSystem = ActorSystem.create(config.getClusterName(), config.getConfig());
 
         createClusterListener(nodeClusterSystem);
+        DistributedData.get(nodeClusterSystem).replicator();
         createNodeMasterSingletonManager(config, nodeClusterSystem);
         createNodeWorker(config, nodeClusterSystem);
     }

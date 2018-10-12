@@ -1,9 +1,12 @@
 package org.conqueror.lion.message;
 
 
-import akka.actor.ActorRef;
+import org.conqueror.lion.exceptions.Serialize.SerializableException;
+import org.conqueror.lion.serialize.LionSerializable;
 
-import java.util.Map;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 
 
 public abstract class NodeWorkerManagerMessage implements LionMessage {
@@ -30,6 +33,15 @@ public abstract class NodeWorkerManagerMessage implements LionMessage {
             return getResult().equals(Result.SUCCESS);
         }
 
+        @Override
+        public void writeObject(DataOutput output) throws SerializableException {
+            try {
+                output.writeUTF(result.name());
+            } catch (IOException e) {
+                throw new SerializableException(e);
+            }
+        }
+
     }
 
     public static final class NodeWorkerRegisterRequest extends NodeWorkerManagerRequest {
@@ -49,6 +61,24 @@ public abstract class NodeWorkerManagerMessage implements LionMessage {
             return "[REQUEST] register node-worker (id:" + nodeWorkerID + ")";
         }
 
+        @Override
+        public void writeObject(DataOutput output) throws SerializableException {
+            try {
+                output.writeUTF(nodeWorkerID);
+            } catch (IOException e) {
+                throw new SerializableException(e);
+            }
+        }
+
+        @Override
+        public NodeWorkerRegisterRequest readObject(DataInput input) throws SerializableException {
+            try {
+                return new NodeWorkerRegisterRequest(input.readUTF());
+            } catch (IOException e) {
+                throw new SerializableException(e);
+            }
+        }
+
     }
 
     public static final class NodeWorkerRegisterResponse extends NodeWorkerManagerResponse {
@@ -62,6 +92,14 @@ public abstract class NodeWorkerManagerMessage implements LionMessage {
             return "[RESPONSE] register node-worker id";
         }
 
+        @Override
+        public NodeWorkerRegisterResponse readObject(DataInput input) throws SerializableException {
+            try {
+                return new NodeWorkerRegisterResponse(Result.valueOf(input.readUTF()));
+            } catch (IOException e) {
+                throw new SerializableException(e);
+            }
+        }
     }
 
     public static final class NodeWorkerUnregisterRequest extends NodeWorkerManagerRequest {
@@ -81,6 +119,23 @@ public abstract class NodeWorkerManagerMessage implements LionMessage {
             return "[REQUEST] unregister node-worker (id:" + nodeWorkerID + ")";
         }
 
+        @Override
+        public void writeObject(DataOutput output) throws SerializableException {
+            try {
+                output.writeUTF(nodeWorkerID);
+            } catch (IOException e) {
+                throw new SerializableException(e);
+            }
+        }
+
+        @Override
+        public NodeWorkerUnregisterRequest readObject(DataInput input) throws SerializableException {
+            try {
+                return new NodeWorkerUnregisterRequest(input.readUTF());
+            } catch (IOException e) {
+                throw new SerializableException(e);
+            }
+        }
     }
 
     public static final class NodeWorkerUnregisterResponse extends NodeWorkerManagerResponse {
@@ -94,6 +149,14 @@ public abstract class NodeWorkerManagerMessage implements LionMessage {
             return "[RESPONSE] unregister node-worker id";
         }
 
+        @Override
+        public LionSerializable readObject(DataInput input) throws SerializableException {
+            try {
+                return new NodeWorkerUnregisterResponse(Result.valueOf(input.readUTF()));
+            } catch (IOException e) {
+                throw new SerializableException(e);
+            }
+        }
     }
 
 }

@@ -1,6 +1,7 @@
 package org.conqueror.lion.schedule;
 
 import org.conqueror.lion.exceptions.schedule.JobScheduleException;
+import org.conqueror.lion.schedule.store.JobScheduleStore;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,11 +20,11 @@ public class JobSchedulerFactory {
         return FACTORY;
     }
 
-    public JobScheduler createScheduler(String name) throws JobScheduleException {
+    public JobScheduler createScheduler(String name, JobScheduleStore store) throws JobScheduleException {
         if (schedulers.containsKey(name)) {
             throw new JobScheduleException("exist a scheduler with same name");
         }
-        JobScheduler scheduler = new JobScheduler(name);
+        JobScheduler scheduler = new JobScheduler(name, store);
         schedulers.put(name, scheduler);
 
         return scheduler;
@@ -33,9 +34,9 @@ public class JobSchedulerFactory {
         return schedulers.get(name);
     }
 
-    public JobScheduler getOrCreateScheduler(String name) throws JobScheduleException {
+    public JobScheduler getOrCreateScheduler(String name, JobScheduleStore store) throws JobScheduleException {
         JobScheduler scheduler = getScheduler(name);
-        return scheduler != null? scheduler : createScheduler(name);
+        return scheduler != null? scheduler : createScheduler(name, store);
     }
 
     public void removeScheduler(String name) throws JobScheduleException {

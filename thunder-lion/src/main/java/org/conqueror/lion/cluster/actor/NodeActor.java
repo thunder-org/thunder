@@ -2,7 +2,6 @@ package org.conqueror.lion.cluster.actor;
 
 import akka.actor.*;
 import akka.cluster.Cluster;
-import akka.cluster.ClusterEvent;
 import akka.cluster.client.ClusterClientReceptionist;
 import akka.cluster.pubsub.DistributedPubSub;
 import akka.cluster.pubsub.DistributedPubSubMediator;

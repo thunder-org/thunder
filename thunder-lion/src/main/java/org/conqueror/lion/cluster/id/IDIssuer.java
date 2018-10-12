@@ -3,6 +3,7 @@ package org.conqueror.lion.cluster.id;
 import akka.actor.AbstractLoggingActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
+import akka.cluster.Cluster;
 import org.conqueror.lion.config.NodeConfig;
 import org.conqueror.lion.id.IDMaker;
 import org.conqueror.lion.message.IDIssuerMessage.*;
@@ -16,16 +17,15 @@ import java.util.Set;
 
 public class IDIssuer extends AbstractLoggingActor {
 
-    private final IDMaker idMaker = new IDMaker();
+    private final IDMaker idMaker;
     private final Set<String> issuedIDs = new HashSet<>();
-    private final NodeConfig config;
 
     public static Props props(NodeConfig config) {
         return Props.create(IDIssuer.class, config);
     }
 
     public IDIssuer(NodeConfig config) {
-        this.config = config;
+        idMaker = new IDMaker(getSelf().path().name(), Cluster.get(getContext().getSystem()), config.getAskTimeout());
     }
 
     @Override

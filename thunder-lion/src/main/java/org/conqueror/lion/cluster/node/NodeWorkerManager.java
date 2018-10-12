@@ -28,9 +28,7 @@ public class NodeWorkerManager extends NodeComponentActor {
     protected Receive buildReadyReceive() {
         return super.buildReadyReceive().orElse(
             receiveBuilder()
-                .match(NodeWorkerRegisterRequest.class, request -> {
-                    getSender().tell(new NodeWorkerRegisterResponse(NodeWorkerManagerResponse.Result.FAIL), getSelf());
-                })
+                .match(NodeWorkerRegisterRequest.class, request -> getSender().tell(new NodeWorkerRegisterResponse(NodeWorkerManagerResponse.Result.FAIL), getSelf()))
                 .build()
         );
     }
@@ -64,11 +62,28 @@ public class NodeWorkerManager extends NodeComponentActor {
     }
 
     private void processRegisterNodeWorker(NodeWorkerRegisterRequest request) {
-        getContext().watch(getSender());
-        registeredNodeWorkers.put(request.getNodeWorkerID(), getSender());
-        getSender().tell(new NodeWorkerRegisterResponse(NodeWorkerManagerResponse.Result.SUCCESS), getSelf());
+        String nodeWorkerID = request.getNodeWorkerID();
+        ActorRef nodeWorker = registeredNodeWorkers.get(nodeWorkerID);
+        if (nodeWorker != null) {
+            if (nodeWorker.equals(getSender())) {
+                nodeWorker = null;
+            } else {
+                getContext().unwatch(nodeWorker);
+                nodeWorker = getSender();
+            }
+        } else {
+            nodeWorker = getSender();
+        }
 
-        log().info("node-worker is registered - {}", request.getNodeWorkerID());
+        if (nodeWorker != null) {
+            getContext().watch(nodeWorker);
+            registeredNodeWorkers.put(nodeWorkerID, getSender());
+            nodeWorker.tell(new NodeWorkerRegisterResponse(NodeWorkerManagerResponse.Result.SUCCESS), getSelf());
+
+            log().info("node-worker is registered - {}, {}", nodeWorkerID, nodeWorker);
+        } else {
+            log().info("node-worker is already registered - {}, {}", nodeWorkerID, nodeWorker);
+        }
     }
 
     /*

@@ -1,8 +1,12 @@
 package org.conqueror.lion.schedule;
 
 import org.conqueror.lion.exceptions.schedule.JobScheduleException;
-import org.conqueror.lion.job.JobID;
+import org.conqueror.lion.schedule.job.JobID;
 import org.conqueror.lion.schedule.job.ScheduledJob;
+import org.conqueror.lion.schedule.job.ScheduledJobInfo;
+import org.conqueror.lion.schedule.job.ScheduledJobStatus;
+import org.conqueror.lion.schedule.store.JobScheduleMemStore;
+import org.conqueror.lion.schedule.store.JobScheduleStore;
 import org.quartz.*;
 import org.quartz.DateBuilder.IntervalUnit;
 import org.quartz.Trigger.TriggerState;
@@ -20,12 +24,17 @@ public class JobScheduler extends ReentrantLock {
     public enum ScheduleType {CRON, INTERVAL, ONE}
 
     private final String schedulerName;
+    private final JobScheduleStore store;
     private final Scheduler scheduler;
-    private final Map<JobID, JobKey> jobIDJobKeys = new HashMap<>();
 
     public JobScheduler(@Nonnull final String schedulerName) throws JobScheduleException {
+        this(schedulerName, new JobScheduleMemStore());
+    }
+
+    public JobScheduler(@Nonnull final String schedulerName, @Nonnull final JobScheduleStore store) throws JobScheduleException {
         try {
             this.schedulerName = schedulerName;
+            this.store = store;
 
             scheduler = new StdSchedulerFactory().getScheduler();
         } catch (SchedulerException e) {
@@ -45,10 +54,12 @@ public class JobScheduler extends ReentrantLock {
         checkNotRunning();
 
         try {
-            scheduler.start();
+            scheduler.standby();
 
-            makeJobIDJobKeys(jobIDJobKeys);
+            load(store);
             scheduler.getListenerManager().addJobListener(new JobScheduleListener(schedulerName));
+
+            scheduler.start();
         } catch (SchedulerException e) {
             throw new JobScheduleException(e);
         } finally {
@@ -64,6 +75,7 @@ public class JobScheduler extends ReentrantLock {
         checkRunning();
 
         try {
+            unload(store);
             scheduler.shutdown(false);
         } catch (SchedulerException e) {
             throw new JobScheduleException(e);
@@ -72,16 +84,48 @@ public class JobScheduler extends ReentrantLock {
         }
     }
 
+    private void load(JobScheduleStore store) throws JobScheduleException {
+        store.open();
+
+        for (ScheduledJobInfo jobInfo : store.getRegisteredJobs()) {
+            JobDetail jobDetail = JobBuilder.newJob(jobInfo.getJobClass())
+                .withIdentity(jobInfo.getName(), jobInfo.getGroup())
+                .withDescription(jobInfo.getDescription())
+                .usingJobData(jobInfo.getJobDataMap())
+                .build();
+
+            scheduleJob(jobInfo.getScheduleType(), jobDetail, jobInfo.getTrigger());
+
+            if (jobInfo.getStatus().isRunning()) {
+                jobInfo.getStatus().changeJobStatus(ScheduledJobStatus.JobStatus.IDLE);
+            } else if (jobInfo.getStatus().isPaused()) {
+                try {
+                    scheduler.pauseJob(jobInfo.getJobKey());
+                } catch (SchedulerException e) {
+                    throw new JobScheduleException(e);
+                }
+            }
+        }
+    }
+
+    private void unload(JobScheduleStore store) throws JobScheduleException {
+        store.close();
+    }
+
     public void registerJob(Class<? extends ScheduledJob> jobClass, String expression, JobID jobID, String group, String desc) throws JobScheduleException {
+        registerJob(jobClass, expression, jobID, group, desc, new JobDataMap());
+    }
+
+    public void registerJob(Class<? extends ScheduledJob> jobClass, String expression, JobID jobID, String group, String desc, JobDataMap jobData) throws JobScheduleException {
         if (CronExpression.isValidExpression(expression)) {
-            registerCronJob(jobClass, expression, jobID, group, desc);
+            registerCronJob(jobClass, expression, jobID, group, desc, jobData);
         } else {
             try {
                 int interval = Integer.parseInt(expression);
                 if (interval == 0) {
-                    registerOneTimeJob(jobClass, 0, jobID, group, desc);
+                    registerOneTimeJob(jobClass, 0, jobID, group, desc, jobData);
                 } else if (interval > 0) {
-                    registerIntervalJob(jobClass, interval, jobID, group, desc);
+                    registerIntervalJob(jobClass, interval, jobID, group, desc, jobData);
                 }
             } catch (NumberFormatException ignore) {
                 throw new JobScheduleException(schedulerName, "schedule expression is wrong (job ID :" + jobID + ")");
@@ -93,6 +137,10 @@ public class JobScheduler extends ReentrantLock {
      * register a cron type job in scheduler
      */
     public void registerCronJob(Class<? extends ScheduledJob> jobClass, String expression, JobID jobID, String group, String desc) throws JobScheduleException {
+        registerCronJob(jobClass, expression, jobID, group, desc, new JobDataMap());
+    }
+
+    public void registerCronJob(Class<? extends ScheduledJob> jobClass, String expression, JobID jobID, String group, String desc, JobDataMap jobData) throws JobScheduleException {
         String name = jobID.toString();
         Trigger trigger = TriggerBuilder.newTrigger()
             .withIdentity(name, group)
@@ -101,13 +149,17 @@ public class JobScheduler extends ReentrantLock {
             .forJob(name, group)
             .build();
 
-        scheduleJob(jobClass, trigger, jobID, group, desc);
+        scheduleJob(jobClass, trigger, jobID, group, desc, jobData);
     }
 
     /*
      * register a interval type job in scheduler
      */
     public void registerIntervalJob(Class<? extends ScheduledJob> jobClass, int interval, JobID jobID, String group, String desc) throws JobScheduleException {
+        registerIntervalJob(jobClass, interval, jobID, group, desc, new JobDataMap());
+    }
+
+    public void registerIntervalJob(Class<? extends ScheduledJob> jobClass, int interval, JobID jobID, String group, String desc, JobDataMap jobData) throws JobScheduleException {
         String name = jobID.toString();
         Trigger trigger = TriggerBuilder.newTrigger()
             .withIdentity(name, group)
@@ -119,13 +171,17 @@ public class JobScheduler extends ReentrantLock {
             .startNow()
             .build();
 
-        scheduleJob(jobClass, trigger, jobID, group, desc);
+        scheduleJob(jobClass, trigger, jobID, group, desc, jobData);
     }
 
     /*
      * register a one time job in scheduler
      */
     public void registerOneTimeJob(Class<? extends ScheduledJob> jobClass, int afterSeconds, JobID jobID, String group, String desc) throws JobScheduleException {
+        registerOneTimeJob(jobClass, afterSeconds, jobID, group, desc, new JobDataMap());
+    }
+
+    public void registerOneTimeJob(Class<? extends ScheduledJob> jobClass, int afterSeconds, JobID jobID, String group, String desc, JobDataMap jobData) throws JobScheduleException {
         String name = jobID.toString();
         Trigger trigger = TriggerBuilder.newTrigger()
             .withIdentity(name, group)
@@ -134,9 +190,8 @@ public class JobScheduler extends ReentrantLock {
             .startAt(DateBuilder.futureDate(afterSeconds, IntervalUnit.SECOND))
             .build();
 
-        scheduleJob(jobClass, trigger, jobID, group, desc);
+        scheduleJob(jobClass, trigger, jobID, group, desc, jobData);
     }
-
 
     /*
      * remove a job from this scheduler
@@ -151,11 +206,12 @@ public class JobScheduler extends ReentrantLock {
         checkRunning();
         try {
             if (scheduler.checkExists(key)) {
-                if (!scheduler.deleteJob(key)) {
+                if (scheduler.deleteJob(key)) {
+                    store.removeJob(jobID);
+                } else {
                     throw new JobScheduleException(schedulerName, "job is not removed from the scheduler (job id :" + jobID + ")");
                 }
             }
-//            scheduleStore.removeJob(jobID);
         } catch (SchedulerException e) {
             throw new JobScheduleException(schedulerName, "failed to remove job (job id :" + jobID + ")", e);
         } finally {
@@ -171,6 +227,7 @@ public class JobScheduler extends ReentrantLock {
         checkRunning();
         try {
             scheduler.clear();
+            store.removeAllJobs();
 //            scheduleStore.removeAllJobs();
         } catch (SchedulerException e) {
             throw new JobScheduleException(schedulerName, "' failed to remove all jobs");
@@ -188,7 +245,9 @@ public class JobScheduler extends ReentrantLock {
         try {
             for (JobKey key : scheduler.getJobKeys(GroupMatcher.jobGroupEquals(group))) {
                 JobID jobID = getJobID(key);
-                if (!scheduler.deleteJob(key)) {
+                if (scheduler.deleteJob(key)) {
+                    store.removeJob(jobID);
+                } else {
                     throw new JobScheduleException(schedulerName, "job is not removed from the scheduler (job id :" + jobID + ")");
                 }
             }
@@ -212,6 +271,7 @@ public class JobScheduler extends ReentrantLock {
         lock();
         try {
             scheduler.pauseJob(key);
+            store.changeToPaused(jobID);
         } catch (SchedulerException e) {
             throw new JobScheduleException(schedulerName, "failed to pause the job (job ID : " + jobID + ")", e);
         } finally {
@@ -227,6 +287,9 @@ public class JobScheduler extends ReentrantLock {
         lock();
         try {
             scheduler.pauseJobs(GroupMatcher.anyJobGroup());
+            for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.anyJobGroup())) {
+                store.changeToPaused(getJobID(jobKey));
+            }
         } catch (SchedulerException e) {
             throw new JobScheduleException(schedulerName, "failed to stop all jobs");
         } finally {
@@ -240,6 +303,9 @@ public class JobScheduler extends ReentrantLock {
     public void pauseAllJobsInGroup(String group) throws JobScheduleException {
         try {
             scheduler.pauseJobs(GroupMatcher.jobGroupEquals(group));
+            for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals(group))) {
+                store.changeToPaused(getJobID(jobKey));
+            }
         } catch (SchedulerException e) {
             throw new JobScheduleException(schedulerName, "failed to stop jobs in the group (" + group + ")");
         }
@@ -258,6 +324,7 @@ public class JobScheduler extends ReentrantLock {
         lock();
         try {
             scheduler.resumeJob(key);
+            store.changeToIdle(jobID);
         } catch (SchedulerException e) {
             throw new JobScheduleException(schedulerName, "failed to start the job (job ID : " + jobID + ")");
         } finally {
@@ -271,6 +338,9 @@ public class JobScheduler extends ReentrantLock {
     public void resumeAllJobs() throws JobScheduleException {
         try {
             scheduler.resumeJobs(GroupMatcher.anyJobGroup());
+            for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.anyJobGroup())) {
+                store.changeToIdle(getJobID(jobKey));
+            }
         } catch (SchedulerException e) {
             throw new JobScheduleException(schedulerName, "failed to start all jobs");
         }
@@ -282,23 +352,25 @@ public class JobScheduler extends ReentrantLock {
     public void resumeAllJobsInGroup(String group) throws JobScheduleException {
         try {
             scheduler.resumeJobs(GroupMatcher.jobGroupEquals(group));
+            for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals(group))) {
+                store.changeToIdle(getJobID(jobKey));
+            }
         } catch (SchedulerException e) {
             throw new JobScheduleException(schedulerName, "failed to start jobs in the group (group:" + group + "})");
         }
     }
 
-    private void scheduleJob(Class<? extends ScheduledJob> jobClass, Trigger trigger, JobID jobID, String group, String desc) throws JobScheduleException {
+    private void scheduleJob(Class<? extends ScheduledJob> jobClass, Trigger trigger, JobID jobID, String group, String desc, JobDataMap jobData) throws JobScheduleException {
         String name = jobID.toString();
         JobBuilder builder = JobBuilder.newJob(jobClass)
             .withIdentity(name, group)
             .withDescription(desc);
 
         if (JobID.isValidJobID(jobID)) {
-            JobDataMap data = new JobDataMap();
-            data.put(ScheduledJob.SchedulerNameKey, schedulerName);
-            data.put(ScheduledJob.JobIDKey, jobID);
+            jobData.put(ScheduledJob.SchedulerNameKey, schedulerName);
+            jobData.put(ScheduledJob.JobIDKey, jobID);
 
-            JobDetail job = builder.usingJobData(data).storeDurably().build();
+            JobDetail job = builder.usingJobData(jobData).storeDurably().build();
 
             scheduleJob(jobID, job, trigger);
         } else {
@@ -311,6 +383,8 @@ public class JobScheduler extends ReentrantLock {
         checkRunning();
 
         try {
+            boolean schedule = false;
+
             if (scheduler.checkExists(job.getKey())) {
                 if (isJobRunning(jobID)) {
                     throw new JobScheduleException(schedulerName, "is running. Try it again later.");
@@ -318,13 +392,21 @@ public class JobScheduler extends ReentrantLock {
 
                 if (hasTriggerKey(jobID)) {
                     scheduler.rescheduleJob(getTriggerKey(jobID), trigger);
+                    store.updateJob(jobID, job, trigger);
                 } else {
-                    scheduler.deleteJob(job.getKey());
-                    scheduler.scheduleJob(job, trigger);
+                    if (scheduler.deleteJob(job.getKey())) {
+                        store.removeJob(jobID);
+                    }
+
+                    schedule = true;
                 }
             } else {
+                schedule = true;
+            }
+
+            if (schedule) {
                 scheduler.scheduleJob(job, trigger);
-                jobIDJobKeys.put(jobID, job.getKey());
+                store.registerJob(jobID, job, trigger);
             }
         } catch (SchedulerException e) {
             throw new JobScheduleException(schedulerName, "failed to register job (job ID : " + jobID + ")", e);
@@ -336,8 +418,8 @@ public class JobScheduler extends ReentrantLock {
 
     /*
      * for existing schedule
-     * not register on schedule store
-     * not use lock
+     *  - not register on schedule store
+     *  - not use lock
      */
     private void scheduleJob(ScheduleType type, JobDetail job, Trigger trigger) throws JobScheduleException {
         try {
@@ -358,7 +440,6 @@ public class JobScheduler extends ReentrantLock {
 
             if (mustRegister) {
                 scheduler.scheduleJob(job, builder.build());
-                jobIDJobKeys.put(getJobID(job.getKey()), job.getKey());
             }
         } catch (SchedulerException e) {
             throw new JobScheduleException(schedulerName, "failed to register job (job ID : " + job.getKey().getName() + ")");
@@ -366,7 +447,7 @@ public class JobScheduler extends ReentrantLock {
     }
 
     public boolean hasJobID(JobID jobID) {
-        return jobIDJobKeys.containsKey(jobID);
+        return store.getJobIDs().contains(jobID);
     }
 
     /*
@@ -377,22 +458,28 @@ public class JobScheduler extends ReentrantLock {
      */
     public TriggerState getJobState(JobID jobID) {
         try {
-            return scheduler.getTriggerState(getTriggerKey(jobID));
+            TriggerKey key = getTriggerKey(jobID);
+            if (key == null) return null;
+            return scheduler.getTriggerState(key);
         } catch (SchedulerException e) {
             return null;
         }
     }
 
-    public Set<JobID> getJobIDs() {
-        return jobIDJobKeys.keySet();
+    public Collection<JobID> getJobIDs() {
+        return store.getJobIDs();
     }
 
     public JobKey getJobKey(JobID jobID) {
-        return jobIDJobKeys.get(jobID);
+        return store.getJobKey(jobID);
     }
 
     public JobID getJobID(JobKey jobKey) {
-        return new JobID(Integer.parseInt(jobKey.getName()));
+        try {
+            return new JobID(Integer.parseInt(jobKey.getName()));
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     public TriggerKey getTriggerKey(JobID jobID) {
@@ -408,11 +495,11 @@ public class JobScheduler extends ReentrantLock {
     }
 
     public ScheduleType getScheduleType(JobID jobID) {
-        return null;
+        return store.getJobInfo(jobID).getScheduleType();
     }
 
     public String getScheduleExpression(JobID jobID) {
-        return null;
+        return store.getJobInfo(jobID).getScheduleExpr();
     }
 
     public String getJobDesc(JobID jobID) {

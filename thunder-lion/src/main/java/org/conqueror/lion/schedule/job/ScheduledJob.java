@@ -1,6 +1,5 @@
 package org.conqueror.lion.schedule.job;
 
-import org.conqueror.lion.job.JobID;
 import org.quartz.*;
 
 import java.util.concurrent.atomic.AtomicBoolean;

@@ -1,5 +1,6 @@
 package org.conqueror.lion.cluster.node;
 
+import akka.actor.ActorIdentity;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.cluster.singleton.ClusterSingletonProxy;
@@ -44,6 +45,7 @@ public class NodeWorker extends NodeActor {
     @Override
     public Receive buildWorkingReceive() {
         return receiveBuilder()
+            .match(NodeWorkerMessage.NodeWorkerReregisterRequest.class, this::processReregister)
             .match(NodeWorkerManagerMessage.NodeWorkerRegisterResponse.class, this::processRegister)
             .match(IDIssuerMessage.IDIssuerRequest.class, this::processIssueID)
             .match(TaskMasterMessage.TaskMasterAssignRequest.class, this::processAssignTaskMaster)
@@ -88,11 +90,19 @@ public class NodeWorker extends NodeActor {
         tellToMaster(new NodeWorkerManagerMessage.NodeWorkerRegisterRequest(getId()));
     }
 
+    private void processReregister(NodeWorkerMessage.NodeWorkerReregisterRequest request) {
+        log().info("re-register");
+        taskMaster.tell(new TaskMasterMessage.TaskManagerRemoveAllRequest(), getSelf());
+        register();
+    }
+
     private void processRegister(NodeWorkerManagerMessage.NodeWorkerRegisterResponse response) {
         if (response.isSucceeded()) {
-            registered = true;
-            taskMaster = createComponentActor(TaskMaster.class, TASK_MASTER_NAME);
-            log().info("registered to node-master");
+            if (!registered) {
+                registered = true;
+                taskMaster = createComponentActor(TaskMaster.class, TASK_MASTER_NAME);
+                log().info("registered to node-master");
+            }
         } else {
             register();
             log().info("retry registering");

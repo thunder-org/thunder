@@ -10,6 +10,7 @@ import org.conqueror.lion.config.NodeConfig;
 import org.conqueror.lion.message.*;
 
 import static org.conqueror.lion.cluster.node.Path.*;
+import static org.conqueror.lion.cluster.node.PubSubTopic.NODE_WORKER_TOPIC;
 
 
 public class NodeMaster extends NodeActor {
@@ -49,7 +50,10 @@ public class NodeMaster extends NodeActor {
 
             // job-master
             .match(JobMasterMessage.JobMasterRequest.class, this::processJob)
-            .matchAny(this::unhandled)
+            .matchAny(message -> {
+                log().warning("received an unhandled request : {}", message);
+                unhandled(message);
+            })
             .build();
     }
 
@@ -63,8 +67,15 @@ public class NodeMaster extends NodeActor {
     @Override
     protected void postWorking() {
         nodeWorkerManager = createComponentActor(NodeWorkerManager.class, NODE_WORKER_MANAGER_NAME);
-//        scheduleManager = createComponentActor(ScheduleManager.class, SCHEDULER_MANAGER_NAME);
+        scheduleManager = createComponentActor(ScheduleManager.class, SCHEDULER_MANAGER_NAME);
         jobMaster = createComponentActor(JobMaster.class, JOB_MASTER_NAME);
+
+        publish(NODE_WORKER_TOPIC, new NodeWorkerMessage.NodeWorkerReregisterRequest());
+    }
+
+    @Override
+    public void postRestart(Throwable reason) throws Exception {
+        super.postRestart(reason);
     }
 
     @Override

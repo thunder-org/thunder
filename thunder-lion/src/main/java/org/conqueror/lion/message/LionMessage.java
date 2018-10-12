@@ -1,8 +1,8 @@
 package org.conqueror.lion.message;
 
-import java.io.Serializable;
+import org.conqueror.lion.serialize.LionSerializable;
 
 
-public interface LionMessage extends Serializable {
+public interface LionMessage<T extends LionSerializable> extends LionSerializable<T> {
 
 }

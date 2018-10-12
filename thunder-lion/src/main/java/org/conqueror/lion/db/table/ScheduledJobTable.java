@@ -1,7 +1,7 @@
 package org.conqueror.lion.db.table;
 
 import org.conqueror.lion.exceptions.db.DBException;
-import org.conqueror.lion.job.JobID;
+import org.conqueror.lion.schedule.job.JobID;
 import org.conqueror.lion.schedule.job.ScheduledJobInfo;
 import org.mapdb.DB;
 import org.mapdb.Serializer;

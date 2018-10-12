@@ -1,17 +1,27 @@
 package org.conqueror.lion.config;
 
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigRenderOptions;
 import org.conqueror.common.utils.config.ConfigLoader;
 import org.conqueror.common.utils.config.Configuration;
-import org.conqueror.lion.job.JobID;
+import org.conqueror.lion.exceptions.Serialize.SerializableException;
+import org.conqueror.lion.schedule.job.JobID;
+import org.conqueror.lion.serialize.LionSerializable;
+
+import java.io.DataOutput;
+import java.io.IOException;
 
 
-public abstract class JobConfig extends Configuration {
+public abstract class JobConfig<T extends JobConfig> extends Configuration implements LionSerializable<T> {
 
     public final Config config;
+
     private final String name;
     private final JobID jobID;
     private final String schedule;
+    private final String group;
+    private final String description;
+
     private final int maxNumberOfTaskManagers;
     private final int maxNumberOfTaskWorkers;
 
@@ -29,6 +39,8 @@ public abstract class JobConfig extends Configuration {
         name = getStringFromConfig(config, "job.name", true);
         jobID = new JobID(getIntegerFromConfig(config, "job.id", true));
         schedule = getStringFromConfig(config, "job.schedule", false);
+        group = getStringFromConfig(config, "job.group", false);
+        description = getStringFromConfig(config, "job.description", false);
         maxNumberOfTaskManagers = getIntegerFromConfig(config, "job.task.manager.number", 3);
         maxNumberOfTaskWorkers = getIntegerFromConfig(config, "job.task.worker.number", 3);
 
@@ -47,6 +59,14 @@ public abstract class JobConfig extends Configuration {
 
     public String getSchedule() {
         return schedule;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public int getMaxNumberOfTaskManagers() {
@@ -93,6 +113,15 @@ public abstract class JobConfig extends Configuration {
     @Override
     public boolean equals(Object obj) {
         return this.getClass() == obj.getClass() && hashCode() == obj.hashCode();
+    }
+
+    @Override
+    public void writeObject(DataOutput output) throws SerializableException {
+        try {
+            output.writeUTF(config.root().render(ConfigRenderOptions.concise()));
+        } catch (IOException e) {
+            throw new SerializableException(e);
+        }
     }
 
 }

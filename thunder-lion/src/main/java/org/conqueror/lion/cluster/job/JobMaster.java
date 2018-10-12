@@ -1,6 +1,7 @@
 package org.conqueror.lion.cluster.job;
 
 import akka.actor.ActorRef;
+import akka.actor.InvalidActorNameException;
 import akka.actor.Props;
 import org.conqueror.lion.cluster.actor.NodeComponentActor;
 import org.conqueror.lion.config.JobConfig;
@@ -47,16 +48,18 @@ public class JobMaster extends NodeComponentActor {
     }
 
     private void processCreateJobManager(JobMasterMessage.JobManagerCreateRequest request) {
+        String jobName = request.getConfig().getName();
+
         try {
-            String jobName = request.getConfig().getName();
             ActorRef manager = getContext().actorOf(createJobManagerProps(request.getConfig()), jobName);
             getContext().watch(manager);
             registeredJobManagers.put(jobName, manager);
         } catch (ClassNotFoundException e) {
-            log().error(e, "failed to create the job-manager ({})"
+            log().error(e, "failed to create the job-manager, class not found ({})"
                 , request.getConfig().getJobManagerClass());
-        } finally {
-            getSender().tell(new JobMasterMessage.JobManagerCreateResponse(), getSender());
+        } catch (InvalidActorNameException e) {
+            log().error(e, "failed to create the job-manager, job-manager exist already ({})"
+                , jobName);
         }
     }
 

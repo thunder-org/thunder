@@ -1,6 +1,10 @@
 package org.conqueror.lion.message;
 
-public class TaskManagerMessage {
+import java.io.DataInput;
+import java.io.DataOutput;
+
+
+public abstract class TaskManagerMessage implements LionMessage {
 
     public static abstract class TaskManagerRequest extends TaskManagerMessage {
 
@@ -11,6 +15,16 @@ public class TaskManagerMessage {
     }
 
     public static final class TaskWorkerFinishRequest extends TaskManagerRequest {
+
+        @Override
+        public void writeObject(DataOutput output) {
+
+        }
+
+        @Override
+        public TaskWorkerFinishRequest readObject(DataInput input) {
+            return new TaskWorkerFinishRequest();
+        }
 
     }
 
