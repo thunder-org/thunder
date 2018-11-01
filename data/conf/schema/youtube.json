@@ -1,0 +1,43 @@
+{
+    "schema_name":"youtube",
+    "index_name":"youtube_ + @{post_date:1~6}",
+    "fields":{
+        "docid":{
+            "type":"string",
+            "index_field_name":"docid",
+            "must_exist":true,
+            "analysis_type":"none"
+        },
+        "title":{
+            "type":"string",
+            "index_field_name":"title",
+            "must_exist":false,
+            "analysis_type":"smart"
+        },
+        "content":{
+            "type":"string",
+            "index_field_name":"content",
+            "must_exist":false,
+            "analysis_type":"smart"
+        },
+        "writer":{
+            "type":"string",
+            "index_field_name":"writer",
+            "must_exist":false,
+            "analysis_type":"none"
+        },
+        "post_date":{
+            "type":"datetime",
+            "index_field_name":"post_date",
+            "must_exist":true,
+            "condition_value":"20160101",
+            "condition_symbol":"ge",
+            "format":"yyyyMMdd"
+        },
+        "url":{
+            "type":"string",
+            "index_field_name":"url",
+            "must_exist":false
+        }
+    }
+}

@@ -1,5 +1,7 @@
 package org.conqueror.lion.message;
 
+import org.conqueror.lion.exceptions.Serialize.SerializableException;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 
@@ -52,6 +54,26 @@ public abstract class NodeWorkerMessage implements LionMessage {
         @Override
         public NodeWorkerShutdownResponse readObject(DataInput input) {
             return new NodeWorkerShutdownResponse();
+        }
+
+    }
+
+    public static final class NodeWorkerRegisteredRequest extends NodeWorkerRequest {
+
+        private static final NodeWorkerRegisteredRequest instance = new NodeWorkerRegisteredRequest();
+
+        public static NodeWorkerRegisteredRequest getInstance() {
+            return instance;
+        }
+
+        @Override
+        public void writeObject(DataOutput output) {
+
+        }
+
+        @Override
+        public NodeWorkerRegisteredRequest readObject(DataInput input) {
+            return getInstance();
         }
 
     }

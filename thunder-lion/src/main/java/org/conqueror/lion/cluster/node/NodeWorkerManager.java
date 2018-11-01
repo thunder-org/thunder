@@ -82,7 +82,7 @@ public class NodeWorkerManager extends NodeComponentActor {
 
             log().info("node-worker is registered - {}, {}", nodeWorkerID, nodeWorker);
         } else {
-            log().info("node-worker is already registered - {}, {}", nodeWorkerID, nodeWorker);
+            log().info("node-worker is already registered - {}", nodeWorkerID);
         }
     }
 
@@ -110,6 +110,7 @@ public class NodeWorkerManager extends NodeComponentActor {
     private void processAssignTaskMasters(TaskMasterMessage.TaskMasterAssignRequest request) {
         for (ActorRef nodeWorker : registeredNodeWorkers.values()) {
             nodeWorker.tell(request, getSender());
+            log().info("sent task-master-assign-request to {}", nodeWorker);
         }
     }
 

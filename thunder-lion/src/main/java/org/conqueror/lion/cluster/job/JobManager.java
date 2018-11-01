@@ -77,30 +77,35 @@ public abstract class JobManager<T extends JobConfig> extends ManagerActor {
     protected abstract JobManagerMessage.TaskAssignResponse assignTask(JobManagerMessage.TaskAssignRequest request) throws Exception;
 
     protected void processAssignTaskManagers(TaskMasterMessage.TaskMasterAssignResponse response) {
-        log().info("TASK-MANAGERS : {} / {}", getConfig().getMaxNumberOfTaskManagers(), taskMasters.size());
         if (getConfig().getMaxNumberOfTaskManagers() > taskMasters.size()) {
             ActorRef taskMaster = response.getTaskMaster(getContext().getSystem());
             taskMasters.put(response.getId(), taskMaster);
 
             taskMaster.tell(new TaskMasterMessage.TaskManagerCreateRequest(getJobName(), getConfig()), getSelf());
+
+            log().info("TASK-MANAGERS : {} / {}", getConfig().getMaxNumberOfTaskManagers(), taskMasters.size());
         }
     }
 
     protected void processAssignTaskManagers(TaskMasterMessage.TaskManagerCreateResponse response) {
         ActorRef taskManager = response.getTaskManager(getContext().getSystem());
-        log().info("TASK-MANAGER : {}", taskManager);
         if (Objects.nonNull(taskManager)) {
             taskManagers.put(response.getTaskManagerName(), taskManager);
+
+            log().info("TASK-MANAGER : {}", taskManager);
         }
     }
 
     protected void processAssignTask(JobManagerMessage.TaskAssignRequest request) throws Exception {
-        getSender().tell(assignTask(request), getSelf());
-        log().info("task is assigned to {}", getSender());
+        JobManagerMessage.TaskAssignResponse response = assignTask(request);
+        getSender().tell(response, getSelf());
+
+        log().info("task is assigned to {} : {}", getSender().path().name(), response);
     }
 
     protected void processFinishTask(JobManagerMessage.TaskManagerFinishRequest request) {
         log().info("finish task-manager - {}", request.taskManagerName);
+
         taskManagers.remove(request.getTaskManagerName());
         if (taskManagers.isEmpty()) {
             tellToMaster(new JobManagerFinishRequest(getJobName()));

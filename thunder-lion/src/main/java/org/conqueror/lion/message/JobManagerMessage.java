@@ -22,6 +22,10 @@ public abstract class JobManagerMessage extends JobMasterMessage {
 
         public final String taskManagerName;
 
+        public TaskManagerFinishRequest() {
+            this(null);
+        }
+
         public TaskManagerFinishRequest(String taskManagerName) {
             this.taskManagerName = taskManagerName;
         }

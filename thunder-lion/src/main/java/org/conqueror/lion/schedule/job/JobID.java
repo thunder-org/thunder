@@ -18,6 +18,10 @@ public class JobID implements LionSerializable<JobID>, Comparable<JobID> {
 
 	private Integer jobID;
 
+	public JobID() {
+	    this(null);
+	}
+
 	public JobID(Integer jobID) {
 		this.jobID = jobID;
 	}

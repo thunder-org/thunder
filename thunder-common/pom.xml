@@ -13,6 +13,7 @@
 	<version>0.0.1-SNAPSHOT</version>
 
 	<name>${project.artifactId}</name>
+	<url>https://github.com/thunder-org/thunder</url>
 
 	<packaging>jar</packaging>
 

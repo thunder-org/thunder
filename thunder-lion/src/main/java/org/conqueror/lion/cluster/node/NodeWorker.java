@@ -1,7 +1,7 @@
 package org.conqueror.lion.cluster.node;
 
-import akka.actor.ActorIdentity;
 import akka.actor.ActorRef;
+import akka.actor.Cancellable;
 import akka.actor.Props;
 import akka.cluster.singleton.ClusterSingletonProxy;
 import akka.cluster.singleton.ClusterSingletonProxySettings;
@@ -9,6 +9,9 @@ import org.conqueror.lion.cluster.actor.NodeActor;
 import org.conqueror.lion.cluster.task.TaskMaster;
 import org.conqueror.lion.config.NodeConfig;
 import org.conqueror.lion.message.*;
+import scala.concurrent.ExecutionContext;
+
+import java.time.Duration;
 
 import static org.conqueror.lion.cluster.node.Path.*;
 import static org.conqueror.lion.cluster.node.PubSubTopic.NODE_WORKER_TOPIC;
@@ -21,17 +24,14 @@ public class NodeWorker extends NodeActor {
      */
     private ActorRef taskMaster;
 
-    private boolean registered = false;
+    private ActorRef nodeWorkerRegister;
 
     /*
      * proxy of node-master for communicating to node-master
      */
     private ActorRef nodeMasterProxy = createChildActor(
-        ClusterSingletonProxy.props(
-            NODE_MASTER_PATH
-            , ClusterSingletonProxySettings.create(getContext().system())
-                .withRole(Role.NODE_MASTER_ROLE)
-                .withSingletonName(SINGLETON_NAME))
+        ClusterSingletonProxy.props(NODE_MASTER_PATH
+            , ClusterSingletonProxySettings.create(getContext().system()))
         , NODE_MASTER_PROXY);
 
     public static Props props(NodeConfig config) {
@@ -45,8 +45,9 @@ public class NodeWorker extends NodeActor {
     @Override
     public Receive buildWorkingReceive() {
         return receiveBuilder()
-            .match(NodeWorkerMessage.NodeWorkerReregisterRequest.class, this::processReregister)
             .match(NodeWorkerManagerMessage.NodeWorkerRegisterResponse.class, this::processRegister)
+            .match(NodeWorkerMessage.NodeWorkerReregisterRequest.class, this::processReregister)
+            .match(NodeWorkerMessage.NodeWorkerRegisteredRequest.class, this::processRegistered)
             .match(IDIssuerMessage.IDIssuerRequest.class, this::processIssueID)
             .match(TaskMasterMessage.TaskMasterAssignRequest.class, this::processAssignTaskMaster)
             .build();
@@ -57,13 +58,13 @@ public class NodeWorker extends NodeActor {
         super.preStart();
 
         subscribe(NODE_WORKER_TOPIC);
-
-        log().info("[NODE-WORKER] started");
     }
 
     @Override
     protected void postWorking() {
-        register();
+        log().info("[NODE-WORKER] started - {}", getId());
+
+        nodeWorkerRegister = createChildActor(NodeWorkerRegister.props(getSelf(), nodeMasterProxy, getId()), "node-worker-register");
     }
 
     @Override
@@ -81,39 +82,38 @@ public class NodeWorker extends NodeActor {
         super.postStop();
 
         unsubscribe(NODE_WORKER_TOPIC);
-        unregister();
+//        unregister();
 
         log().info("[NODE-WORKER] stopped");
     }
 
-    private void register() {
-        tellToMaster(new NodeWorkerManagerMessage.NodeWorkerRegisterRequest(getId()));
+    private void processRegister(NodeWorkerManagerMessage.NodeWorkerRegisterResponse response) {
+        nodeWorkerRegister.forward(response, getContext());
     }
 
+    private void processRegistered(NodeWorkerMessage.NodeWorkerRegisteredRequest request) {
+        if (!getContext().findChild(TASK_MASTER_NAME).isPresent()) {
+            taskMaster = createComponentActor(TaskMaster.class, TASK_MASTER_NAME);
+        }
+    }
+
+    /*
+        request for re-register, node-master changed
+     */
     private void processReregister(NodeWorkerMessage.NodeWorkerReregisterRequest request) {
         log().info("re-register");
         taskMaster.tell(new TaskMasterMessage.TaskManagerRemoveAllRequest(), getSelf());
-        register();
+
+        nodeWorkerRegister.tell(request, getSelf());
     }
 
-    private void processRegister(NodeWorkerManagerMessage.NodeWorkerRegisterResponse response) {
-        if (response.isSucceeded()) {
-            if (!registered) {
-                registered = true;
-                taskMaster = createComponentActor(TaskMaster.class, TASK_MASTER_NAME);
-                log().info("registered to node-master");
-            }
-        } else {
-            register();
-            log().info("retry registering");
-        }
-    }
 
-    private void unregister() {
-        if (registered) {
-            tellToMaster(new NodeWorkerManagerMessage.NodeWorkerUnregisterRequest(getId()));
-        }
-    }
+
+//    private void unregister() {
+//        if (registered) {
+//            tellToMaster(new NodeWorkerManagerMessage.NodeWorkerUnregisterRequest(getId()));
+//        }
+//    }
 
     private void processIssueID(IDIssuerMessage.IDIssuerRequest request) {
         forwardToMaster(request);

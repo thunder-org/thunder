@@ -21,6 +21,10 @@ public abstract class NodeWorkerManagerMessage implements LionMessage {
 
         private final Result result;
 
+        public NodeWorkerManagerResponse() {
+            this(null);
+        }
+
         public NodeWorkerManagerResponse(Result result) {
             this.result = result;
         }
@@ -47,6 +51,10 @@ public abstract class NodeWorkerManagerMessage implements LionMessage {
     public static final class NodeWorkerRegisterRequest extends NodeWorkerManagerRequest {
 
         private final String nodeWorkerID;
+
+        public NodeWorkerRegisterRequest() {
+            this(null);
+        }
 
         public NodeWorkerRegisterRequest(String nodeWorkerID) {
             this.nodeWorkerID = nodeWorkerID;
@@ -83,6 +91,10 @@ public abstract class NodeWorkerManagerMessage implements LionMessage {
 
     public static final class NodeWorkerRegisterResponse extends NodeWorkerManagerResponse {
 
+        public NodeWorkerRegisterResponse() {
+            this(null);
+        }
+
         public NodeWorkerRegisterResponse(Result result) {
             super(result);
         }
@@ -105,6 +117,10 @@ public abstract class NodeWorkerManagerMessage implements LionMessage {
     public static final class NodeWorkerUnregisterRequest extends NodeWorkerManagerRequest {
 
         private final String nodeWorkerID;
+
+        public NodeWorkerUnregisterRequest() {
+            this(null);
+        }
 
         public NodeWorkerUnregisterRequest(String nodeWorkerID) {
             this.nodeWorkerID = nodeWorkerID;
@@ -139,6 +155,10 @@ public abstract class NodeWorkerManagerMessage implements LionMessage {
     }
 
     public static final class NodeWorkerUnregisterResponse extends NodeWorkerManagerResponse {
+
+        public NodeWorkerUnregisterResponse() {
+            this(null);
+        }
 
         public NodeWorkerUnregisterResponse(Result result) {
             super(result);

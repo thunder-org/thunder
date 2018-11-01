@@ -29,6 +29,20 @@ public abstract class JobConfig<T extends JobConfig> extends Configuration imple
     private final String taskManagerClass;
     private final String taskWorkerClass;
 
+    public JobConfig() {
+        config = null;
+        name = null;
+        jobID = null;
+        schedule = null;
+        group = null;
+        description = null;
+        maxNumberOfTaskManagers = 0;
+        maxNumberOfTaskWorkers = 0;
+        jobManagerClass = null;
+        taskManagerClass = null;
+        taskWorkerClass = null;
+    }
+
     public JobConfig(String configFile) {
         this(ConfigLoader.load(configFile));
     }
@@ -38,7 +52,7 @@ public abstract class JobConfig<T extends JobConfig> extends Configuration imple
 
         name = getStringFromConfig(config, "job.name", true);
         jobID = new JobID(getIntegerFromConfig(config, "job.id", true));
-        schedule = getStringFromConfig(config, "job.schedule", false);
+        schedule = getStringFromConfig(config, "job.schedule", "0");
         group = getStringFromConfig(config, "job.group", false);
         description = getStringFromConfig(config, "job.description", false);
         maxNumberOfTaskManagers = getIntegerFromConfig(config, "job.task.manager.number", 3);
@@ -87,10 +101,6 @@ public abstract class JobConfig<T extends JobConfig> extends Configuration imple
 
     public String getTaskWorkerClass() {
         return taskWorkerClass;
-    }
-
-    public boolean hasSchedule() {
-        return schedule != null;
     }
 
     @Override

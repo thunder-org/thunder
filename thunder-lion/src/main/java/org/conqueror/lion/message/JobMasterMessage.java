@@ -24,6 +24,10 @@ public abstract class JobMasterMessage implements LionMessage {
 
         private final JobConfig config;
 
+        public JobManagerCreateRequest() {
+            this(null);
+        }
+
         public JobManagerCreateRequest(JobConfig config) {
             this.config = config;
         }
@@ -34,12 +38,24 @@ public abstract class JobMasterMessage implements LionMessage {
 
         @Override
         public void writeObject(DataOutput output) throws SerializableException {
-            LionSerializable.writeSerializableObject(output, config);
+            try {
+                output.writeUTF(config.getClass().getName());
+                config.writeObject(output);
+            } catch (IOException e) {
+                throw new SerializableException(e);
+            }
         }
 
         @Override
         public LionSerializable readObject(DataInput input) throws SerializableException {
-            return new JobManagerCreateRequest(LionSerializable.readSerializableObject(input));
+            String className = null;
+            try {
+                className = input.readUTF();
+                JobConfig config = (JobConfig) Class.forName(className).newInstance();
+                return new JobManagerCreateRequest((JobConfig) config.readObject(input));
+            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | IOException e) {
+                throw new SerializableException("class : " + className, e);
+            }
         }
 
     }
@@ -65,6 +81,10 @@ public abstract class JobMasterMessage implements LionMessage {
     public static final class JobManagerFinishRequest extends JobMasterRequest {
 
         private final String jobName;
+
+        public JobManagerFinishRequest() {
+            this(null);
+        }
 
         public JobManagerFinishRequest(String jobName) {
             this.jobName = jobName;

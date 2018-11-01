@@ -13,7 +13,8 @@
 	<modules>
 		<module>thunder-common</module>
 		<module>thunder-lion</module>
-	</modules>
+        <module>thunder-bird</module>
+    </modules>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

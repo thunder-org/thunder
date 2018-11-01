@@ -1,0 +1,69 @@
+{
+    "schema_name": "estate",
+    "index_name": "estate_ + @{dealDate:1~6}",
+    "fields": {
+        "addr1": {
+            "type": "string",
+            "index_field_name": "addr1",
+            "must_exist": true
+        },
+        "addr2": {
+            "type": "string",
+            "index_field_name": "addr2",
+            "must_exist": true
+        },
+        "load": {
+            "type": "string",
+            "index_field_name": "load",
+            "must_exist": true
+        },
+        "loadCd1": {
+            "type": "integer",
+            "index_field_name": "loadCd1",
+            "must_exist": true
+        },
+        "loadCd2": {
+            "type": "integer",
+            "index_field_name": "loadCd2",
+            "must_exist": true
+        },
+        "dong": {
+            "type": "string",
+            "index_field_name": "dong",
+            "must_exist": true
+        },
+        "dongCd1": {
+            "type": "integer",
+            "index_field_name": "dongCd1",
+            "must_exist": true
+        },
+        "dongCd2": {
+            "type": "integer",
+            "index_field_name": "dongCd2",
+            "must_exist": true
+        },
+        "aptm": {
+            "type": "string",
+            "index_field_name": "aptm",
+            "must_exist": true
+        },
+        "dealDate": {
+            "type": "datetime",
+            "index_field_name": "dealDate",
+            "must_exist": true,
+            "condition_value":"20160101",
+            "condition_symbol":"ge",
+            "format":"yyyyMMdd"
+        },
+        "price": {
+            "type": "integer",
+            "index_field_name": "price",
+            "must_exist": true
+        },
+        "size": {
+            "type": "float",
+            "index_field_name": "size",
+            "must_exist": true
+        }
+    }
+}

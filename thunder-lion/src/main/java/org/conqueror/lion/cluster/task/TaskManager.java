@@ -77,7 +77,7 @@ public abstract class TaskManager<T extends JobConfig> extends ManagerActor {
         return TaskWorker.props(Class.forName(config.getTaskWorkerClass()), config, getSelf());
     }
 
-    private void processAssignTask(JobManagerMessage.TaskAssignRequest request) {
+    protected void processAssignTask(JobManagerMessage.TaskAssignRequest request) {
         jobManager.forward(request, getContext());
     }
 

@@ -42,6 +42,10 @@ public abstract class TaskMasterMessage implements LionMessage {
         private final String id;
         private final String taskMasterIdentifier;
 
+        public TaskMasterAssignResponse() {
+            this(null, (String) null);
+        }
+
         public TaskMasterAssignResponse(String id, ActorRef taskMaster) {
             this.id = id;
             this.taskMasterIdentifier = Serialization.serializedActorPath(taskMaster);
@@ -86,6 +90,10 @@ public abstract class TaskMasterMessage implements LionMessage {
 
         private final JobConfig config;
 
+        public TaskManagerCreateRequest() {
+            this(null, null);
+        }
+
         public TaskManagerCreateRequest(String jobName, JobConfig config) {
             this.jobName = jobName;
             this.config = config;
@@ -103,18 +111,23 @@ public abstract class TaskMasterMessage implements LionMessage {
         public void writeObject(DataOutput output) throws SerializableException {
             try {
                 output.writeUTF(jobName);
-                LionSerializable.writeSerializableObject(output, config);
+                output.writeUTF(config.getClass().getName());
+                config.writeObject(output);
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new SerializableException(e);
             }
         }
 
         @Override
         public TaskManagerCreateRequest readObject(DataInput input) throws SerializableException {
+           String className = null;
             try {
-                return new TaskManagerCreateRequest(input.readUTF(), LionSerializable.readSerializableObject(input));
-            } catch (IOException e) {
-                throw new SerializableException(e);
+                String jobName = input.readUTF();
+                className = input.readUTF();
+                JobConfig config = (JobConfig) Class.forName(className).newInstance();
+                return new TaskManagerCreateRequest(jobName, (JobConfig) config.readObject(input));
+            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | IOException e) {
+                throw new SerializableException("class : " + className, e);
             }
         }
 
@@ -124,6 +137,10 @@ public abstract class TaskMasterMessage implements LionMessage {
 
         private final String taskManagerName;
         private final String taskManagerIdentifier;
+
+        public TaskManagerCreateResponse() {
+            this(null, (String) null);
+        }
 
         public TaskManagerCreateResponse(String taskManagerName, ActorRef taskManager) {
             this.taskManagerName = taskManagerName;

@@ -1,0 +1,227 @@
+{
+	"settings":{
+		"number_of_shards":10,
+		"number_of_replicas":0,
+		"refresh_interval":"60s"
+	},
+	"mappings":{
+		"DOCUMENT":{
+			"_id":{
+				"path":"DOCID"
+			},
+			"_all":{
+				"enabled": false
+			},
+			"dynamic":"strict",
+			"properties":{
+				"DOCID":{
+					"type":"string",
+					"index":"not_analyzed"
+				},
+				"CHANNEL":{
+					"type":"string",
+					"index":"not_analyzed",
+					"fielddata":{ "format":"doc_values" }
+				},
+				"TITLE":{
+					"type":"string",
+					"store":true,
+					"index":"no",
+					"fielddata":{ "format":"disabled" }
+				},
+				"CONTENT":{
+					"type":"string",
+					"store":true,
+					"index":"no",
+					"fielddata":{ "format":"disabled" }
+				},
+				"HOST":{
+					"type":"string",
+					"store":true,
+					"index":"no",
+					"fielddata":{ "format":"disabled" }
+				},
+				"POST_DATE":{
+					"type":"date",
+					"index":"not_analyzed",
+					"format":"date_optional_time",
+					"fielddata":{ "format":"doc_values" }
+				},
+				"SITE":{
+					"type":"string",
+					"index":"not_analyzed",
+					"fielddata":{ "format":"doc_values" }
+				},
+				"URL":{
+					"type":"string",
+					"store":true,
+					"index":"no",
+					"fielddata":{ "format":"disabled" }
+				},
+				"DAY_OF_WEEK":{
+					"type":"integer",
+					"index":"not_analyzed",
+					"fielddata":{ "format":"doc_values" }
+				},
+				"HOUR_OF_DAY":{
+					"type":"integer",
+					"index":"not_analyzed",
+					"fielddata":{ "format":"doc_values" }
+				},
+				"WRITER":{
+					"type":"string",
+					"index":"not_analyzed",
+					"fielddata":{ "format":"doc_values" }
+				},
+				"RETWEETED":{
+					"type":"boolean",
+					"store":true,
+					"index":"not_analyzed",
+					"null_value":false,
+					"fielddata":{ "format":"doc_values" }
+				},
+				"ORG_DOCID":{
+					"type":"string",
+					"index":"not_analyzed",
+					"fielddata":{ "format":"disabled" }
+				}
+			}
+		},
+		"SENTENCE":{
+			"_id":{
+				"path":"SENTID"
+			},
+			"_parent":{
+				"type":"DOCUMENT"
+			},
+			"_all":{
+				"enabled": false
+			},
+			"dynamic":"strict",
+			"properties":{
+				"SENTID":{
+					"type":"string",
+					"index":"not_analyzed"
+				},
+				"CHANNEL":{
+					"type":"string",
+					"index":"not_analyzed",
+					"fielddata":{ "format":"doc_values" }
+				},
+				"POST_DATE":{
+					"type":"date",
+					"index":"not_analyzed",
+					"format":"date_optional_time",
+					"fielddata":{ "format":"doc_values" }
+				},
+				"SITE":{
+					"type":"string",
+					"index":"not_analyzed",
+					"fielddata":{ "format":"doc_values" }
+				},
+				"WRITER":{
+					"type":"string",
+					"index":"not_analyzed",
+					"fielddata":{ "format":"doc_values" }
+				},
+				"URL":{
+					"type":"string",
+					"store":true,
+					"index":"no",
+					"fielddata":{ "format":"disabled" }
+				},
+				"TEXT":{
+					"type":"string",
+					"store":true,
+					"index":"no",
+					"fielddata":{ "format":"disabled" }
+				},
+				"DAY_OF_WEEK":{
+					"type":"integer",
+					"index":"not_analyzed",
+					"fielddata":{ "format":"doc_values" }
+				},
+				"HOUR_OF_DAY":{
+					"type":"integer",
+					"index":"not_analyzed",
+					"fielddata":{ "format":"doc_values" }
+				},
+				"NEGATIVE_WORD":{
+					"type":"string",
+					"store":true,
+					"index":"analyzed",
+					"analyzer":"whitespace",
+					"norms":{ "enabled" : false },
+					"index_options":"docs",
+					"fielddata":{
+						"filter":{
+							"frequency":{
+								"min":2,
+								"min_segment_size":1000
+							}
+						}
+					}
+				},
+				"NEGATIVE_WORD_NUM":{
+					"type":"integer",
+					"store":true,
+					"index":"not_analyzed",
+					"fielddata":{ "format":"doc_values" }
+				},
+				"POSITIVE_WORD":{
+					"type":"string",
+					"store":true,
+					"index":"analyzed",
+					"analyzer":"whitespace",
+					"norms":{ "enabled" : false },
+					"index_options":"docs",
+					"fielddata":{
+						"filter":{
+							"frequency":{
+								"min":2,
+								"min_segment_size":1000
+							}
+						}
+					}
+				},
+				"POSITIVE_WORD_NUM":{
+					"type":"integer",
+					"store":true,
+					"index":"not_analyzed",
+					"fielddata":{ "format":"doc_values" }
+				},
+				"KEYWORDS":{
+					"type":"string",
+					"store":true,
+					"index":"analyzed",
+					"analyzer":"whitespace",
+					"norms":{ "enabled" : false },
+					"index_options":"docs",
+					"fielddata":{
+						"filter":{
+							"frequency":{
+								"min":3,
+								"min_segment_size":1000
+							}
+						}
+					}
+				},
+				"SRCH_KEYWORDS":{
+					"type":"string",
+					"store":true,
+					"index":"analyzed",
+					"analyzer":"whitespace",
+					"norms":{ "enabled" : false },
+					"index_options":"docs",
+					"fielddata":{ "format":"disabled" }
+				},
+				"RETWEETED":{
+					"type":"boolean",
+					"index":"not_analyzed",
+					"null_value":false,
+					"fielddata":{ "format":"disabled" }
+				}
+			}
+		}
+	}
+}

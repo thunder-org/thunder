@@ -11,7 +11,7 @@ public class LionSerializer extends JSerializer {
     // This is whether "fromBinary" requires a "clazz" or not
     @Override
     public boolean includeManifest() {
-        return false;
+        return true;
     }
 
     // Pick a unique identifier for your Serializer,
@@ -27,7 +27,15 @@ public class LionSerializer extends JSerializer {
     public byte[] toBinary(Object obj) {
         try {
             if (obj instanceof LionSerializable) {
-                return LionSerializable.serializeObject((Serializable) obj);
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                try {
+                    try (ObjectOutputStream out = new ObjectOutputStream(baos)) {
+                        ((LionSerializable) obj).writeObject(out);
+                    }
+                } catch (IOException e) {
+                    throw new SerializableException(e);
+                }
+                return baos.toByteArray();
             } else {
                 throw new IllegalArgumentException("Unknown type: " + obj);
             }
@@ -39,11 +47,13 @@ public class LionSerializer extends JSerializer {
     // "fromBinary" deserializes the given array,
     // using the type hint (if any, see "includeManifest" above)
     @Override
-    public Object fromBinaryJava(byte[] bytes,
-                                 Class<?> clazz) {
+    public Object fromBinaryJava(byte[] bytes, Class<?> clazz) {
+        ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
         try {
-            return LionSerializable.deserializeObject(bytes);
-        } catch (SerializableException e) {
+            try (ObjectInputStream in = new ObjectInputStream(bais)) {
+                return ((LionSerializable) clazz.newInstance()).readObject(in);
+            }
+        } catch (IOException | InstantiationException | IllegalAccessException | SerializableException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }

@@ -1,0 +1,57 @@
+{
+    "settings":{
+        "number_of_shards":1,
+            "number_of_replicas":0,
+            "refresh_interval":"60s"
+    },
+    "mappings":{
+        "DOCUMENT":{
+            "_id":{
+                "path":"DOCID"
+            },
+            "_all":{
+                "enabled": false
+            },
+            "dynamic":"strict",
+            "properties":{
+                "docid":{
+                    "type":"string",
+                    "index":"not_analyzed"
+                },
+                "title":{
+                    "type":"string",
+                    "store":true,
+                    "index":"analyzed",
+                    "analyzer":"whitespace",
+                    "norms":{ "enabled" : false },
+                    "index_options":"docs"
+                },
+                "content":{
+                    "type":"string",
+                    "store":true,
+                    "index":"analyzed",
+                    "analyzer":"whitespace",
+                    "norms":{ "enabled" : false },
+                    "index_options":"docs"
+                },
+                "writer":{
+                    "type":"string",
+                    "store":true,
+                    "index":"not_analyzed"
+                },
+                "post_date":{
+                    "type":"date",
+                    "index":"not_analyzed",
+                    "format":"date_optional_time",
+                    "fielddata":{ "format":"doc_values" }
+                },
+                "url":{
+                    "type":"string",
+                    "store":true,
+                    "index":"no",
+                    "fielddata":{ "format":"disabled" }
+                }
+            }
+        }
+    }
+}

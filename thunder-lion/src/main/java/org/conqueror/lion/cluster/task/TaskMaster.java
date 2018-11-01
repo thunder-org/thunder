@@ -50,13 +50,15 @@ public class TaskMaster extends NodeComponentActor {
     }
 
     private void processAssignTaskMaster(TaskMasterMessage.TaskMasterAssignRequest request) {
+        log().info("receive task-master-assign-request from {}", getSender());
         getSender().tell(new TaskMasterMessage.TaskMasterAssignResponse(getId(), getSelf()), getSelf());
     }
 
     private void processCreateTaskManager(TaskManagerCreateRequest request) {
+        String jobName = request.getConfig().getName();
+        String taskManagerName = makeTaskManagerName(jobName);
+
         try {
-            String jobName = request.getConfig().getName();
-            String taskManagerName = makeTaskManagerName(jobName);
             ActorRef manager = getContext().actorOf(createTaskManagerProps(request.getConfig(), getSender()), taskManagerName);
 
             getContext().watch(manager);
@@ -69,7 +71,7 @@ public class TaskMaster extends NodeComponentActor {
             log().error(e, "failed to create the task-manager ({})"
                 , request.getConfig().getJobManagerClass());
 
-            getSender().tell(new TaskMasterMessage.TaskManagerCreateResponse(getId(), (String) null), getSender());
+            getSender().tell(new TaskMasterMessage.TaskManagerCreateResponse(taskManagerName, (String) null), getSender());
         }
     }
 
@@ -77,7 +79,7 @@ public class TaskMaster extends NodeComponentActor {
         ActorRef taskManager = getSender();
         String taskManagerName = taskManager.path().name();
 
-        if (getContext().getChild(taskManagerName) != null && registeredTaskManagers.containsKey(taskManagerName)) {
+        if (getContext().findChild(taskManagerName).isPresent() && registeredTaskManagers.containsKey(taskManagerName)) {
             registeredTaskManagers.remove(taskManagerName);
             getContext().unwatch(taskManager);
             getContext().stop(taskManager);

@@ -10,6 +10,10 @@ import java.io.IOException;
 
 public class TestJobConfig extends JobConfig<TestJobConfig> {
 
+    public TestJobConfig() {
+        super();
+    }
+
     public TestJobConfig(String configFile) {
         super(configFile);
     }

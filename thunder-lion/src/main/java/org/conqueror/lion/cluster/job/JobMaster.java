@@ -1,17 +1,18 @@
 package org.conqueror.lion.cluster.job;
 
-import akka.actor.ActorRef;
-import akka.actor.InvalidActorNameException;
-import akka.actor.Props;
+import akka.actor.*;
+import akka.japi.pf.DeciderBuilder;
 import org.conqueror.lion.cluster.actor.NodeComponentActor;
 import org.conqueror.lion.config.JobConfig;
 import org.conqueror.lion.config.NodeConfig;
 import org.conqueror.lion.message.IDIssuerMessage;
 import org.conqueror.lion.message.JobMasterMessage;
 import org.conqueror.lion.message.TaskMasterMessage;
+import scala.concurrent.duration.Duration;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 
 public class JobMaster extends NodeComponentActor {
@@ -41,6 +42,16 @@ public class JobMaster extends NodeComponentActor {
     @Override
     protected IDIssuerMessage.IDIssuerRequest idIssuerRequest() {
         return new IDIssuerMessage.JobMasterIssueIDRequest();
+    }
+
+    @Override
+    public SupervisorStrategy supervisorStrategy() {
+        return new OneForOneStrategy(0, Duration.create(30, TimeUnit.SECONDS),
+            DeciderBuilder
+                .match(Exception.class, e -> SupervisorStrategy.stop())
+                .matchAny(o -> SupervisorStrategy.escalate())
+                .build()
+        );
     }
 
     private Props createJobManagerProps(JobConfig config) throws ClassNotFoundException {

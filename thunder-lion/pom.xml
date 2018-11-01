@@ -13,6 +13,7 @@
     <version>0.0.1-SNAPSHOT</version>
 
     <name>${project.artifactId}</name>
+    <url>https://github.com/thunder-org/thunder</url>
 
     <packaging>jar</packaging>
 
@@ -31,11 +32,16 @@
 
     <dependencies>
 
-        <!-- common -->
+        <!-- thunder -->
         <dependency>
             <groupId>org.conqueror</groupId>
             <artifactId>thunder-common</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.conqueror</groupId>
+            <artifactId>thunder-lion</artifactId>
+            <version>${version}</version>
         </dependency>
 
         <!-- akka -->

@@ -25,7 +25,7 @@ public class ScheduledJobInfo implements LionSerializable<ScheduledJobInfo> {
     private ScheduleType scheduleType;
     private String scheduleExpr;
 
-    private ScheduledJobInfo() {
+    public ScheduledJobInfo() {
         this(null, null, null, null, null);
     }
 

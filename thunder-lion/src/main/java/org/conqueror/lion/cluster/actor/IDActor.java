@@ -20,6 +20,10 @@ public abstract class IDActor extends AbstractLoggingActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder()
+            .matchAny(message -> {
+                log().warning("received an unhandled request : {}", message);
+                unhandled(message);
+            })
             .build();
     }
 

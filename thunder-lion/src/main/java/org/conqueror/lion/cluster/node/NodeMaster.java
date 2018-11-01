@@ -113,6 +113,7 @@ public class NodeMaster extends NodeActor {
      * node-worker
      */
     private void processNodeWorker(NodeWorkerManagerMessage.NodeWorkerManagerRequest request) {
+        log().info("node-worker-manager request : {}", request);
         nodeWorkerManager.forward(request, getContext());
     }
 

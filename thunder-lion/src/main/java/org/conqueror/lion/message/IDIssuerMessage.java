@@ -25,6 +25,10 @@ public abstract class IDIssuerMessage implements LionMessage {
         private final Result result;
         private final String id;
 
+        public IDIssuerResponse() {
+            this(null, null);
+        }
+
         public IDIssuerResponse(Result result, String id) {
             this.result = result;
             this.id = id;
@@ -66,6 +70,10 @@ public abstract class IDIssuerMessage implements LionMessage {
 
     public static final class NodeMasterIssueIDResponse extends IDIssuerResponse {
 
+        public NodeMasterIssueIDResponse() {
+            super();
+        }
+
         public NodeMasterIssueIDResponse(Result result, String id) {
             super(result, id);
         }
@@ -104,6 +112,10 @@ public abstract class IDIssuerMessage implements LionMessage {
     }
 
     public static final class NodeWorkerIssueIDResponse extends IDIssuerResponse {
+
+        public NodeWorkerIssueIDResponse() {
+            super();
+        }
 
         public NodeWorkerIssueIDResponse(Result result, String id) {
             super(result, id);
@@ -144,6 +156,10 @@ public abstract class IDIssuerMessage implements LionMessage {
 
     public static final class NodeWorkerManagerIssueIDResponse extends IDIssuerResponse {
 
+        public NodeWorkerManagerIssueIDResponse() {
+            super();
+        }
+
         public NodeWorkerManagerIssueIDResponse(Result result, String id) {
             super(result, id);
         }
@@ -182,6 +198,10 @@ public abstract class IDIssuerMessage implements LionMessage {
     }
 
     public static final class ScheduleManagerIssueIDResponse extends IDIssuerResponse {
+
+        public ScheduleManagerIssueIDResponse() {
+            super();
+        }
 
         public ScheduleManagerIssueIDResponse(Result result, String id) {
             super(result, id);
@@ -222,6 +242,10 @@ public abstract class IDIssuerMessage implements LionMessage {
 
     public static final class JobMasterIssueIDResponse extends IDIssuerResponse {
 
+        public JobMasterIssueIDResponse() {
+            super();
+        }
+
         public JobMasterIssueIDResponse(Result result, String id) {
             super(result, id);
         }
@@ -245,6 +269,10 @@ public abstract class IDIssuerMessage implements LionMessage {
     public static final class JobManagerIssueIDRequest extends IDIssuerRequest {
 
         private final String jobMasterID;
+
+        public JobManagerIssueIDRequest() {
+            this.jobMasterID = null;
+        }
 
         public JobManagerIssueIDRequest(String jobMasterID) {
             this.jobMasterID = jobMasterID;
@@ -280,6 +308,10 @@ public abstract class IDIssuerMessage implements LionMessage {
     }
 
     public static final class JobManagerIssueIDResponse extends IDIssuerResponse {
+
+        public JobManagerIssueIDResponse() {
+            super();
+        }
 
         public JobManagerIssueIDResponse(Result result, String id) {
             super(result, id);
@@ -320,6 +352,10 @@ public abstract class IDIssuerMessage implements LionMessage {
 
     public static final class TaskMasterIssueIDResponse extends IDIssuerResponse {
 
+        public TaskMasterIssueIDResponse() {
+            super();
+        }
+
         public TaskMasterIssueIDResponse(Result result, String id) {
             super(result, id);
         }
@@ -343,6 +379,10 @@ public abstract class IDIssuerMessage implements LionMessage {
     public static final class TaskManagerIssueIDRequest extends IDIssuerRequest {
 
         private final String taskMasterID;
+
+        public TaskManagerIssueIDRequest() {
+            this.taskMasterID = null;
+        }
 
         public TaskManagerIssueIDRequest(String taskMasterID) {
             this.taskMasterID = taskMasterID;
@@ -379,6 +419,10 @@ public abstract class IDIssuerMessage implements LionMessage {
 
     public static final class TaskManagerIssueIDResponse extends IDIssuerResponse {
 
+        public TaskManagerIssueIDResponse() {
+            super();
+        }
+
         public TaskManagerIssueIDResponse(Result result, String id) {
             super(result, id);
         }
@@ -402,6 +446,10 @@ public abstract class IDIssuerMessage implements LionMessage {
     public static final class TaskWorkerIssueIDRequest extends IDIssuerRequest {
 
         private final String taskManagerID;
+
+        public TaskWorkerIssueIDRequest() {
+            this.taskManagerID = null;
+        }
 
         public TaskWorkerIssueIDRequest(String taskManagerID) {
             this.taskManagerID = taskManagerID;
@@ -438,6 +486,10 @@ public abstract class IDIssuerMessage implements LionMessage {
 
     public static final class TaskWorkerIssueIDResponse extends IDIssuerResponse {
 
+        public TaskWorkerIssueIDResponse() {
+            super();
+        }
+
         public TaskWorkerIssueIDResponse(Result result, String id) {
             super(result, id);
         }
@@ -461,6 +513,10 @@ public abstract class IDIssuerMessage implements LionMessage {
     public static final class IssuedIDRequest extends IDIssuerRequest {
 
         private String id;
+
+        public IssuedIDRequest() {
+            this.id = null;
+        }
 
         public IssuedIDRequest(String id) {
             this.id = id;
@@ -498,6 +554,11 @@ public abstract class IDIssuerMessage implements LionMessage {
     public static final class IssuedIDResponse extends IDIssuerResponse {
 
         private final boolean isIssuedID;
+
+        public IssuedIDResponse() {
+            super();
+            this.isIssuedID = false;
+        }
 
         public IssuedIDResponse(Result result, boolean isIssuedID) {
             super(result, null);

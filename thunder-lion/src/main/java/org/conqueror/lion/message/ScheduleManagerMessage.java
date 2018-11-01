@@ -6,6 +6,7 @@ import org.conqueror.lion.serialize.LionSerializable;
 
 import java.io.DataInput;
 import java.io.DataOutput;
+import java.io.IOException;
 
 
 public abstract class ScheduleManagerMessage implements LionMessage {
@@ -22,6 +23,10 @@ public abstract class ScheduleManagerMessage implements LionMessage {
 
         private final JobConfig config;
 
+        public JobRegisterRequest() {
+            this(null);
+        }
+
         public JobRegisterRequest(JobConfig config) {
             this.config = config;
         }
@@ -32,13 +37,24 @@ public abstract class ScheduleManagerMessage implements LionMessage {
 
         @Override
         public void writeObject(DataOutput output) throws SerializableException {
-            LionSerializable.writeSerializableObject(output, config);
+            try {
+                output.writeUTF(config.getClass().getName());
+                config.writeObject(output);
+            } catch (IOException e) {
+                throw new SerializableException(e);
+            }
         }
 
         @Override
         public JobRegisterRequest readObject(DataInput input) throws SerializableException {
-            JobConfig config = LionSerializable.readSerializableObject(input);
-            return new JobRegisterRequest(config);
+            String className = null;
+            try {
+                className = input.readUTF();
+                JobConfig config = (JobConfig) Class.forName(className).newInstance();
+                return new JobRegisterRequest((JobConfig) config.readObject(input));
+            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | IOException e) {
+                throw new SerializableException("class : " + className, e.getCause());
+            }
         }
     }
 
@@ -60,6 +76,10 @@ public abstract class ScheduleManagerMessage implements LionMessage {
 
         private final JobConfig config;
 
+        public JobRemoveRequest() {
+            this(null);
+        }
+
         public JobRemoveRequest(JobConfig config) {
             this.config = config;
         }
@@ -70,13 +90,24 @@ public abstract class ScheduleManagerMessage implements LionMessage {
 
         @Override
         public void writeObject(DataOutput output) throws SerializableException {
-            LionSerializable.writeSerializableObject(output, config);
+            try {
+                output.writeUTF(config.getClass().getName());
+                config.writeObject(output);
+            } catch (IOException e) {
+                throw new SerializableException(e);
+            }
         }
 
         @Override
         public JobRemoveRequest readObject(DataInput input) throws SerializableException {
-            JobConfig config = LionSerializable.readSerializableObject(input);
-            return new JobRemoveRequest(config);
+            String className = null;
+            try {
+                className = input.readUTF();
+                JobConfig config = (JobConfig) Class.forName(className).newInstance();
+                return new JobRemoveRequest((JobConfig) config.readObject(input));
+            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | IOException e) {
+                throw new SerializableException("class : " + className, e);
+            }
         }
     }
 

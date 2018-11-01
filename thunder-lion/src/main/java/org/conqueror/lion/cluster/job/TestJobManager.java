@@ -16,7 +16,12 @@ import java.util.*;
 public class TestJobManager extends JobManager<TestJobConfig> {
 
     public static class TestTaskAssignResponse extends JobManagerMessage.TaskAssignResponse {
+
         private String source;
+
+        public TestTaskAssignResponse() {
+            this(null);
+        }
 
         public TestTaskAssignResponse(String source) {
             this.source = source;
