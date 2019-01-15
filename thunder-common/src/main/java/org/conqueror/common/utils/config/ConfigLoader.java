@@ -33,6 +33,10 @@ public class ConfigLoader {
         return ConfigFactory.load(baseNameOfConfigFile);
     }
 
+    public static Config parse(String config) {
+        return ConfigFactory.parseString(config);
+    }
+
     public static Configuration build(Class<? extends Configuration> configurationClass, String configFilePath) {
         try {
             return configurationClass.getConstructor(Config.class).newInstance(load(configFilePath));

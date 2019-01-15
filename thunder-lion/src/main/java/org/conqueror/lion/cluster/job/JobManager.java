@@ -44,11 +44,6 @@ public abstract class JobManager<T extends JobConfig> extends ManagerActor {
             .match(JobManagerMessage.TaskAssignRequest.class, this::processAssignTask)
             .match(JobManagerMessage.TaskManagerFinishRequest.class, this::processFinishTask)
 
-            .matchAny(message -> {
-                log().warning("received an unhandled request : {}", message);
-                unhandled(message);
-            })
-
             .build();
     }
 
@@ -99,8 +94,7 @@ public abstract class JobManager<T extends JobConfig> extends ManagerActor {
     protected void processAssignTask(JobManagerMessage.TaskAssignRequest request) throws Exception {
         JobManagerMessage.TaskAssignResponse response = assignTask(request);
         getSender().tell(response, getSelf());
-
-        log().info("task is assigned to {} : {}", getSender().path().name(), response);
+//        log().info("task is assigned to {} : {}", getSender().path(), response);
     }
 
     protected void processFinishTask(JobManagerMessage.TaskManagerFinishRequest request) {

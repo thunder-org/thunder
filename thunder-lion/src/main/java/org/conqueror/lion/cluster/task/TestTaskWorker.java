@@ -6,7 +6,6 @@ import org.conqueror.lion.config.JobConfig;
 import org.conqueror.lion.config.TestJobConfig;
 import org.conqueror.lion.exceptions.Serialize.SerializableException;
 import org.conqueror.lion.message.JobManagerMessage;
-import org.conqueror.lion.serialize.LionSerializable;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -33,13 +32,13 @@ public class TestTaskWorker extends TaskWorker<TestJobConfig, TestJobManager.Tes
     }
 
     @Override
-    protected void work(TestJobManager.TestTaskAssignResponse response) {
-        log().info(response.getSource());
-        try {
-            Thread.sleep(1000L);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+    protected void work(JobManagerMessage.TaskAssignResponse source) throws Exception {
+        System.out.println(source);
+//        try {
+//            Thread.sleep(1000L);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
     }
 
     @Override

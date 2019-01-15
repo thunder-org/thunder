@@ -29,6 +29,8 @@ public abstract class JobConfig<T extends JobConfig> extends Configuration imple
     private final String taskManagerClass;
     private final String taskWorkerClass;
 
+    private final int watingTimeSec;
+
     public JobConfig() {
         config = null;
         name = null;
@@ -41,6 +43,7 @@ public abstract class JobConfig<T extends JobConfig> extends Configuration imple
         jobManagerClass = null;
         taskManagerClass = null;
         taskWorkerClass = null;
+        watingTimeSec = 1;
     }
 
     public JobConfig(String configFile) {
@@ -55,12 +58,14 @@ public abstract class JobConfig<T extends JobConfig> extends Configuration imple
         schedule = getStringFromConfig(config, "job.schedule", "0");
         group = getStringFromConfig(config, "job.group", false);
         description = getStringFromConfig(config, "job.description", false);
-        maxNumberOfTaskManagers = getIntegerFromConfig(config, "job.task.manager.number", 3);
-        maxNumberOfTaskWorkers = getIntegerFromConfig(config, "job.task.worker.number", 3);
+        maxNumberOfTaskManagers = getIntegerFromConfig(config, "job.task.manager.number", 1);
+        maxNumberOfTaskWorkers = getIntegerFromConfig(config, "job.task.worker.number", 1);
 
         jobManagerClass = getStringFromConfig(config, "job.job-manager.class", true);
         taskManagerClass = getStringFromConfig(config, "job.task-manager.class", true);
         taskWorkerClass = getStringFromConfig(config, "job.task-worker.class", true);
+
+        watingTimeSec = getIntegerFromConfig(config, "wating-time-sec", 3);
     }
 
     public String getName() {
@@ -103,6 +108,10 @@ public abstract class JobConfig<T extends JobConfig> extends Configuration imple
         return taskWorkerClass;
     }
 
+    public int getWatingTimeSec() {
+        return watingTimeSec;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -116,6 +125,7 @@ public abstract class JobConfig<T extends JobConfig> extends Configuration imple
         result = prime * result + ((jobManagerClass == null) ? 0 : jobManagerClass.hashCode());
         result = prime * result + ((taskManagerClass == null) ? 0 : taskManagerClass.hashCode());
         result = prime * result + ((taskWorkerClass == null) ? 0 : taskWorkerClass.hashCode());
+        result = prime * result + watingTimeSec;
 
         return result;
     }

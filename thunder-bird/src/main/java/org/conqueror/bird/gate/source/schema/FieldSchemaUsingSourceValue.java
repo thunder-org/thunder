@@ -360,8 +360,8 @@ public class FieldSchemaUsingSourceValue extends FieldSchema {
                 } else if (expression.startsWith("\"")) {
                     int sidx = expression.indexOf('"');
                     int eidx = expression.lastIndexOf('"');
-                    if (sidx != -1 && eidx != -1) {
-                        fieldValue.append(expression.substring(sidx, eidx));
+                    if (sidx != -1 && eidx != -1 && sidx + 1 < eidx) {
+                        fieldValue.append(expression, sidx + 1, eidx);
                     }
                 } else {
                     fieldValue.append(expression);

@@ -36,6 +36,16 @@
             <artifactId>thunder-lion</artifactId>
             <version>${version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.conqueror</groupId>
+            <artifactId>thunder-cat</artifactId>
+            <version>${version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.conqueror</groupId>
+            <artifactId>es-client</artifactId>
+            <version>${version}</version>
+        </dependency>
 
         <!-- file system -->
         <dependency>

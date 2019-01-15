@@ -1,7 +1,16 @@
 {
     "schema_name": "estate",
     "index_name": "estate_ + @{dealDate:1~6}",
+    "channel": "etc",
     "fields": {
+        "_id_field":"id",
+        "_put_if_absent":true,
+        "_type":"DOCUMENT",
+        "id": {
+            "type": "string",
+            "index_field_name": "id",
+            "must_exist": true
+        },
         "addr1": {
             "type": "string",
             "index_field_name": "addr1",
@@ -45,15 +54,25 @@
         "aptm": {
             "type": "string",
             "index_field_name": "aptm",
-            "must_exist": true
+            "must_exist": true,
+        },
+        "_addr": {
+            "index_field_name": "_addr",
+            "value":"@{addr1} + \" \" + @{addr2} + \" \" + @{load} + \" \" + @{dong} + \" \" + @{aptm}",
+            "analysis":"indexterm"
+        },
+        "addr": {
+            "index_field_name": "addr",
+            "value":"${_addr.indexterm}",
+            "to_type":"string"
         },
         "dealDate": {
             "type": "datetime",
             "index_field_name": "dealDate",
             "must_exist": true,
-            "condition_value":"20160101",
+            "condition_value":"201601",
             "condition_symbol":"ge",
-            "format":"yyyyMMdd"
+            "format":"yyyyMM"
         },
         "price": {
             "type": "integer",

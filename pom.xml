@@ -14,6 +14,8 @@
 		<module>thunder-common</module>
 		<module>thunder-lion</module>
         <module>thunder-bird</module>
+		<module>thunder-cat</module>
+		<module>es-client</module>
     </modules>
 
 	<properties>

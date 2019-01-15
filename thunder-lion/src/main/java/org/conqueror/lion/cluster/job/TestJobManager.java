@@ -48,6 +48,14 @@ public class TestJobManager extends JobManager<TestJobConfig> {
                 throw new SerializableException(e);
             }
         }
+
+        @Override
+        public String toString() {
+            return "TestTaskAssignResponse{" +
+                "source='" + source + '\'' +
+                '}';
+        }
+
     }
 
     public Queue<String> sources = new ArrayDeque<>(10);

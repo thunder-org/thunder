@@ -1,7 +1,6 @@
 package org.conqueror.lion.cluster.node;
 
 import akka.actor.ActorRef;
-import akka.actor.Cancellable;
 import akka.actor.Props;
 import akka.cluster.singleton.ClusterSingletonProxy;
 import akka.cluster.singleton.ClusterSingletonProxySettings;
@@ -9,9 +8,6 @@ import org.conqueror.lion.cluster.actor.NodeActor;
 import org.conqueror.lion.cluster.task.TaskMaster;
 import org.conqueror.lion.config.NodeConfig;
 import org.conqueror.lion.message.*;
-import scala.concurrent.ExecutionContext;
-
-import java.time.Duration;
 
 import static org.conqueror.lion.cluster.node.Path.*;
 import static org.conqueror.lion.cluster.node.PubSubTopic.NODE_WORKER_TOPIC;
@@ -46,6 +42,7 @@ public class NodeWorker extends NodeActor {
     public Receive buildWorkingReceive() {
         return receiveBuilder()
             .match(NodeWorkerManagerMessage.NodeWorkerRegisterResponse.class, this::processRegister)
+            .match(NodeWorkerManagerMessage.NodeWorkerUnregisterRequest.class, this::processUnregister)
             .match(NodeWorkerMessage.NodeWorkerReregisterRequest.class, this::processReregister)
             .match(NodeWorkerMessage.NodeWorkerRegisteredRequest.class, this::processRegistered)
             .match(IDIssuerMessage.IDIssuerRequest.class, this::processIssueID)
@@ -82,12 +79,15 @@ public class NodeWorker extends NodeActor {
         super.postStop();
 
         unsubscribe(NODE_WORKER_TOPIC);
-//        unregister();
 
         log().info("[NODE-WORKER] stopped");
     }
 
     private void processRegister(NodeWorkerManagerMessage.NodeWorkerRegisterResponse response) {
+        nodeWorkerRegister.forward(response, getContext());
+    }
+
+    private void processUnregister(NodeWorkerManagerMessage.NodeWorkerUnregisterRequest response) {
         nodeWorkerRegister.forward(response, getContext());
     }
 
@@ -106,14 +106,6 @@ public class NodeWorker extends NodeActor {
 
         nodeWorkerRegister.tell(request, getSelf());
     }
-
-
-
-//    private void unregister() {
-//        if (registered) {
-//            tellToMaster(new NodeWorkerManagerMessage.NodeWorkerUnregisterRequest(getId()));
-//        }
-//    }
 
     private void processIssueID(IDIssuerMessage.IDIssuerRequest request) {
         forwardToMaster(request);

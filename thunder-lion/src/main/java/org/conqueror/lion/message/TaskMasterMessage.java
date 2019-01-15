@@ -183,6 +183,12 @@ public abstract class TaskMasterMessage implements LionMessage {
 
     public static final class TaskManagerRemoveRequest extends TaskMasterRequest {
 
+        private static final TaskManagerRemoveRequest instance = new TaskManagerRemoveRequest();
+
+        public static TaskManagerRemoveRequest getInstance() {
+            return instance;
+        }
+
         @Override
         public void writeObject(DataOutput output) {
 
@@ -196,6 +202,12 @@ public abstract class TaskMasterMessage implements LionMessage {
     }
 
     public static final class TaskManagerRemoveAllRequest extends TaskMasterRequest {
+
+        private static final TaskManagerRemoveAllRequest instance = new TaskManagerRemoveAllRequest();
+
+        public static TaskManagerRemoveAllRequest getInstance() {
+            return instance;
+        }
 
         @Override
         public void writeObject(DataOutput output) {

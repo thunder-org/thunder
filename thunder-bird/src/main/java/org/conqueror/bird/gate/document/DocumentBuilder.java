@@ -20,7 +20,7 @@ public class DocumentBuilder {
     public Document buildDocument(DocumentSchema docSchema, Map<String, Object> source) throws DocumentException {
         if (source == null) return null;
 
-        final Object[] fieldValues = new Object[source.size()];
+        final Object[] fieldValues = new Object[docSchema.getIndexingFieldSize()];
         for (FieldSchema fieldSchema : docSchema.getFieldSchemas()) {
             if (fieldSchema instanceof FieldSchemaUsingIndexingFieldData) continue;
 

@@ -14,14 +14,24 @@ import java.io.Serializable;
 
 public class Document implements BirdData {
 
+    private static final Document instance = new Document();
+
     private final String indexName;
     private final DocumentSchema schema;
     private final Object[] fieldValues;
+
+    public Document() {
+        this(null, null, null);
+    }
 
     public Document(String indexName, DocumentSchema schema, Object[] fieldValues) {
         this.indexName = indexName;
         this.schema = schema;
         this.fieldValues = fieldValues;
+    }
+
+    public static Document getInstance() {
+        return instance;
     }
 
     public String getIndexName() {
@@ -167,7 +177,7 @@ public class Document implements BirdData {
     }
 
     @Override
-    public LionSerializable readObject(DataInput input) throws SerializableException {
+    public Document readObject(DataInput input) throws SerializableException {
         try {
             String indexName = input.readUTF();
             DocumentSchema documentSchema = DocumentSchema.getInstance().readObject(input);

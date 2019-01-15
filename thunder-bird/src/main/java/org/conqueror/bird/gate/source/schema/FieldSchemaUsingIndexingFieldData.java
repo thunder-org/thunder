@@ -32,11 +32,6 @@ public class FieldSchemaUsingIndexingFieldData extends FieldSchemaUsingOtherFiel
             && (toStringValue(values.get(VALUE_EXPRESSION))).contains("${");
     }
 
-    @Override
-    public Object processedValue(Map<String, Object> source) {
-        return null;
-    }
-
     public Object processedValue(Document document, Map<String, AnalysisResult[]> analysisResults) {
         return processedValue(document, analysisResults, 0);
     }
@@ -62,6 +57,12 @@ public class FieldSchemaUsingIndexingFieldData extends FieldSchemaUsingOtherFiel
 
     public static Object makeFieldValue(String expression, Document document, Map<String, AnalysisResult[]> analysisResults, int analysisResultNumber) {
         try {
+            /*
+                ${index_field_name:begin_idx~end_idx}
+                ${index_field_name:dateformat->dateformat}
+                ${index_field_name.indexterm}
+                ${index_field_name}
+              */
             if (expression.startsWith("$")) {
                 int sidx = expression.indexOf('{');
                 int eidx = expression.lastIndexOf('}');

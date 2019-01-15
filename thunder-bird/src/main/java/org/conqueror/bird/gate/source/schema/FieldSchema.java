@@ -95,7 +95,7 @@ public abstract class FieldSchema implements BirdData {
             if (value == null) {
                 return null;
             } else if (value instanceof String) {
-                return Integer.parseInt((String) value);
+                return Integer.parseInt(((String) value).replaceAll(",", ""));
             } else if (value instanceof Long) {
                 return ((Long) value).intValue();
             } else if (value instanceof Integer) {
@@ -111,7 +111,7 @@ public abstract class FieldSchema implements BirdData {
         if (value == null) {
             return null;
         } else if (value instanceof String) {
-            return new Integer[]{Integer.parseInt((String) value)};
+            return new Integer[]{Integer.parseInt(((String) value).replaceAll(",", ""))};
         } else if (value instanceof JSONArray) {
             Integer[] values = new Integer[((JSONArray) value).size()];
             int num = 0;
@@ -129,7 +129,7 @@ public abstract class FieldSchema implements BirdData {
             if (value == null) {
                 return null;
             } else if (value instanceof String) {
-                return Long.parseLong((String) value);
+                return Long.parseLong(((String) value).replaceAll(",", ""));
             } else if (value instanceof Integer) {
                 return (long) value;
             } else if (value instanceof Long) {
@@ -146,7 +146,7 @@ public abstract class FieldSchema implements BirdData {
             if (value == null) {
                 return null;
             } else if (value instanceof String) {
-                return Float.parseFloat((String) value);
+                return Float.parseFloat(((String) value).replaceAll(",", ""));
             } else if (value instanceof Integer) {
                 return ((Integer) value).floatValue();
             } else if (value instanceof Long) {
@@ -167,7 +167,7 @@ public abstract class FieldSchema implements BirdData {
             if (value == null) {
                 return null;
             } else if (value instanceof String) {
-                return Double.parseDouble((String) value);
+                return Double.parseDouble(((String) value).replaceAll(",", ""));
             } else if (value instanceof Integer) {
                 return ((Integer) value).doubleValue();
             } else if (value instanceof Long) {
@@ -187,7 +187,7 @@ public abstract class FieldSchema implements BirdData {
         if (value == null) {
             return null;
         } else if (value instanceof String) {
-            return new Long[]{Long.parseLong((String) value)};
+            return new Long[]{Long.parseLong(((String) value).replaceAll(",", ""))};
         } else if (value instanceof JSONArray) {
             Long[] values = new Long[((JSONArray) value).size()];
             int num = 0;
@@ -204,7 +204,7 @@ public abstract class FieldSchema implements BirdData {
         if (value == null) {
             return null;
         } else if (value instanceof String) {
-            return new Float[]{Float.parseFloat((String) value)};
+            return new Float[]{Float.parseFloat(((String) value).replaceAll(",", ""))};
         } else if (value instanceof JSONArray) {
             Float[] values = new Float[((JSONArray) value).size()];
             int num = 0;
@@ -221,7 +221,7 @@ public abstract class FieldSchema implements BirdData {
         if (value == null) {
             return null;
         } else if (value instanceof String) {
-            return new Double[]{Double.parseDouble((String) value)};
+            return new Double[]{Double.parseDouble(((String) value).replaceAll(",", ""))};
         } else if (value instanceof JSONArray) {
             Double[] values = new Double[((JSONArray) value).size()];
             int num = 0;

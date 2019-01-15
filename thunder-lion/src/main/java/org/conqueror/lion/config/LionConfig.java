@@ -1,5 +1,6 @@
 package org.conqueror.lion.config;
 
+import akka.remote.transport.AkkaProtocolSettings;
 import akka.util.Timeout;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -17,8 +18,14 @@ public abstract class LionConfig extends Configuration {
 
     public LionConfig(Config config) {
         this.config = config;
-        host = getStringFromConfig(config, "akka.remote.artery.canonical.hostname", true);
-        port = getIntegerFromConfig(config, "akka.remote.artery.canonical.port", true);
+        String thost = getStringFromConfig(config, "akka.remote.artery.canonical.hostname", true);
+        Integer tport = getIntegerFromConfig(config, "akka.remote.artery.canonical.port", true);
+        if (thost == null || thost.startsWith("<")) {
+            thost = getStringFromConfig(config, "akka.remote.netty.tcp.hostname", false);
+            tport = getIntegerFromConfig(config, "akka.remote.netty.tcp.port", false);
+        }
+        host = thost;
+        port = tport;
         askTimeout = new Timeout(getIntegerFromConfig(config, "akka.ask.timeout", 10), TimeUnit.SECONDS);
     }
 

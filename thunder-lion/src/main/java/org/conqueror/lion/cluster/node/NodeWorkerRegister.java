@@ -34,6 +34,7 @@ public class NodeWorkerRegister extends AbstractLoggingActor {
         return receiveBuilder()
             .match(NodeWorkerManagerMessage.NodeWorkerRegisterResponse.class, this::processRegister)
             .match(NodeWorkerMessage.NodeWorkerReregisterRequest.class, this::processReregister)
+            .match(NodeWorkerManagerMessage.NodeWorkerUnregisterRequest.class, this::processUnregister)
             .build();
     }
 
@@ -41,7 +42,14 @@ public class NodeWorkerRegister extends AbstractLoggingActor {
     public void preStart() throws Exception {
         super.preStart();
 
-        createScheduler();
+        createRegisterScheduler();
+    }
+
+    @Override
+    public void postStop() throws Exception {
+        super.postStop();
+
+        processUnregister(new NodeWorkerManagerMessage.NodeWorkerUnregisterRequest(nodeWorkerID));
     }
 
     private String getNodeWorkerId() {
@@ -58,15 +66,19 @@ public class NodeWorkerRegister extends AbstractLoggingActor {
     }
 
     private void processReregister(NodeWorkerMessage.NodeWorkerReregisterRequest request) {
-        createScheduler();
+        createRegisterScheduler();
     }
 
-    private void createScheduler() {
+    private void createRegisterScheduler() {
         nodeRegisterScheduler = getContext().getSystem().getScheduler().schedule(Duration.ZERO, Duration.ofSeconds(1)
             , nodeMasterProxy
             , new NodeWorkerManagerMessage.NodeWorkerRegisterRequest(getNodeWorkerId())
             , getContext().getSystem().dispatcher()
             , nodeWorker);
+    }
+
+    private void processUnregister(NodeWorkerManagerMessage.NodeWorkerUnregisterRequest request) {
+        nodeMasterProxy.tell(request, nodeWorker);
     }
 
     protected void tellToNode(LionMessage message) {

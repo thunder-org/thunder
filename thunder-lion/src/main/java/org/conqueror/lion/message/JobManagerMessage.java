@@ -81,6 +81,12 @@ public abstract class JobManagerMessage extends JobMasterMessage {
      */
     public static final class TaskAssignFinishResponse extends TaskAssignResponse {
 
+        private static final TaskAssignFinishResponse instance = new TaskAssignFinishResponse();
+
+        public static TaskAssignFinishResponse getInstance() {
+            return instance;
+        }
+
         @Override
         public void writeObject(DataOutput output) {
 

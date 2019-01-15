@@ -6,9 +6,7 @@ import org.conqueror.bird.gate.document.DocumentBuilder;
 import org.conqueror.bird.gate.parser.Parser;
 import org.conqueror.bird.gate.source.FileGateSource;
 import org.conqueror.bird.gate.source.GateSource;
-import org.conqueror.bird.gate.source.GateSourceAccessor;
 import org.conqueror.bird.gate.source.schema.DocumentSchema;
-import org.conqueror.common.utils.file.FileInfo;
 import org.conqueror.common.utils.file.FileScanner;
 import org.conqueror.common.utils.file.hdfs.HdfsFileScanner;
 import org.conqueror.common.utils.file.local.LocalFileScanner;
@@ -18,94 +16,76 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class FileGateScanner extends GateScanner {
 
-    public final DocumentBuilder documentBuilder;
+    private final DocumentBuilder documentBuilder;
 
-    public FileGateScanner(GateSourceAccessor sourceAccessor, BlockingQueue<Document> documentQueue, int maxIndexNameSize) {
-        super(sourceAccessor, documentQueue);
+    private FileGateSource source = null;
+
+    private FileScanner scanner = null;
+    private BufferedReader reader = null;
+
+    public FileGateScanner(int maxIndexNameSize) {
         documentBuilder = new DocumentBuilder(maxIndexNameSize);
     }
 
     @Override
-    public boolean processSource(GateSource source) {
+    public void open(GateSource source) throws ScanException {
         if (source instanceof FileGateSource) {
-            return processSource((FileGateSource) source);
-        } else {
-            return false;
-        }
-    }
-
-    public boolean processSource(FileGateSource source) {
-        String fileUri = source.getFileUri();
-        int numberOfDocs = 0;
-        AtomicInteger numberOfFilteredOut = new AtomicInteger(0);
-
-        FileScanner scanner = makeFileScanner(fileUri);
-        if (scanner == null) return false;
-
-        FileInfo fileInfo = null;
-        try {
-            fileInfo = scanner.makeFileInfo(fileUri);
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
-        if (fileInfo == null) return false;
-
-        boolean success = true;
-        BufferedReader reader = null;
-        try {
-            reader = scanner.getReader(fileInfo);
-            Document[] docs;
-            while ((docs = scan(source, reader, numberOfFilteredOut)) != null) {
-                put(docs);
-                numberOfDocs += docs.length;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            success = false;
-        } finally {
-            if (reader != null) try {
-                reader.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            scanner.close();
-        }
-//		stats.addGateStats(source, new GateStats(source.toString(), 1, (success? 0 : 1)
-//				, numberOfDocs + numberOfFilteredOut.get(), numberOfFilteredOut.get()));
-
-        return success;
-    }
-
-    public Document[] scan(FileGateSource source, BufferedReader reader, AtomicInteger numberOfFilteredOut) throws ScanException {
-        Parser parser = source.getParser();
-        try {
-            while (true) {
-                Map<String, Object> data = parser.parse(reader);
-                if (data == null) break;
-
-                Document[] docs = new Document[source.getSchemas().length];
-                int docIdx = 0, numberOfNotNullDocs = 0;
-                for (DocumentSchema schema : source.getSchemas()) {
-                    Document doc = documentBuilder.buildDocument(schema, data);
-                    docs[docIdx++] = doc;
-
-                    if (doc != null) numberOfNotNullDocs++;
-                    else numberOfFilteredOut.incrementAndGet();
+            this.source = (FileGateSource) source;
+            String fileUri = ((FileGateSource) source).getFileUri();
+            scanner = makeFileScanner(fileUri);
+            if (scanner != null) {
+                try {
+                    reader = scanner.getReader(scanner.makeFileInfo(fileUri));
+                } catch (InterruptedException | IOException e) {
+                    throw new ScanException(e);
                 }
-                if (numberOfNotNullDocs > 0) return docs;
+            }
+        } else {
+            throw new ScanException("gate-source is not file-gate-source");
+        }
+    }
+
+    @Override
+    public void close() {
+        try {
+            scanner.close();
+        } finally {
+            reader = null;
+        }
+    }
+
+    @Override
+    public List<Document> scan() throws ScanException {
+        if (source != null && reader != null) {
+            return scan(source, reader);
+        }
+        return Collections.emptyList();
+    }
+
+    private List<Document> scan(FileGateSource source, BufferedReader reader) throws ScanException {
+        List<Document> docs = new ArrayList<>(source.getSchemas().length);
+        Parser parser = source.getParser();
+
+        try {
+            Map<String, Object> data;
+            while ((data = parser.parse(reader)) != null) {
+                for (DocumentSchema schema : source.getSchemas()) {
+                    docs.add(documentBuilder.buildDocument(schema, data));
+                }
             }
         } catch (Exception e) {
-            throw new ScanException("failed to scan - file gate scanner : " + source, e.getCause());
+            throw new ScanException("failed to scan - file gate scanner : " + source + "\n\t" + e.getMessage(), e.getCause());
         }
 
-        return null;
+        return docs;
     }
 
     public static FileScanner makeFileScanner(String fileUri) {

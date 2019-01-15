@@ -2,6 +2,7 @@ package org.conqueror.lion.cluster.task;
 
 import akka.actor.ActorRef;
 import akka.actor.Props;
+import akka.actor.Terminated;
 import org.conqueror.lion.cluster.actor.ManagerActor;
 import org.conqueror.lion.config.JobConfig;
 import org.conqueror.lion.message.JobManagerMessage;
@@ -12,6 +13,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 
+/*
+    task-worker로 부터 task를 요청받으면 job-manager에 task를 요청 (request forwarding)
+ */
 public abstract class TaskManager<T extends JobConfig> extends ManagerActor {
 
     private final String jobName;
@@ -38,12 +42,20 @@ public abstract class TaskManager<T extends JobConfig> extends ManagerActor {
             .match(JobManagerMessage.TaskAssignRequest.class, this::processAssignTask)
 
             .match(TaskManagerMessage.TaskWorkerFinishRequest.class, this::processRemoveTaskWorker)
+            .match(Terminated.class, this::checkFinishedJob)
             .build();
+    }
+
+    @Override
+    protected T getConfig() {
+        return (T) super.getConfig();
     }
 
     @Override
     public void preStart() throws Exception {
         super.preStart();
+
+        checkFinishedJob();
 
         prepareJob();
 
@@ -65,6 +77,20 @@ public abstract class TaskManager<T extends JobConfig> extends ManagerActor {
 
     protected abstract void finishJob() throws Exception;
 
+    protected boolean isTaskWorkersFinished() {
+        return taskWorkers.isEmpty();
+    }
+
+    private void checkFinishedJob(Terminated terminated) {
+        if (terminated.getActor().equals(jobManager)) {
+            finishTaskManager();
+        }
+    }
+
+    private void checkFinishedJob() {
+        getContext().watch(jobManager);
+    }
+
     protected String getJobName() {
         return jobName;
     }
@@ -73,7 +99,7 @@ public abstract class TaskManager<T extends JobConfig> extends ManagerActor {
         return getSelf().path().name();
     }
 
-    private Props createTaskWorkerProps(JobConfig config) throws ClassNotFoundException {
+    private Props createTaskWorkerProps(T config) throws ClassNotFoundException {
         return TaskWorker.props(Class.forName(config.getTaskWorkerClass()), config, getSelf());
     }
 
@@ -117,9 +143,13 @@ public abstract class TaskManager<T extends JobConfig> extends ManagerActor {
         getContext().unwatch(worker);
         getContext().stop(worker);
 
-        if (taskWorkers.isEmpty()) {
-            tellToMaster(new TaskMasterMessage.TaskManagerRemoveRequest());
+        if (isTaskWorkersFinished()) {
+            finishTaskManager();
         }
+    }
+
+    protected void finishTaskManager() {
+        tellToMaster(new TaskMasterMessage.TaskManagerRemoveRequest());
     }
 
     private String makeTaskWorkerName(int number) {

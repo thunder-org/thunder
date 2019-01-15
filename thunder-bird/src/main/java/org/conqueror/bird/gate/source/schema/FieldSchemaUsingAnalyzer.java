@@ -14,7 +14,7 @@ import java.util.Set;
 
 public class FieldSchemaUsingAnalyzer extends FieldSchemaUsingOtherFieldValue {
 
-    public enum AnalysisItem {KEYWORD, SRCHWORD, FEATURE}
+    public enum AnalysisItem {INDEXTERM}
 
     protected static final String ANALYSIS_ITEMS = "analysis";
 

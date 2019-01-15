@@ -22,15 +22,14 @@ public class IndexConfig extends JobConfig<IndexConfig> {
     /* Gate */
     private Map<String, String> schemas = new HashMap<>(10);
     private List<String> destFileList = null;
-    private int numberOfScanners = 0;
     private int numberOfSources = 0;
 
     /* Analyzer */
-    private int documentQueueSize = 0;
     private int numberOfAnalyzers = 0;
     private String analyzerConfFilePath = null;
 
     /* Indexer */
+    private int indexNameMaxSize = 20;
     private int contentQueueSize = 0;
     private int capacity = 0;
     private int initContentQueuePoolSize = 0;
@@ -62,20 +61,18 @@ public class IndexConfig extends JobConfig<IndexConfig> {
 
         /* for gate */
         setDestFileList(getStringListFromConfig(config, "job.gate.input-file-list", true));
-        setNumberOfScanners(getIntegerFromConfig(config, "job.gate.scanner-number", true));
         setNumberOfSources(getIntegerFromConfig(config, "job.gate.source-number", true));
 
-
         /* for analyzer */
-//        setDocumentQueueSize(getIntegerFromConfig(config, "client.analysis.document-queue-size", true));
-//        setNumberOfAnalyzers(getIntegerFromConfig(config, "client.analysis.analyzer-number", true));
-//        setAnalyzerConfFilePath(confDir + File.separator + getStringFromConfig(config, "client.analysis.word-analyzer.configure", true));
+        setNumberOfAnalyzers(getIntegerFromConfig(config, "job.analysis.analyzer.number", true));
+        setAnalyzerConfFilePath(confDir + File.separator + getStringFromConfig(config, "job.analysis.analyzer.conf-file", true));
 
         /* for indexer */
-//        setContentQueueSize(getIntegerFromConfig(config, "client.index.content-queue-size", true));
-//        setCapacity(getIntegerFromConfig(config, "client.index.bulk-size", true));
-//        setInitContentQueuePoolSize(getIntegerFromConfig(config, "client.index.content-queue-pool-size", true));
-//        setNumberOfExecutors(getIntegerFromConfig(config, "client.index.executor-number", true));
+        setIndexNameMaxSize(getIntegerFromConfig(config, "job.index.name-max-size", true));
+//        setContentQueueSize(getIntegerFromConfig(config, "job.index.content-queue-size", true));
+//        setCapacity(getIntegerFromConfig(config, "job.index.bulk-size", true));
+//        setInitContentQueuePoolSize(getIntegerFromConfig(config, "job.index.content-queue-pool-size", true));
+//        setNumberOfExecutors(getIntegerFromConfig(config, "job.index.executor-number", true));
 
         IndexInformation indexInfo = new IndexInformation();
 //        indexInfo.setAddresses(getStringListFromConfig(config, "client.index.es.addresses", true));
@@ -106,24 +103,12 @@ public class IndexConfig extends JobConfig<IndexConfig> {
         this.destFileList = destFileList;
     }
 
-    public int getNumberOfScanners() {
-        return numberOfScanners;
-    }
-
-    public void setNumberOfScanners(int numberOfScanners) {
-        this.numberOfScanners = numberOfScanners;
-    }
-
     public int getNumberOfSources() {
         return numberOfSources;
     }
 
     public void setNumberOfSources(int numberOfSources) {
         this.numberOfSources = numberOfSources;
-    }
-
-    public int getDocumentQueueSize() {
-        return documentQueueSize;
     }
 
     public int getNumberOfAnalyzers() {
@@ -134,16 +119,20 @@ public class IndexConfig extends JobConfig<IndexConfig> {
         this.numberOfAnalyzers = numberOfAnalyzers;
     }
 
-    public void setDocumentQueueSize(int documentQueueSize) {
-        this.documentQueueSize = documentQueueSize;
-    }
-
     public String getAnalyzerConfFilePath() {
         return analyzerConfFilePath;
     }
 
     public void setAnalyzerConfFilePath(String analyzerConfFilePath) {
         this.analyzerConfFilePath = analyzerConfFilePath;
+    }
+
+    public int getIndexNameMaxSize() {
+        return indexNameMaxSize;
+    }
+
+    public void setIndexNameMaxSize(int indexNameMaxSize) {
+        this.indexNameMaxSize = indexNameMaxSize;
     }
 
     public int getContentQueueSize() {
