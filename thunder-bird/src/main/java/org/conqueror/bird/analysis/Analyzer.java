@@ -6,7 +6,7 @@ import org.conqueror.bird.gate.source.schema.DocumentSchema;
 import org.conqueror.bird.gate.source.schema.FieldSchema;
 import org.conqueror.bird.gate.source.schema.FieldSchemaUsingAnalyzer;
 import org.conqueror.bird.gate.source.schema.FieldSchemaUsingIndexingFieldData;
-import org.conqueror.es.index.source.IndexContent;
+import org.conqueror.es.client.index.source.IndexContent;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 
@@ -77,7 +77,7 @@ public abstract class Analyzer {
 
     protected abstract KeywordResult analyze(String text);
 
-    protected abstract void close();
+    public abstract void close();
 
     private AnalysisResult[] analyzeDocument(Document doc, FieldSchemaUsingAnalyzer fieldSchema) {
         String value = doc.getStringFieldValue(fieldSchema.getFieldNumber());
@@ -102,7 +102,7 @@ public abstract class Analyzer {
 
     private IndexContent makeIndexContent(Document doc, XContentBuilder content) {
         DocumentSchema docSchema = doc.getSchema();
-        return new IndexContent(doc.getIndexName(), doc.getType(), doc.getParentId(), content, docSchema.isPutIfAbsent());
+        return new IndexContent(doc.getIndexName(), docSchema.getMappingName(), doc.getType(), doc.getParentId(), content, docSchema.isPutIfAbsent());
     }
 
 }

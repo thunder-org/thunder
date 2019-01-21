@@ -137,6 +137,7 @@ public abstract class TaskManager<T extends JobConfig> extends ManagerActor {
         taskWorkers.clear();
     }
 
+    // 해당 task-worker 종료 및 모든 task-worker가 종료되면 task-manager도 종료
     private void processRemoveTaskWorker(TaskManagerMessage.TaskWorkerFinishRequest request) {
         ActorRef worker = getSender();
         taskWorkers.remove(worker.path().name());
@@ -148,6 +149,7 @@ public abstract class TaskManager<T extends JobConfig> extends ManagerActor {
         }
     }
 
+    // task-mater에 자신(task-mamanger)을 stop 해달라고 요청
     protected void finishTaskManager() {
         tellToMaster(new TaskMasterMessage.TaskManagerRemoveRequest());
     }

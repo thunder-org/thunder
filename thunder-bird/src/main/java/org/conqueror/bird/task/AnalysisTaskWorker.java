@@ -10,14 +10,14 @@ import org.conqueror.bird.data.messages.analysis.Documents;
 import org.conqueror.bird.data.messages.index.IndexContents;
 import org.conqueror.bird.gate.document.Document;
 import org.conqueror.cat.config.NGramConfig;
-import org.conqueror.es.index.source.IndexContent;
+import org.conqueror.es.client.index.source.IndexContent;
 import org.conqueror.lion.config.JobConfig;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class AnalysisTaskWorker extends TransferTaskWorker<IndexConfig> {
+public class AnalysisTaskWorker extends DeliveryTaskWorker<IndexConfig> {
 
     private final Analyzer analyzer;
 
@@ -32,7 +32,12 @@ public class AnalysisTaskWorker extends TransferTaskWorker<IndexConfig> {
     }
 
     @Override
-    protected BirdMessage work(BirdMessage data) {
+    protected Class<?> getAssignTaskMessageClass() {
+        return Documents.class;
+    }
+
+    @Override
+    protected BirdMessage work(Object data) {
         List<IndexContent> contents = new ArrayList<>();
 
         if (data instanceof Documents) {
@@ -45,6 +50,11 @@ public class AnalysisTaskWorker extends TransferTaskWorker<IndexConfig> {
         }
 
         return new IndexContents(contents);
+    }
+
+    @Override
+    protected void finish() {
+        analyzer.close();
     }
 
 }

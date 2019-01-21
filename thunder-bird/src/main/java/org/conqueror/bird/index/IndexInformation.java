@@ -15,9 +15,10 @@ public class IndexInformation implements BirdData {
 
     private String parentMappingName = null;
     private String childMappingName = null;
-    private Map<String, String> mappings = new HashMap<>(10);
+    private Map<String, String> mappings = new HashMap<>();
     private int pingTimeOutSec;
     private int nodeSamplerIntervalSec;
+    private int requestRetries;
     private String[] addresses;
     private String cluster;
 
@@ -61,6 +62,14 @@ public class IndexInformation implements BirdData {
         this.nodeSamplerIntervalSec = nodeSamplerIntervalSec;
     }
 
+    public int getRequestRetries() {
+        return requestRetries;
+    }
+
+    public void setRequestRetries(int requestRetries) {
+        this.requestRetries = requestRetries;
+    }
+
     public String[] getAddresses() {
         return addresses;
     }
@@ -93,6 +102,7 @@ public class IndexInformation implements BirdData {
             }
             output.writeInt(pingTimeOutSec);
             output.writeInt(nodeSamplerIntervalSec);
+            output.writeInt(requestRetries);
             output.writeInt(addresses.length);
             for (String address : addresses) {
                 output.writeUTF(address);
@@ -114,6 +124,7 @@ public class IndexInformation implements BirdData {
             }
             info.setPingTimeOutSec(input.readInt());
             info.setNodeSamplerIntervalSec(input.readInt());
+            info.setRequestRetries(input.readInt());
             String[] addresses = new String[input.readInt()];
             for (int idx=0; idx<addresses.length; idx++) {
                 addresses[idx] = input.readUTF();

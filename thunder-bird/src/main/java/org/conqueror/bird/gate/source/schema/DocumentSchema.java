@@ -43,7 +43,7 @@ public class DocumentSchema implements BirdData {
     private String jsonSchema;
 
     private final String schemaName;
-    private final String jsonMapping;
+    private final String mappingName;
     private final String channel;
 
     private String idFieldName;
@@ -68,17 +68,17 @@ public class DocumentSchema implements BirdData {
         this(null, 0, 0, (String[]) null, null, null);
     }
 
-    private DocumentSchema(String schemaName, int fieldSize, String indexNameExpression, String channel, String jsonMapping) {
-        this(schemaName, fieldSize, 0, indexNameExpression.split("[ ]*\\+[ ]*"), channel, jsonMapping);
+    private DocumentSchema(String schemaName, int fieldSize, String indexNameExpression, String channel, String mappingName) {
+        this(schemaName, fieldSize, 0, indexNameExpression.split("[ ]*\\+[ ]*"), channel, mappingName);
     }
 
-    private DocumentSchema(String schemaName, int fieldSize, int childFieldSize, String indexNameExpression, String channel, String jsonMapping) {
-        this(schemaName, fieldSize, childFieldSize, indexNameExpression.split("[ ]*\\+[ ]*"), channel, jsonMapping);
+    private DocumentSchema(String schemaName, int fieldSize, int childFieldSize, String indexNameExpression, String channel, String mappingName) {
+        this(schemaName, fieldSize, childFieldSize, indexNameExpression.split("[ ]*\\+[ ]*"), channel, mappingName);
     }
 
-    private DocumentSchema(String schemaName, int fieldSize, int childFieldSize, String[] indexNameExpression, String channel, String jsonMapping) {
+    private DocumentSchema(String schemaName, int fieldSize, int childFieldSize, String[] indexNameExpression, String channel, String mappingName) {
         this.schemaName = schemaName;
-        this.jsonMapping = jsonMapping;
+        this.mappingName = mappingName;
         this.channel = channel;
 
         this.fieldSchemas = new ArrayList<>(fieldSize);
@@ -92,7 +92,7 @@ public class DocumentSchema implements BirdData {
         return documentSchemaInstance;
     }
 
-    public static DocumentSchema buildSchema(String jsonSchema, String jsonMapping) throws SchemaException {
+    public static DocumentSchema buildSchema(String jsonSchema, String mappingName) throws SchemaException {
         JSONObject json;
         try {
             json = (JSONObject) JSONValue.parseWithException(jsonSchema);
@@ -106,8 +106,8 @@ public class DocumentSchema implements BirdData {
         String indexName = (String) json.get(INDEX_NAME);
         String channel = (String) json.get(CHANNEL);
         DocumentSchema schema = (childFields == null) ?
-            new DocumentSchema(schemaName, fields.size(), indexName, channel, jsonMapping)
-            : new DocumentSchema(schemaName, fields.size(), childFields.size(), indexName, channel, jsonMapping);
+            new DocumentSchema(schemaName, fields.size(), indexName, channel, mappingName)
+            : new DocumentSchema(schemaName, fields.size(), childFields.size(), indexName, channel, mappingName);
 
         schema.setJsonSchema(jsonSchema);
 
@@ -302,8 +302,8 @@ public class DocumentSchema implements BirdData {
         return fieldSchemas.get(index);
     }
 
-    public String getJsonMapping() {
-        return jsonMapping;
+    public String getMappingName() {
+        return mappingName;
     }
 
     public String getChannel() {
@@ -396,7 +396,7 @@ public class DocumentSchema implements BirdData {
     public void writeObject(DataOutput output) throws SerializableException {
         try {
             output.writeUTF(getJsonSchema());
-            output.writeUTF(getJsonMapping());
+            output.writeUTF(getMappingName());
         } catch (IOException e) {
             throw new SerializableException(e);
         }

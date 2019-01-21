@@ -54,7 +54,7 @@
         "aptm": {
             "type": "string",
             "index_field_name": "aptm",
-            "must_exist": true,
+            "must_exist": true
         },
         "_addr": {
             "index_field_name": "_addr",

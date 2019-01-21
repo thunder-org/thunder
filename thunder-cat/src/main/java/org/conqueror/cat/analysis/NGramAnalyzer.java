@@ -28,4 +28,8 @@ public class NGramAnalyzer extends ObjectAnalyzer {
         return grams;
     }
 
+    @Override
+    public void close() {
+
+    }
 }

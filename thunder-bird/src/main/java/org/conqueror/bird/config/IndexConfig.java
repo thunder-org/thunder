@@ -30,10 +30,8 @@ public class IndexConfig extends JobConfig<IndexConfig> {
 
     /* Indexer */
     private int indexNameMaxSize = 20;
-    private int contentQueueSize = 0;
-    private int capacity = 0;
-    private int initContentQueuePoolSize = 0;
-    private int numberOfExecutors = 0;
+    private int bulkSize = 10;
+    private int numberOfIndexers = 0;
     private IndexInformation indexInfo = null;
 
     public IndexConfig() {
@@ -69,18 +67,17 @@ public class IndexConfig extends JobConfig<IndexConfig> {
 
         /* for indexer */
         setIndexNameMaxSize(getIntegerFromConfig(config, "job.index.name-max-size", true));
-//        setContentQueueSize(getIntegerFromConfig(config, "job.index.content-queue-size", true));
-//        setCapacity(getIntegerFromConfig(config, "job.index.bulk-size", true));
-//        setInitContentQueuePoolSize(getIntegerFromConfig(config, "job.index.content-queue-pool-size", true));
-//        setNumberOfExecutors(getIntegerFromConfig(config, "job.index.executor-number", true));
+        setBulkSize(getIntegerFromConfig(config, "job.index.bulk-size", true));
+        setNumberOfIndexers(getIntegerFromConfig(config, "job.index.indexer-number", true));
 
         IndexInformation indexInfo = new IndexInformation();
-//        indexInfo.setAddresses(getStringListFromConfig(config, "client.index.es.addresses", true));
-//        indexInfo.setCluster(getStringFromConfig(config, "client.index.es.cluster", true));
-//        indexInfo.setParentMappingName(getStringFromConfig(config, "client.index.es.parent-mapping-name", true));
-//        indexInfo.setChildMappingName(getStringFromConfig(config, "client.index.es.child-mapping-name", true));
-//        indexInfo.setPingTimeOutSec(getIntegerFromConfig(config, "client.index.es.ping-timeout", 60));
-//        indexInfo.setNodeSamplerIntervalSec(getIntegerFromConfig(config, "client.index.es.node-sampler-interval", 60));
+        indexInfo.setAddresses(getStringListFromConfig(config, "job.index.es.addresses", true));
+        indexInfo.setCluster(getStringFromConfig(config, "job.index.es.cluster", true));
+        indexInfo.setParentMappingName(getStringFromConfig(config, "job.index.es.parent-mapping-name", true));
+        indexInfo.setChildMappingName(getStringFromConfig(config, "job.index.es.child-mapping-name", false));
+        indexInfo.setPingTimeOutSec(getIntegerFromConfig(config, "job.index.es.ping-timeout", 60));
+        indexInfo.setNodeSamplerIntervalSec(getIntegerFromConfig(config, "job.index.es.node-sampler-interval", 60));
+        indexInfo.setRequestRetries(getIntegerFromConfig(config, "job.index.es.request-retries", 0));
         for (Map.Entry<String, ConfigValue> entry : mappingConfig.entrySet()) {
             indexInfo.addMappingJson(entry.getKey(), FileUtils.getFileContent(mappingDir, (String) entry.getValue().unwrapped()));
         }
@@ -135,36 +132,20 @@ public class IndexConfig extends JobConfig<IndexConfig> {
         this.indexNameMaxSize = indexNameMaxSize;
     }
 
-    public int getContentQueueSize() {
-        return contentQueueSize;
+    public int getBulkSize() {
+        return bulkSize;
     }
 
-    public void setContentQueueSize(int contentQueueSize) {
-        this.contentQueueSize = contentQueueSize;
+    public void setBulkSize(int bulkSize) {
+        this.bulkSize = bulkSize;
     }
 
-    public int getCapacity() {
-        return capacity;
+    public int getNumberOfIndexers() {
+        return numberOfIndexers;
     }
 
-    public void setCapacity(int capacity) {
-        this.capacity = capacity;
-    }
-
-    public int getInitContentQueuePoolSize() {
-        return initContentQueuePoolSize;
-    }
-
-    public void setInitContentQueuePoolSize(int initContentQueuePoolSize) {
-        this.initContentQueuePoolSize = initContentQueuePoolSize;
-    }
-
-    public int getNumberOfExecutors() {
-        return numberOfExecutors;
-    }
-
-    public void setNumberOfExecutors(int numberOfExecutors) {
-        this.numberOfExecutors = numberOfExecutors;
+    public void setNumberOfIndexers(int numberOfIndexers) {
+        this.numberOfIndexers = numberOfIndexers;
     }
 
     public IndexInformation getIndexInfo() {

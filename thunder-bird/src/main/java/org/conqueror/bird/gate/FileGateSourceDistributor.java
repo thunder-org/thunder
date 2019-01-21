@@ -100,7 +100,7 @@ public class FileGateSourceDistributor extends GateSourceDistributor {
         DocumentSchema[] schemas = new DocumentSchema[schemaNames.length];
         for (int schemaIdx = 0; schemaIdx < schemaNames.length; schemaIdx++) {
             schemas[schemaIdx] = DocumentSchema.buildSchema(getConfig().getSchema(schemaNames[schemaIdx])
-                , getConfig().getIndexInfo().getMapping(mappingNames[schemaIdx]));
+                , mappingNames[schemaIdx]);
 
         }
 

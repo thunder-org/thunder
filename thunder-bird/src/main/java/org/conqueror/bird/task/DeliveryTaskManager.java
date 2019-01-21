@@ -6,23 +6,22 @@ import akka.actor.Props;
 import akka.actor.Terminated;
 import akka.routing.Broadcast;
 import akka.routing.SmallestMailboxPool;
-import org.conqueror.bird.data.messages.BirdMessage;
 import org.conqueror.lion.cluster.actor.ManagerActor;
 import org.conqueror.lion.config.JobConfig;
 import org.conqueror.lion.exceptions.LionException;
 import org.conqueror.lion.message.JobManagerMessage;
 
 
-public abstract class TransferTaskManager<T extends JobConfig> extends ManagerActor {
+public abstract class DeliveryTaskManager<T extends JobConfig> extends ManagerActor {
 
-    private final ActorRef transferTo;
+    private final ActorRef deliverTo;
 
     private ActorRef workerRouter;
 
-    public TransferTaskManager(JobConfig config, ActorRef taskManager, ActorRef transferTo) {
+    public DeliveryTaskManager(JobConfig config, ActorRef taskManager, ActorRef deliverTo) {
         super(config, taskManager);
 
-        this.transferTo = transferTo;
+        this.deliverTo = deliverTo;
 
         log().info("{} is created", getSelf().path().name());
     }
@@ -31,7 +30,7 @@ public abstract class TransferTaskManager<T extends JobConfig> extends ManagerAc
         return receiveBuilder()
             // job-manager
             .match(JobManagerMessage.TaskAssignFinishResponse.class, this::processFinishTask)
-            .match(BirdMessage.class, this::processAssignTask)
+            .match(getAssignTaskMessageClass(), this::processAssignTask)
             .match(Terminated.class, this::processFinishTask)
             .build();
     }
@@ -47,7 +46,7 @@ public abstract class TransferTaskManager<T extends JobConfig> extends ManagerAc
 
         prepareJob();
 
-        createTransferTaskWorkers(getConfig().getMaxNumberOfTaskWorkers());
+        createDeliveryTaskWorkers(getNumberOfTaskWorkers());
     }
 
     @Override
@@ -61,13 +60,17 @@ public abstract class TransferTaskManager<T extends JobConfig> extends ManagerAc
         return getMaster();
     }
 
+    protected abstract int getNumberOfTaskWorkers();
+
     protected abstract void prepareJob() throws Exception;
 
     protected abstract void finishJob() throws Exception;
 
-    protected abstract Props createTransferTaskWorkerProps();
+    protected abstract Props createDeliveryTaskWorkerProps();
 
-    protected abstract String makeTransferTaskWorkerRouterName();
+    protected abstract String makeDeliveryTaskWorkerRouterName();
+
+    protected abstract Class<?> getAssignTaskMessageClass();
 
     protected void processFinishTask(Terminated response) {
         if (response.getActor().equals(workerRouter)) {
@@ -83,19 +86,19 @@ public abstract class TransferTaskManager<T extends JobConfig> extends ManagerAc
         workerRouter.tell(new Broadcast(PoisonPill.getInstance()), getSelf());
     }
 
-    protected void processAssignTask(BirdMessage taskSource) {
+    protected void processAssignTask(Object taskSource) {
         workerRouter.tell(taskSource, getSelf());
     }
 
-    private void createTransferTaskWorkers(int numberOfAssignedTaskWorkers) throws LionException {
+    private void createDeliveryTaskWorkers(int numberOfAssignedTaskWorkers) throws LionException {
         // router
-        workerRouter = getContext().actorOf(new SmallestMailboxPool(numberOfAssignedTaskWorkers).props(createTransferTaskWorkerProps())
-            , makeTransferTaskWorkerRouterName());
+        workerRouter = getContext().actorOf(new SmallestMailboxPool(numberOfAssignedTaskWorkers).props(createDeliveryTaskWorkerProps())
+            , makeDeliveryTaskWorkerRouterName());
         getContext().watch(workerRouter);
     }
 
-    protected ActorRef getTransferTo() {
-        return transferTo;
+    protected ActorRef getDeliverTo() {
+        return deliverTo;
     }
 
 }

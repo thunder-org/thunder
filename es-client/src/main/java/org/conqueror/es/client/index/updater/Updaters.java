@@ -1,4 +1,4 @@
-package org.conqueror.es.index.updater;
+package org.conqueror.es.client.index.updater;
 
 import java.util.ArrayList;
 import java.util.Iterator;

@@ -6,7 +6,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 
 
-public final class IndexTaskFinishRequest extends IndexMessage {
+public final class IndexContentTaskFinishRequest extends IndexMessage {
 
     @Override
     public void writeObject(DataOutput output) throws SerializableException {
@@ -14,8 +14,8 @@ public final class IndexTaskFinishRequest extends IndexMessage {
     }
 
     @Override
-    public IndexTaskFinishRequest readObject(DataInput input) throws SerializableException {
-        return new IndexTaskFinishRequest();
+    public IndexContentTaskFinishRequest readObject(DataInput input) throws SerializableException {
+        return new IndexContentTaskFinishRequest();
     }
 
 }

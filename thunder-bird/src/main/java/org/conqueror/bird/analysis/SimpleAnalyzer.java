@@ -21,7 +21,8 @@ public class SimpleAnalyzer extends Analyzer {
     }
 
     @Override
-    protected void close() {
+    public void close() {
+        analyzer.close();
     }
 
 }

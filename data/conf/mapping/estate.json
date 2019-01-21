@@ -1,57 +1,89 @@
 {
-    "settings":{
-        "number_of_shards":1,
-            "number_of_replicas":0,
-            "refresh_interval":"60s"
-    },
-    "mappings":{
-        "DOCUMENT":{
-            "_id":{
-                "path":"DOCID"
-            },
-            "_all":{
-                "enabled": false
-            },
-            "dynamic":"strict",
-            "properties":{
-                "docid":{
-                    "type":"string",
-                    "index":"not_analyzed"
-                },
-                "title":{
-                    "type":"string",
-                    "store":true,
-                    "index":"analyzed",
-                    "analyzer":"whitespace",
-                    "norms":{ "enabled" : false },
-                    "index_options":"docs"
-                },
-                "content":{
-                    "type":"string",
-                    "store":true,
-                    "index":"analyzed",
-                    "analyzer":"whitespace",
-                    "norms":{ "enabled" : false },
-                    "index_options":"docs"
-                },
-                "writer":{
-                    "type":"string",
-                    "store":true,
-                    "index":"not_analyzed"
-                },
-                "post_date":{
-                    "type":"date",
-                    "index":"not_analyzed",
-                    "format":"date_optional_time",
-                    "fielddata":{ "format":"doc_values" }
-                },
-                "url":{
-                    "type":"string",
-                    "store":true,
-                    "index":"no",
-                    "fielddata":{ "format":"disabled" }
-                }
-            }
-        }
-    }
+	"settings":{
+		"number_of_shards":1,
+			"number_of_replicas":0,
+			"refresh_interval":"60s"
+	},
+		"mappings":{
+			"DOCUMENT":{
+				"properties":{
+					"id":{
+						"type":"keyword",
+						"store":true,
+						"index":true
+					},
+					"addr1":{
+						"type":"text",
+						"store":true,
+						"index":true,
+						"analyzer":"whitespace"
+					},
+					"addr2":{
+						"type":"text",
+						"store":true,
+						"index":true,
+						"analyzer":"whitespace"
+					},
+					"load":{
+						"type":"text",
+						"store":true,
+						"index":true,
+						"analyzer":"whitespace"
+					},
+					"loadCd1":{
+						"type":"keyword",
+						"store":true,
+						"index":true
+					},
+					"loadCd2":{
+						"type":"keyword",
+						"store":true,
+						"index":true
+					},
+					"dong": {
+						"type":"keyword",
+						"store":true,
+						"index":true
+					},
+					"dongCd1": {
+						"type":"keyword",
+						"store":true,
+						"index":true
+					},
+					"dongCd2": {
+						"type":"keyword",
+						"store":true,
+						"index":true
+					},
+					"aptm": {
+						"type":"text",
+						"store":true,
+						"index":true,
+						"analyzer":"whitespace"
+					},
+					"addr": {
+						"type":"text",
+						"store":true,
+						"index":true,
+						"analyzer":"whitespace"
+					},
+					"dealDate": {
+						"type":"date",
+						"store":true,
+						"index":true
+					},
+					"price": {
+						"type": "integer",
+						"store":true,
+						"index":true
+					},
+					"size": {
+						"type": "float",
+						"store":true,
+						"index":true
+					}
+
+				}
+			}
+		}
 }

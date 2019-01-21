@@ -10,9 +10,9 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>es-client</artifactId>
+    <artifactId>es-rest-client</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <description>elasticsearch client for indexing</description>
+    <description>elasticsearch rest client for indexing</description>
 
     <name>${project.artifactId}</name>
     <url>https://github.com/thunder-org/thunder</url>
@@ -25,7 +25,6 @@
         <maven.compiler.target>1.8</maven.compiler.target>
 
         <es.version>6.5.4</es.version>
-        <googlejson.version>1.1.1</googlejson.version>
     </properties>
 
     <dependencies>
@@ -36,19 +35,9 @@
             <version>${version}</version>
         </dependency>
         <dependency>
-            <groupId>org.conqueror</groupId>
-            <artifactId>thunder-lion</artifactId>
-            <version>${version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.elasticsearch.client</groupId>
-            <artifactId>transport</artifactId>
+            <artifactId>elasticsearch-rest-client</artifactId>
             <version>${es.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.googlecode.json-simple</groupId>
-            <artifactId>json-simple</artifactId>
-            <version>${googlejson.version}</version>
         </dependency>
 
     </dependencies>

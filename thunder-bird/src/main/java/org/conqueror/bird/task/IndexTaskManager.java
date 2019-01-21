@@ -5,7 +5,7 @@ import org.conqueror.bird.config.IndexConfig;
 import org.conqueror.bird.data.messages.analysis.AnalysisTaskFinishRequest;
 import org.conqueror.bird.data.messages.analysis.Documents;
 import org.conqueror.bird.data.messages.index.IndexContents;
-import org.conqueror.bird.data.messages.index.IndexTaskFinishRequest;
+import org.conqueror.bird.data.messages.index.IndexContentTaskFinishRequest;
 import org.conqueror.lion.cluster.task.TaskManager;
 import org.conqueror.lion.config.JobConfig;
 import org.conqueror.lion.message.JobManagerMessage;
@@ -27,7 +27,7 @@ public class IndexTaskManager extends TaskManager<IndexConfig> {
         return super.createReceive().orElse(receiveBuilder()
             .match(Documents.class, this::processDocuments)
             .match(AnalysisTaskFinishRequest.class, this::processFinishAnalysisManager)
-            .match(IndexTaskFinishRequest.class, this::processFinishIndexContentManager)
+            .match(IndexContentTaskFinishRequest.class, this::processFinishIndexContentManager)
             .matchAny(message -> {
                 log().warning("received an unhandled request : {}", message);
                 unhandled(message);
@@ -47,18 +47,23 @@ public class IndexTaskManager extends TaskManager<IndexConfig> {
     }
 
     @Override
+    // task-worker들이 모두 종료되어도 바로 task-manager를 졸요하지 않고 두 manager 부터 종료 시킴
     protected void finishTaskManager() {
-        indexContentManager.tell(JobManagerMessage.TaskAssignFinishResponse.getInstance(), getSelf());
+        // stop index and analysis managers
         analysisManager.tell(JobManagerMessage.TaskAssignFinishResponse.getInstance(), getSelf());
     }
 
     private void processFinishAnalysisManager(AnalysisTaskFinishRequest request) {
         log().info("analysisManager is finished");
-//        super.finishTaskManager();
+
+        // index-content-task-manager 종료시킴
+        indexContentManager.tell(JobManagerMessage.TaskAssignFinishResponse.getInstance(), getSelf());
     }
 
-    private void processFinishIndexContentManager(IndexTaskFinishRequest request) {
+    private void processFinishIndexContentManager(IndexContentTaskFinishRequest request) {
         log().info("indexContentManager is finished");
+
+        // task-manager 종료
         super.finishTaskManager();
     }
 

@@ -15,4 +15,6 @@ public abstract class ObjectAnalyzer {
         return config;
     }
 
+    public abstract void close();
+
 }
