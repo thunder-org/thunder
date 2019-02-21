@@ -60,7 +60,7 @@ public class TestJobManager extends JobManager<TestJobConfig> {
 
     public Queue<String> sources = new ArrayDeque<>(10);
 
-    public TestJobManager(JobConfig jobConfig, ActorRef master) {
+    public TestJobManager(TestJobConfig jobConfig, ActorRef master) {
         super(jobConfig, master);
     }
 

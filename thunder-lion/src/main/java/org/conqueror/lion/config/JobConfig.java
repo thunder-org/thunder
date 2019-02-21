@@ -19,8 +19,8 @@ public abstract class JobConfig<T extends JobConfig> extends Configuration imple
     private final String name;
     private final JobID jobID;
     private final String schedule;
-    private final String group;
-    private final String description;
+    private final String jobGroup;
+    private final String jobDescription;
 
     private final int maxNumberOfTaskManagers;
     private final int maxNumberOfTaskWorkers;
@@ -36,8 +36,8 @@ public abstract class JobConfig<T extends JobConfig> extends Configuration imple
         name = null;
         jobID = null;
         schedule = null;
-        group = null;
-        description = null;
+        jobGroup = null;
+        jobDescription = null;
         maxNumberOfTaskManagers = 0;
         maxNumberOfTaskWorkers = 0;
         jobManagerClass = null;
@@ -56,8 +56,8 @@ public abstract class JobConfig<T extends JobConfig> extends Configuration imple
         name = getStringFromConfig(config, "job.name", true);
         jobID = new JobID(getIntegerFromConfig(config, "job.id", true));
         schedule = getStringFromConfig(config, "job.schedule", "0");
-        group = getStringFromConfig(config, "job.group", false);
-        description = getStringFromConfig(config, "job.description", false);
+        jobGroup = getStringFromConfig(config, "job.group", false);
+        jobDescription = getStringFromConfig(config, "job.description", false);
         maxNumberOfTaskManagers = getIntegerFromConfig(config, "job.task.manager.number", 1);
         maxNumberOfTaskWorkers = getIntegerFromConfig(config, "job.task.worker.number", 1);
 
@@ -80,12 +80,12 @@ public abstract class JobConfig<T extends JobConfig> extends Configuration imple
         return schedule;
     }
 
-    public String getGroup() {
-        return group;
+    public String getJobGroup() {
+        return jobGroup;
     }
 
-    public String getDescription() {
-        return description;
+    public String getJobDescription() {
+        return jobDescription;
     }
 
     public int getMaxNumberOfTaskManagers() {

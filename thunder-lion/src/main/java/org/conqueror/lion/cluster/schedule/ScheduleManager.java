@@ -77,7 +77,7 @@ public class ScheduleManager extends NodeComponentActor {
         jobData.put(ScheduledMessagingJob.SenderKey, getSelf());
         jobData.put(ScheduledMessagingJob.MessageKey, new JobMasterMessage.JobManagerCreateRequest(config));
 
-        scheduler.registerJob(ScheduledMessagingJob.class, config.getSchedule(), config.getJobID(), config.getGroup(), config.getDescription(), jobData);
+        scheduler.registerJob(ScheduledMessagingJob.class, config.getSchedule(), config.getJobID(), config.getJobGroup(), config.getJobDescription(), jobData);
         log().info("job was scheduled - job-id : {}, job-name : {}, schedule-exp : {}", config.getJobID(), config.getName(), config.getSchedule());
         getSender().tell(new ScheduleManagerMessage.JobRegisterResponse(), getSelf());
     }

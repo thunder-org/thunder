@@ -24,7 +24,7 @@ public abstract class JobManager<T extends JobConfig> extends ManagerActor {
         return Props.create(jobManagerClass, config, master);
     }
 
-    public JobManager(JobConfig config, ActorRef master) {
+    public JobManager(T config, ActorRef master) {
         super(config, master);
 
         jobName = config.getName();

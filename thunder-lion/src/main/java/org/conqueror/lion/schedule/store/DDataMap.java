@@ -5,17 +5,11 @@ import akka.cluster.Cluster;
 import akka.cluster.ddata.*;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
-import org.jetbrains.annotations.NotNull;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
-import java.util.AbstractMap;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 
@@ -278,7 +272,7 @@ public class DDataMap<K, V> implements Map<K, V> {
      *                                       the specified map prevents it from being stored in this map
      */
     @Override
-    public void putAll(@NotNull Map m) {
+    public void putAll(Map m) {
 
     }
 
@@ -311,7 +305,6 @@ public class DDataMap<K, V> implements Map<K, V> {
      *
      * @return a set view of the keys contained in this map
      */
-    @NotNull
     @Override
     public Set<K> keySet() {
         try {
@@ -336,7 +329,6 @@ public class DDataMap<K, V> implements Map<K, V> {
      *
      * @return a collection view of the values contained in this map
      */
-    @NotNull
     @Override
     public Collection<V> values() {
         Set<V> values = new HashSet<>();
@@ -363,7 +355,6 @@ public class DDataMap<K, V> implements Map<K, V> {
      *
      * @return a set view of the mappings contained in this map
      */
-    @NotNull
     @Override
     public Set<Entry<K, V>> entrySet() {
         Set<Entry<K, V>> set = new HashSet<>();

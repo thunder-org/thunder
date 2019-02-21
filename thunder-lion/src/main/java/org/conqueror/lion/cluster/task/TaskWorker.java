@@ -7,6 +7,9 @@ import org.conqueror.lion.config.JobConfig;
 import org.conqueror.lion.message.JobManagerMessage;
 import org.conqueror.lion.message.LionMessage;
 import org.conqueror.lion.message.TaskManagerMessage;
+import scala.concurrent.duration.Duration;
+
+import java.util.concurrent.TimeUnit;
 
 
 public abstract class TaskWorker<C extends JobConfig, T extends JobManagerMessage.TaskAssignResponse> extends AbstractLoggingActor {
@@ -31,7 +34,8 @@ public abstract class TaskWorker<C extends JobConfig, T extends JobManagerMessag
     public Receive createReceive() {
         return receiveBuilder()
             .match(JobManagerMessage.TaskAssignFinishResponse.class, this::processFinishTask)
-            .match(JobManagerMessage.TaskAssignResponse.class, this::processTask)
+            .match(JobManagerMessage.TaskAssignWaitingResponse.class, this::processWaitingTask)
+            .match(JobManagerMessage.TaskAssignResponse.class, this::processAssignedTask)
             .build();
     }
 
@@ -42,7 +46,7 @@ public abstract class TaskWorker<C extends JobConfig, T extends JobManagerMessag
         super.preStart();
     }
 
-    protected abstract void work(JobManagerMessage.TaskAssignResponse source) throws Exception;
+    protected abstract void work(T source) throws Exception;
 
     protected abstract JobManagerMessage.TaskAssignRequest createTaskAssignRequest();
 
@@ -59,8 +63,14 @@ public abstract class TaskWorker<C extends JobConfig, T extends JobManagerMessag
         taskManager.tell(new TaskManagerMessage.TaskWorkerFinishRequest(), getSelf());
     }
 
-    protected void processTask(JobManagerMessage.TaskAssignResponse response) throws Exception {
-        work(response);
+    private void processWaitingTask(JobManagerMessage.TaskAssignWaitingResponse response) {
+        getContext().getSystem().scheduler().scheduleOnce(Duration.create(response.getWaitingSec(), TimeUnit.SECONDS),
+            this::requestTask, getContext().getSystem().getDispatcher());
+    }
+
+    private void processAssignedTask(JobManagerMessage.TaskAssignResponse response) throws Exception {
+        //noinspection unchecked
+        work((T) response);
 
         // request next task
         requestTask();

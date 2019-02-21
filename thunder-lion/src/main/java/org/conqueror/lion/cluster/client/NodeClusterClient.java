@@ -4,10 +4,12 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.cluster.client.ClusterClient;
 import akka.cluster.client.ClusterClientSettings;
+import akka.pattern.Patterns;
 import akka.pattern.PatternsCS;
 import akka.util.Timeout;
 import org.conqueror.lion.config.ClientConfig;
 import org.conqueror.lion.message.LionMessage;
+import scala.compat.java8.FutureConverters;
 
 import java.io.Closeable;
 import java.util.concurrent.CompletionStage;
@@ -64,7 +66,7 @@ public class NodeClusterClient implements Closeable {
     }
 
     private CompletionStage<Object> ask(Object message) {
-        return PatternsCS.ask(clusterClient, message, timeout);
+        return FutureConverters.toJava(Patterns.ask(clusterClient, message, timeout));
     }
 
     public void tellToMaster(LionMessage request, ActorRef sender) {
@@ -76,7 +78,6 @@ public class NodeClusterClient implements Closeable {
     }
 
     public void tell(LionMessage request, String path, ActorRef sender) {
-        System.out.println(path);
         tell(new ClusterClient.Send(path, request), sender);
     }
 

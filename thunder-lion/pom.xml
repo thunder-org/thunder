@@ -39,11 +39,6 @@
             <artifactId>thunder-common</artifactId>
             <version>${version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.conqueror</groupId>
-            <artifactId>thunder-lion</artifactId>
-            <version>${version}</version>
-        </dependency>
 
         <!-- akka -->
         <dependency>

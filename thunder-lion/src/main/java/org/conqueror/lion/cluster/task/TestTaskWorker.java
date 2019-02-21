@@ -32,7 +32,7 @@ public class TestTaskWorker extends TaskWorker<TestJobConfig, TestJobManager.Tes
     }
 
     @Override
-    protected void work(JobManagerMessage.TaskAssignResponse source) throws Exception {
+    protected void work(TestJobManager.TestTaskAssignResponse source) throws Exception {
         System.out.println(source);
 //        try {
 //            Thread.sleep(1000L);

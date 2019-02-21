@@ -8,7 +8,6 @@ import akka.cluster.ddata.ORSetKey;
 import akka.cluster.ddata.Replicator;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
-import org.jetbrains.annotations.NotNull;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
@@ -157,7 +156,6 @@ public class DDataSet<V> implements Set<V> {
      *
      * @return an iterator over the elements in this set
      */
-    @NotNull
     @Override
     public Iterator<V> iterator() {
         return Objects.requireNonNull(getSet()).getElements().iterator();
@@ -179,7 +177,6 @@ public class DDataSet<V> implements Set<V> {
      *
      * @return an array containing all the elements in this set
      */
-    @NotNull
     @Override
     public Object[] toArray() {
         return new Object[0];
@@ -227,9 +224,8 @@ public class DDataSet<V> implements Set<V> {
      *                              set
      * @throws NullPointerException if the specified array is null
      */
-    @NotNull
     @Override
-    public <T> T[] toArray(@NotNull T[] a) {
+    public <T> T[] toArray(T[] a) {
         int idx = 0;
         for (V value : this) {
             //noinspection unchecked
@@ -328,7 +324,7 @@ public class DDataSet<V> implements Set<V> {
      * @see #contains(Object)
      */
     @Override
-    public boolean containsAll(@NotNull Collection<?> c) {
+    public boolean containsAll(Collection<?> c) {
         return false;
     }
 
@@ -354,7 +350,7 @@ public class DDataSet<V> implements Set<V> {
      * @see #add(Object)
      */
     @Override
-    public boolean addAll(@NotNull Collection<? extends V> c) {
+    public boolean addAll(Collection<? extends V> c) {
         putDataAll(c);
         return true;
     }
@@ -381,7 +377,7 @@ public class DDataSet<V> implements Set<V> {
      * @see #remove(Object)
      */
     @Override
-    public boolean retainAll(@NotNull Collection<?> c) {
+    public boolean retainAll(Collection<?> c) {
         return false;
     }
 
@@ -407,7 +403,7 @@ public class DDataSet<V> implements Set<V> {
      * @see #contains(Object)
      */
     @Override
-    public boolean removeAll(@NotNull Collection<?> c) {
+    public boolean removeAll(Collection<?> c) {
         return false;
     }
 

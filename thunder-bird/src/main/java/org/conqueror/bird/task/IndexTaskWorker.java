@@ -25,8 +25,8 @@ public class IndexTaskWorker extends TaskWorker<IndexConfig, IndexSourceAssignRe
     }
 
     @Override
-    protected void work(JobManagerMessage.TaskAssignResponse response) {
-        List<GateSource> sources = ((IndexSourceAssignResponse) response).getSources();
+    protected void work(IndexSourceAssignResponse response) {
+        List<GateSource> sources = response.getSources();
         for (GateSource source : sources) {
             log().info("[START] source : {}", source.toString());
 

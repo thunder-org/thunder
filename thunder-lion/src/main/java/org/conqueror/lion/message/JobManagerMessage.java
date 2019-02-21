@@ -76,6 +76,49 @@ public abstract class JobManagerMessage extends JobMasterMessage {
 
     }
 
+    public static class TaskAssignWaitingResponse extends JobManagerMessage.TaskAssignResponse {
+
+        private final int waitingSec;
+
+        public TaskAssignWaitingResponse() {
+            this(0);
+        }
+
+        public TaskAssignWaitingResponse(int waitingSec) {
+            this.waitingSec = waitingSec;
+        }
+
+        public int getWaitingSec() {
+            return waitingSec;
+        }
+
+        @Override
+        public void writeObject(DataOutput output) throws SerializableException {
+            try {
+                output.writeInt(waitingSec);
+            } catch (IOException e) {
+                throw new SerializableException(e);
+            }
+        }
+
+        @Override
+        public TaskAssignWaitingResponse readObject(DataInput input) throws SerializableException {
+            try {
+                return new TaskAssignWaitingResponse(input.readInt());
+            } catch (IOException e) {
+                throw new SerializableException(e);
+            }
+        }
+
+        @Override
+        public String toString() {
+            return "TaskAssignWaitingResponse{" +
+                "waitingSec=" + waitingSec +
+                '}';
+        }
+
+    }
+
     /*
     this message means that the task finished because no assigning task
      */

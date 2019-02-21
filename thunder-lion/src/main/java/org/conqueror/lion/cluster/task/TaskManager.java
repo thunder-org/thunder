@@ -6,6 +6,7 @@ import akka.actor.Terminated;
 import org.conqueror.lion.cluster.actor.ManagerActor;
 import org.conqueror.lion.config.JobConfig;
 import org.conqueror.lion.message.JobManagerMessage;
+import org.conqueror.lion.message.LionMessage;
 import org.conqueror.lion.message.TaskManagerMessage;
 import org.conqueror.lion.message.TaskMasterMessage;
 
@@ -156,6 +157,10 @@ public abstract class TaskManager<T extends JobConfig> extends ManagerActor {
 
     private String makeTaskWorkerName(int number) {
         return getJobName() + "-" + number;
+    }
+
+    protected void tellToJobManager(LionMessage message) {
+        jobManager.tell(message, getSelf());
     }
 
 }
