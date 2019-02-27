@@ -25,8 +25,8 @@ public class IndexConfig extends JobConfig<IndexConfig> {
     private int numberOfSources = 0;
 
     /* Analyzer */
-    private int numberOfAnalyzers = 0;
     private String analyzerConfFilePath = null;
+    private int numberOfAnalyzers = 0;
 
     /* Indexer */
     private int indexNameMaxSize = 20;
@@ -48,22 +48,19 @@ public class IndexConfig extends JobConfig<IndexConfig> {
     }
 
     private void buildConfig(Config config) {
-        String confDir = getStringFromConfig(config, "conf-path", true);
-        String schemaDir = getStringFromConfig(config, "job.schema-path", true);
-        Config schemaConfig = getConfig(config, "job.gate.schemas");
-        String mappingDir = getStringFromConfig(config, "job.mapping-path", true);
-        Config mappingConfig = getConfig(config, "job.index.es.mappings");
-        for (Map.Entry<String, ConfigValue> entry : schemaConfig.entrySet()) {
-            addSchema(entry.getKey(), FileUtils.getFileContent(schemaDir, (String) entry.getValue().unwrapped()));
-        }
 
         /* for gate */
         setDestFileList(getStringListFromConfig(config, "job.gate.input-file-list", true));
         setNumberOfSources(getIntegerFromConfig(config, "job.gate.source-number", true));
+        String schemaDir = getStringFromConfig(config, "job.gate.schema-path", true);
+        Config schemaConfig = getConfig(config, "job.gate.schemas");
+        for (Map.Entry<String, ConfigValue> entry : schemaConfig.entrySet()) {
+            addSchema(entry.getKey(), FileUtils.getFileContent(schemaDir, (String) entry.getValue().unwrapped()));
+        }
 
-        /* for analyzer */
+        /* for analysis */
+        setAnalyzerConfFilePath(getStringFromConfig(config, "job.analysis.conf-file-path", true));
         setNumberOfAnalyzers(getIntegerFromConfig(config, "job.analysis.analyzer.number", true));
-        setAnalyzerConfFilePath(confDir + File.separator + getStringFromConfig(config, "job.analysis.analyzer.conf-file", true));
 
         /* for indexer */
         setIndexNameMaxSize(getIntegerFromConfig(config, "job.index.name-max-size", true));
@@ -78,6 +75,8 @@ public class IndexConfig extends JobConfig<IndexConfig> {
         indexInfo.setPingTimeOutSec(getIntegerFromConfig(config, "job.index.es.ping-timeout", 60));
         indexInfo.setNodeSamplerIntervalSec(getIntegerFromConfig(config, "job.index.es.node-sampler-interval", 60));
         indexInfo.setRequestRetries(getIntegerFromConfig(config, "job.index.es.request-retries", 0));
+        String mappingDir = getStringFromConfig(config, "job.index.mapping-path", true);
+        Config mappingConfig = getConfig(config, "job.index.es.mappings");
         for (Map.Entry<String, ConfigValue> entry : mappingConfig.entrySet()) {
             indexInfo.addMappingJson(entry.getKey(), FileUtils.getFileContent(mappingDir, (String) entry.getValue().unwrapped()));
         }

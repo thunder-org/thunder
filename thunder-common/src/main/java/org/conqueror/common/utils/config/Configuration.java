@@ -4,11 +4,14 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import jodd.util.ClassLoaderUtil;
 import org.conqueror.common.exceptions.ThunderConfigException;
+import org.conqueror.common.utils.file.FileUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.io.File;
 import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 import java.util.Objects;
 
@@ -122,6 +125,14 @@ public abstract class Configuration implements Serializable {
 
     protected static Boolean getBooleanFromConfig(Config config, String path, boolean notNull) {
         return getValueFromConfig(config, path, ValueType.BOOLEAN, notNull);
+    }
+
+    protected static URL getFileURLFromConfig(Config config, String path, boolean notNull) {
+        String file = getStringFromConfig(config, path, notNull);
+        if (FileUtils.getDirectoryPath(file) != null) {
+            return FileUtils.toURL(file);
+        }
+        return Loader.getResource(file);
     }
 
     protected static boolean hasStringValue(Config config, String path) {

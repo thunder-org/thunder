@@ -22,7 +22,17 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+
+        <klay.version>0.1</klay.version>
+        <komoran.version>3.3.3</komoran.version>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
 
     <dependencies>
 
@@ -35,6 +45,18 @@
             <groupId>org.conqueror</groupId>
             <artifactId>es-client</artifactId>
             <version>${version}</version>
+        </dependency>
+
+        <!-- analyzer -->
+        <dependency>
+            <groupId>da.klay</groupId>
+            <artifactId>da-klay-core</artifactId>
+            <version>${klay.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.shin285</groupId>
+            <artifactId>KOMORAN</artifactId>
+            <version>${komoran.version}</version>
         </dependency>
 
     </dependencies>

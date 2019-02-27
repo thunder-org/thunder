@@ -3,6 +3,8 @@ package org.conqueror.common.utils.file;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -13,8 +15,21 @@ import java.util.List;
 
 public class FileUtils {
 
+    public static URL toURL(String filePath) {
+        try {
+            return new URL(filePath);
+        } catch (MalformedURLException e) {
+            try {
+                return new URL("file", null, -1, filePath);
+            } catch (MalformedURLException e1) {
+                return null;
+            }
+        }
+    }
+
     public static String getDirectoryPath(String filePath) {
         int idx = filePath.lastIndexOf(File.separator);
+        if (idx == -1) idx = filePath.lastIndexOf('/');
         if (idx != -1) {
             return filePath.substring(0, idx);
         }
@@ -23,6 +38,7 @@ public class FileUtils {
 
     public static String getFileName(String filePath) {
         int idx = filePath.lastIndexOf(File.separator);
+        if (idx == -1) idx = filePath.lastIndexOf('/');
         if (idx != -1) {
             return filePath.substring(idx + 1);
         }
@@ -48,7 +64,9 @@ public class FileUtils {
 
     public static String getFileContent(String directory, String fileName, Charset charset) {
         try {
-            return IOUtils.toString(new FileInputStream(new File(directory + File.separator + fileName)), charset);
+            return IOUtils.toString(new FileInputStream(
+                new File(directory + ((directory.contains(File.separator))? File.separator : '/') + fileName))
+                , charset);
         } catch (IOException e) {
             e.printStackTrace();
             return null;

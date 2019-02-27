@@ -6,6 +6,7 @@ import org.conqueror.bird.gate.source.schema.DocumentSchema;
 import org.conqueror.bird.gate.source.schema.FieldSchema;
 import org.conqueror.bird.gate.source.schema.FieldSchemaUsingAnalyzer;
 import org.conqueror.bird.gate.source.schema.FieldSchemaUsingIndexingFieldData;
+import org.conqueror.cat.analysis.KeywordResult;
 import org.conqueror.es.client.index.source.IndexContent;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;

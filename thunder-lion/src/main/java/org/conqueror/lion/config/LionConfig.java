@@ -18,8 +18,8 @@ public abstract class LionConfig extends Configuration {
 
     public LionConfig(Config config) {
         this.config = config;
-        String thost = getStringFromConfig(config, "akka.remote.artery.canonical.hostname", true);
-        Integer tport = getIntegerFromConfig(config, "akka.remote.artery.canonical.port", true);
+        String thost = getStringFromConfig(config, "akka.remote.artery.canonical.hostname", false);
+        Integer tport = getIntegerFromConfig(config, "akka.remote.artery.canonical.port", false);
         if (thost == null || thost.startsWith("<")) {
             thost = getStringFromConfig(config, "akka.remote.netty.tcp.hostname", false);
             tport = getIntegerFromConfig(config, "akka.remote.netty.tcp.port", false);

@@ -1,6 +1,7 @@
 package org.conqueror.bird.analysis;
 
 import akka.event.LoggingAdapter;
+import org.conqueror.cat.analysis.KeywordResult;
 import org.conqueror.cat.analysis.NGramAnalyzer;
 import org.conqueror.cat.config.NGramConfig;
 
