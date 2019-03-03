@@ -5,7 +5,6 @@ import kr.co.shineware.nlp.komoran.model.KomoranResult;
 import kr.co.shineware.nlp.komoran.model.Token;
 import org.conqueror.cat.config.KeywordAnalyzerConfig;
 import org.conqueror.cat.config.KomoranConfig;
-import org.conqueror.common.utils.config.Loader;
 
 
 public class KomoranKeywordAnalyzer extends KeywordAnalyzer {
