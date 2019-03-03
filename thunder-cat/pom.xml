@@ -50,6 +50,13 @@
         <!-- analyzer -->
         <dependency>
             <groupId>da.klay</groupId>
+            <artifactId>da-klay-common</artifactId>
+            <version>${klay.version}</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/da-klay-common-0.1.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>da.klay</groupId>
             <artifactId>da-klay-core</artifactId>
             <version>${klay.version}</version>
             <scope>system</scope>
