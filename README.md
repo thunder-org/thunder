@@ -1,4 +1,4 @@
-https://secure.travis-ci.org/conquernos/thunder.png
+[![Build Status](https://travis-ci.org/thunder-org/thunder.svg?branch=master)](https://travis-ci.org/thunder-org/thunder)
 
 # thunder
 thunder-common : common utilities<br>
