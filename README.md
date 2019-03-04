@@ -1,3 +1,5 @@
+https://secure.travis-ci.org/conquernos/thunder.png
+
 # thunder
 thunder-common : common utilities<br>
 thunder-lion : akka based task distribution library (by using multiple worker nodes in parallel)<br>
