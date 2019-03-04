@@ -14,7 +14,7 @@ public class TestTableKey implements LionSerializable<TestTableKey> {
 
 	private String value;
 
-	private TestTableKey() {
+	public TestTableKey() {
 		this(null);
 	}
 
