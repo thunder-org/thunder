@@ -3,6 +3,9 @@ package org.conqueror.common.utils.collection;
 import java.util.HashSet;
 import java.util.Locale;
 
+/*
+    hash set for only string elements
+ */
 public class StringIgnoreSet extends HashSet<String> {
 
     @Override

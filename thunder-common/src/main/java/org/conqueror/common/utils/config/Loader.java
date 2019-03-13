@@ -5,6 +5,9 @@ import java.net.URL;
 
 public class Loader {
 
+    private Loader() {
+    }
+
     public static URL getResource(String resource) {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 

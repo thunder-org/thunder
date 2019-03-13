@@ -1,20 +1,11 @@
-package org.conqueror.lion.serialize;
+package org.conqueror.common.serialize;
 
-import org.conqueror.lion.exceptions.Serialize.SerializableException;
-import org.jetbrains.annotations.NotNull;
-import org.mapdb.DataInput2;
-import org.mapdb.DataOutput2;
-import org.mapdb.Serializer;
+import org.conqueror.common.exceptions.serialize.SerializableException;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 
 
-public interface LionSerializable<T extends LionSerializable> extends Serializable {
-
-    Map<Class, Serializer> serializers = new HashMap<>();
+public interface ThunderSerializable<T extends ThunderSerializable> extends Serializable {
 
     @Override
     int hashCode();
@@ -26,48 +17,11 @@ public interface LionSerializable<T extends LionSerializable> extends Serializab
 
     T readObject(DataInput input) throws SerializableException;
 
-    static <T extends LionSerializable> T newInstance(Class<T> serializableClass) throws SerializableException {
+    static <T extends ThunderSerializable> T newInstance(Class<T> serializableClass) throws SerializableException {
         try {
             return serializableClass.newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
             throw new SerializableException(e);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    static <T extends LionSerializable> Serializer<T> getSerializer(Class<T> serializableClass) {
-        Serializer serializer = serializers.get(serializableClass);
-        if (Objects.nonNull(serializer)) return serializer;
-
-        synchronized (serializers) {
-            serializer = serializers.get(serializableClass);
-            if (serializer == null) {
-                serializer = new Serializer<T>() {
-                    @Override
-                    public void serialize(@NotNull DataOutput2 out, @NotNull T value) throws IOException {
-                        try {
-                            value.writeObject(out);
-                        } catch (SerializableException e) {
-                            throw new IOException(e);
-                        }
-                    }
-
-                    @Override
-                    public T deserialize(@NotNull DataInput2 input, int available) throws IOException {
-                        try {
-                            T value = serializableClass.newInstance();
-                            value.readObject(input);
-                            return value;
-                        } catch (InstantiationException | IllegalAccessException | SerializableException e) {
-                            throw new IOException(e);
-                        }
-                    }
-                };
-
-                serializers.put(serializableClass, serializer);
-            }
-
-            return serializer;
         }
     }
 
@@ -106,6 +60,7 @@ public interface LionSerializable<T extends LionSerializable> extends Serializab
         ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
         try {
             ObjectInputStream in = new ObjectInputStream(bais);
+            //noinspection unchecked
             return (T) in.readObject();
         } catch (ClassNotFoundException | IOException e) {
             throw new SerializableException(e);

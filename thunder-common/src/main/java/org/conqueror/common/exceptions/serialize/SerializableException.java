@@ -1,9 +1,10 @@
-package org.conqueror.lion.exceptions.Serialize;
+package org.conqueror.common.exceptions.serialize;
 
-import org.conqueror.lion.exceptions.LionException;
 
-@SuppressWarnings("unused")
-public class SerializableException extends LionException {
+import org.conqueror.common.exceptions.ThunderException;
+
+
+public class SerializableException extends ThunderException {
 
 	public SerializableException() {
 		super();

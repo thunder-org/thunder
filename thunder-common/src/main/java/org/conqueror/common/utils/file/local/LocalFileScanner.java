@@ -4,10 +4,8 @@ import org.conqueror.common.utils.file.FileInfo;
 import org.conqueror.common.utils.file.FileScanner;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.net.URI;
+import java.util.*;
 import java.util.Map.Entry;
 
 
@@ -62,32 +60,32 @@ public class LocalFileScanner extends FileScanner {
     }
 
     @Override
-    public List<LocalFileInfo> getChildren(FileInfo directory, int depth) {
+    public List<FileInfo> getChildren(FileInfo directory, int depth) {
         return getChildren((LocalFileInfo) directory, depth);
     }
 
-    public List<LocalFileInfo> getChildren(LocalFileInfo directory, int depth) {
+    public List<FileInfo> getChildren(LocalFileInfo directory, int depth) {
         return getChildren(directory.getFile(), depth);
     }
 
-    public List<LocalFileInfo> getChildren(File directory, int depth) {
+    public List<FileInfo> getChildren(File directory, int depth) {
         List<File> files = new ArrayList<>();
         getChildren(directory, files, depth);
         return toFileInfoList(files);
     }
 
     @Override
-    public List<LocalFileInfo> getChildren(FileInfo directory, String fileRegexp) {
+    public List<FileInfo> getChildren(FileInfo directory, String fileRegexp) {
         return getChildren((LocalFileInfo) directory, fileRegexp);
     }
 
-    public List<LocalFileInfo> getChildren(LocalFileInfo directory, String fileRegexp) {
+    public List<FileInfo> getChildren(LocalFileInfo directory, String fileRegexp) {
         return getChildren(directory.getFile(), fileRegexp);
     }
 
-    public List<LocalFileInfo> getChildren(File directory, String fileRegexp) {
+    public List<FileInfo> getChildren(File directory, String fileRegexp) {
         String[] children = directory.list(new RegexpFilenameFilter(fileRegexp));
-        return toFileInfoList(children);
+        return children != null? toFileInfoList(directory.getPath(), children) : Collections.emptyList();
     }
 
     public BufferedReader getReader(FileInfo file) throws IOException {
@@ -105,13 +103,14 @@ public class LocalFileScanner extends FileScanner {
             try {
                 entry.getValue().close();
             } catch (IOException ignored) {
+                entry.setValue(null);
             }
         }
         fileSources.clear();
     }
 
     @Override
-    public FileInfo makeFileInfo(String fileUri) {
+    public FileInfo makeFileInfo(URI fileUri) {
         return new LocalFileInfo(fileUri);
     }
 
@@ -130,26 +129,24 @@ public class LocalFileScanner extends FileScanner {
                 }
             }
         } else {
-            if (exceptPrefix != null) {
-                if (!root.getName().startsWith(exceptPrefix)) files.add(root);
-            } else {
+            if (exceptPrefix == null || !root.getName().startsWith(exceptPrefix)) {
                 files.add(root);
             }
         }
     }
 
-    private static List<LocalFileInfo> toFileInfoList(List<File> files) {
-        List<LocalFileInfo> fileInfos = new ArrayList<>();
+    private static List<FileInfo> toFileInfoList(List<File> files) {
+        List<FileInfo> fileInfos = new ArrayList<>();
         for (File child : files) {
             fileInfos.add(new LocalFileInfo(child));
         }
         return fileInfos;
     }
 
-    private static List<LocalFileInfo> toFileInfoList(String[] files) {
-        List<LocalFileInfo> fileInfos = new ArrayList<>();
+    private static List<FileInfo> toFileInfoList(String directory, String[] files) {
+        List<FileInfo> fileInfos = new ArrayList<>();
         for (String child : files) {
-            fileInfos.add(new LocalFileInfo(child));
+            fileInfos.add(new LocalFileInfo(new File(directory, child)));
         }
         return fileInfos;
     }

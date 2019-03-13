@@ -4,39 +4,33 @@ import org.conqueror.common.utils.file.FileInfo;
 
 import java.io.File;
 import java.net.URI;
-import java.net.URISyntaxException;
+
 
 public class LocalFileInfo extends FileInfo {
-	
-	private static final long serialVersionUID = -1269573516970492755L;
 
-	private File file;
-	
-	public LocalFileInfo(String path) {
-		try {
-			URI uri = new URI(path);
-			this.file = new File(uri.getPath());
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-		}
-	}
+    private File file;
 
-	public LocalFileInfo(File file) {
-		this.file = file;
-	}
+    public LocalFileInfo(URI uri) {
+        this.file = new File(uri);
+    }
 
-	@Override
-	public File getFile() {
-		return this.file;
-	}
-	
-	@Override
-	public void close() {
-	}
-	
-	@Override
-	public String toString() {
-		return file.toString();
-	}
+    public LocalFileInfo(File file) {
+        this.file = file;
+    }
+
+    @Override
+    public File getFile() {
+        return file;
+    }
+
+    @Override
+    public void close() {
+        file = null;
+    }
+
+    @Override
+    public String toString() {
+        return file != null ? file.toString() : "";
+    }
 
 }

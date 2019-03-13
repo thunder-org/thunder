@@ -1,12 +1,17 @@
 package org.conqueror.common.utils.db;
 
+import java.io.Closeable;
 import java.sql.*;
 import java.util.Properties;
 
 
-public class DBConnector {
+public class DBConnector implements Closeable {
 
     private Connection connection;
+
+    public DBConnector(String jdbcUrl) throws SQLException {
+        this.connection = DriverManager.getConnection(jdbcUrl);
+    }
 
     public DBConnector(String jdbcUrl, Properties properties) throws SQLException {
         this.connection = DriverManager.getConnection(jdbcUrl, properties);
@@ -20,8 +25,9 @@ public class DBConnector {
 
     public int count(String sql) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            ResultSet result = statement.executeQuery();
-            if (result.next()) return result.getInt(1);
+            try (ResultSet result = statement.executeQuery()) {
+                if (result.next()) return result.getInt(1);
+            }
         }
         return 0;
     }
@@ -50,8 +56,14 @@ public class DBConnector {
         }
     }
 
-    public void close() throws SQLException {
-        if (connection != null) connection.close();
+    public void close() {
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                connection = null;
+            }
+        }
     }
 
 }

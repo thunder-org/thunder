@@ -10,7 +10,6 @@ import org.joda.time.format.DateTimeFormatter;
 
 import java.io.File;
 import java.io.Serializable;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Objects;
@@ -95,21 +94,11 @@ public abstract class Configuration implements Serializable {
         try {
             if (config.hasPath(path)) {
                 String stringValue;
-                try {
-                    stringValue = config.getString(path).trim();
-                } catch (ConfigException.WrongType e) {
-                    throw new ThunderConfigException.WrongTypeValue(path);
-                }
-                if (stringValue.length() == 0) {
-                    value = null;
-                } else {
-                    try {
-                        value = dateFormatter.parseDateTime(stringValue);
-                    } catch (IllegalArgumentException e) {
-                        throw new ThunderConfigException.WrongTypeValue(path);
-                    }
-                }
+                stringValue = config.getString(path).trim();
+                value = (stringValue.length() == 0) ? null : dateFormatter.parseDateTime(stringValue);
             }
+        } catch (ConfigException.WrongType | IllegalArgumentException e) {
+            throw new ThunderConfigException.WrongTypeValue(path);
         } catch (ConfigException.BadPath e) {
             throw new ThunderConfigException.WrongPathOrNullValue(path);
         }
@@ -158,33 +147,32 @@ public abstract class Configuration implements Serializable {
 
         try {
             if (config.hasPath(path)) {
-                try {
-                    switch (type) {
-                        case STRING:
-                            value = (T) config.getString(path);
-                            break;
-                        case INTEGER:
-                            value = (T) Integer.valueOf(config.getInt(path));
-                            break;
-                        case LONG:
-                            value = (T) Long.valueOf(config.getLong(path));
-                            break;
-                        case DOUBLE:
-                            value = (T) Double.valueOf(config.getDouble(path));
-                            break;
-                        case STRING_LIST:
-                            value = (T) config.getStringList(path);
-                            break;
-                        case BOOLEAN:
-                            value = (T) Boolean.valueOf(config.getBoolean(path));
-                            break;
-                    }
-                } catch (ConfigException.WrongType e) {
-                    throw new ThunderConfigException.WrongTypeValue(path);
+                switch (type) {
+                    case STRING:
+                        value = (T) config.getString(path);
+                        break;
+                    case INTEGER:
+                        value = (T) Integer.valueOf(config.getInt(path));
+                        break;
+                    case LONG:
+                        value = (T) Long.valueOf(config.getLong(path));
+                        break;
+                    case DOUBLE:
+                        value = (T) Double.valueOf(config.getDouble(path));
+                        break;
+                    case STRING_LIST:
+                        value = (T) config.getStringList(path);
+                        break;
+                    case BOOLEAN:
+                        value = (T) Boolean.valueOf(config.getBoolean(path));
+                        break;
+                    default:
                 }
             }
         } catch (ConfigException.BadPath e) {
             throw new ThunderConfigException.WrongPathOrNullValue(path);
+        } catch (ConfigException.WrongType e) {
+            throw new ThunderConfigException.WrongTypeValue(path);
         }
 
         if (notNull && value == null) throw new ThunderConfigException.WrongPathOrNullValue(path);

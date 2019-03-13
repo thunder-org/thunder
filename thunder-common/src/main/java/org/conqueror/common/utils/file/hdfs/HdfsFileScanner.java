@@ -8,163 +8,168 @@ import org.conqueror.common.utils.file.FileScanner;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+
 public class HdfsFileScanner extends FileScanner {
 
-	private static final class FileSource {
-		private FSDataInputStream inputStream;
+    private static final class FileSource {
 
-		public FileSource(FSDataInputStream inputStream) {
-			this.inputStream = inputStream;
-		}
+        private FSDataInputStream inputStream;
 
-		public void close() {
-			try {
-				inputStream.close();
-			} catch (IOException e) {
-			}
-		}
-	}
+        public FileSource(FSDataInputStream inputStream) {
+            this.inputStream = inputStream;
+        }
 
-	private Map<HdfsFile, FileSource> fileSources = new HashMap<>();
+        public void close() {
+            try {
+                inputStream.close();
+            } catch (IOException ignored) {
+                inputStream = null;
+            }
+        }
+    }
 
-	@Override
-	public boolean isFile(FileInfo file) throws IOException {
-		return isFile((HdfsFileInfo) file);
-	}
+    private Map<HdfsFile, FileSource> fileSources = new HashMap<>();
 
-	public boolean isFile(HdfsFileInfo file) throws IOException {
-		return isFile(file.getFile());
-	}
+    @Override
+    public boolean isFile(FileInfo file) throws IOException {
+        return isFile((HdfsFileInfo) file);
+    }
 
-	public boolean isFile(HdfsFile file) throws IOException {
-		return file.isFile();
-	}
+    public boolean isFile(HdfsFileInfo file) throws IOException {
+        return isFile(file.getFile());
+    }
 
-	@Override
-	public boolean isDirectory(FileInfo file) throws IOException {
-		return isDirectory((HdfsFileInfo) file);
-	}
+    public boolean isFile(HdfsFile file) throws IOException {
+        return file.isFile();
+    }
 
-	public boolean isDirectory(HdfsFileInfo file) throws IOException {
-		return isDirectory(file.getFile());
-	}
+    @Override
+    public boolean isDirectory(FileInfo file) throws IOException {
+        return isDirectory((HdfsFileInfo) file);
+    }
 
-	public boolean isDirectory(HdfsFile file) throws IOException {
-		return file.isDirectory();
-	}
+    public boolean isDirectory(HdfsFileInfo file) throws IOException {
+        return isDirectory(file.getFile());
+    }
 
-	@Override
-	public List<HdfsFileInfo> getChildren(FileInfo directory, int depth)
-		throws IOException {
-		return getChildren((HdfsFileInfo) directory, depth);
-	}
+    public boolean isDirectory(HdfsFile file) throws IOException {
+        return file.isDirectory();
+    }
 
-	public List<HdfsFileInfo> getChildren(HdfsFileInfo directory, int depth)
-		throws IOException {
-		return getChildren(directory.getFile(), depth);
-	}
+    @Override
+    public List<FileInfo> getChildren(FileInfo directory, int depth)
+        throws IOException {
+        return getChildren((HdfsFileInfo) directory, depth);
+    }
 
-	public List<HdfsFileInfo> getChildren(HdfsFile directory, int depth)
-		throws IOException {
-		List<HdfsFile> files = new ArrayList<>();
-		getChildren(directory, files, depth);
-		return toFileInfoList(files);
-	}
+    public List<FileInfo> getChildren(HdfsFileInfo directory, int depth)
+        throws IOException {
+        return getChildren(directory.getFile(), depth);
+    }
 
-	@Override
-	public List<HdfsFileInfo> getChildren(FileInfo directory, String fileRegexp)
-		throws IOException, InterruptedException {
-		return getChildren((HdfsFileInfo) directory, fileRegexp);
-	}
+    public List<FileInfo> getChildren(HdfsFile directory, int depth)
+        throws IOException {
+        List<HdfsFile> files = new ArrayList<>();
+        getChildren(directory, files, depth);
+        return toFileInfoList(files);
+    }
 
-	public List<HdfsFileInfo> getChildren(HdfsFileInfo directory, String fileRegexp)
-		throws IOException, InterruptedException {
-		return getChildren(directory.getFile(), fileRegexp);
-	}
+    @Override
+    public List<FileInfo> getChildren(FileInfo directory, String fileRegexp)
+        throws IOException, InterruptedException {
+        return getChildren((HdfsFileInfo) directory, fileRegexp);
+    }
 
-	public List<HdfsFileInfo> getChildren(HdfsFile directory, String fileRegexp)
-		throws IOException, InterruptedException {
-		List<HdfsFileInfo> fileList = new ArrayList<>();
-		List<HdfsFile> files = new ArrayList<>();
-		getChildren(directory, files, 1);
-		for (HdfsFile file : files) {
-			Path path = file.getPath();
-			if (path.getName().matches(fileRegexp)) {
-				fileList.add(new HdfsFileInfo(path));
-			}
-		}
+    public List<FileInfo> getChildren(HdfsFileInfo directory, String fileRegexp)
+        throws IOException, InterruptedException {
+        return getChildren(directory.getFile(), fileRegexp);
+    }
 
-		return fileList;
-	}
+    public List<FileInfo> getChildren(HdfsFile directory, String fileRegexp)
+        throws IOException, InterruptedException {
+        List<FileInfo> fileList = new ArrayList<>();
+        List<HdfsFile> files = new ArrayList<>();
+        getChildren(directory, files, 1);
+        for (HdfsFile file : files) {
+            Path path = file.getPath();
+            if (path.getName().matches(fileRegexp)) {
+                fileList.add(new HdfsFileInfo(path));
+            }
+        }
 
-	@Override
-	public BufferedReader getReader(FileInfo file) throws IOException {
-		FSDataInputStream inputStream = ((HdfsFileInfo) file).getFile().getInputStream();
-		HdfsFile hdfsFile = ((HdfsFileInfo) file).getFile();
+        return fileList;
+    }
 
-		FileSource source = new FileSource(inputStream);
-		if (hdfsFile.exists()) {
-			fileSources.put(hdfsFile, source);
-		} else {
-			source.close();
-			return null;
-		}
+    @Override
+    public BufferedReader getReader(FileInfo file) throws IOException {
+        FSDataInputStream inputStream = ((HdfsFileInfo) file).getFile().getInputStream();
+        HdfsFile hdfsFile = ((HdfsFileInfo) file).getFile();
 
-		return new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
-	}
+        FileSource source = new FileSource(inputStream);
+        if (hdfsFile.exists()) {
+            fileSources.put(hdfsFile, source);
+        } else {
+            source.close();
+            return null;
+        }
 
-	@Override
-	public void close() {
-		for (Entry<HdfsFile, FileSource> entry : fileSources.entrySet()) {
-			try {
-				entry.getKey().close();
-			} catch (IOException e) {
-			}
-			entry.getValue().close();
-		}
-		fileSources.clear();
-	}
+        return new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+    }
 
-	@Override
-	public FileInfo makeFileInfo(String fileUri) throws IOException, InterruptedException {
-		return new HdfsFileInfo(fileUri);
-	}
+    @Override
+    public void close() {
+        for (Entry<HdfsFile, FileSource> entry : fileSources.entrySet()) {
+            try {
+                entry.getKey().close();
+                entry.getValue().close();
+            } catch (IOException ignored) {
+                entry.setValue(null);
+            }
+        }
+        fileSources.clear();
+    }
 
-	private static void getChildren(HdfsFile root, List<HdfsFile> files, int depth)
-		throws IOException {
-		getChildren(root, files, depth, null);
-	}
+    @Override
+    public FileInfo makeFileInfo(URI fileUri) throws IOException, InterruptedException {
+        return new HdfsFileInfo(fileUri.getPath());
+    }
 
-	private static void getChildren(HdfsFile root, List<HdfsFile> files, int depth, String exceptPrefix)
-		throws IOException {
-		if (root.isDirectory()) {
-			if (depth > 0) {
-				for (HdfsFile file : root.getChildren(false)) {
-					getChildren(file, files, --depth, exceptPrefix);
-				}
-			}
-		} else {
-			if (exceptPrefix != null) {
-				if (!root.getPath().getName().startsWith(exceptPrefix)) files.add(root);
-			} else {
-				files.add(root);
-			}
-		}
-	}
+    private static void getChildren(HdfsFile root, List<HdfsFile> files, int depth)
+        throws IOException {
+        getChildren(root, files, depth, null);
+    }
 
-	private static List<HdfsFileInfo> toFileInfoList(List<HdfsFile> files)
-		throws IOException {
-		List<HdfsFileInfo> fileInfos = new ArrayList<>();
-		for (HdfsFile child : files) {
-			fileInfos.add(new HdfsFileInfo(child));
-		}
-		return fileInfos;
-	}
+    private static void getChildren(HdfsFile root, List<HdfsFile> files, int depth, String exceptPrefix)
+        throws IOException {
+        if (root.isDirectory()) {
+            if (depth > 0) {
+                for (HdfsFile file : root.getChildren(false)) {
+                    getChildren(file, files, --depth, exceptPrefix);
+                }
+            }
+        } else {
+            if (exceptPrefix != null) {
+                if (!root.getPath().getName().startsWith(exceptPrefix)) files.add(root);
+            } else {
+                files.add(root);
+            }
+        }
+    }
+
+    private static List<FileInfo> toFileInfoList(List<HdfsFile> files) {
+        List<FileInfo> fileInfos = new ArrayList<>();
+        for (HdfsFile child : files) {
+            fileInfos.add(new HdfsFileInfo(child));
+        }
+        return fileInfos;
+    }
 
 }

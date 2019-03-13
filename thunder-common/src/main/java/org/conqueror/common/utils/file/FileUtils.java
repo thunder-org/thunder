@@ -15,12 +15,15 @@ import java.util.List;
 
 public class FileUtils {
 
+    private FileUtils() {
+    }
+
     public static URL toURL(String filePath) {
         try {
-            return new URL(filePath);
+            return new URL(slashify(filePath));
         } catch (MalformedURLException e) {
             try {
-                return new URL("file", null, -1, filePath);
+                return new URL("file", "", slashify(filePath));
             } catch (MalformedURLException e1) {
                 return null;
             }
@@ -53,7 +56,6 @@ public class FileUtils {
         try {
             return new String(Files.readAllBytes(FileSystems.getDefault().getPath(filePath)), charset);
         } catch (IOException e) {
-            e.printStackTrace();
             return null;
         }
     }
@@ -65,10 +67,17 @@ public class FileUtils {
     public static String getFileContent(String directory, String fileName, Charset charset) {
         try {
             return IOUtils.toString(new FileInputStream(
-                new File(directory + ((directory.contains(File.separator))? File.separator : '/') + fileName))
+                    new File(directory + ((directory.contains(File.separator)) ? File.separator : '/') + fileName))
                 , charset);
         } catch (IOException e) {
-            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static String getFileContent(Reader reader) {
+        try {
+            return IOUtils.toString(reader);
+        } catch (IOException e) {
             return null;
         }
     }
@@ -76,7 +85,7 @@ public class FileUtils {
     public static void appendTextLine(String filePath, String text) throws IOException {
         Path path = FileSystems.getDefault().getPath(filePath);
 
-        if (!Files.exists(path)) Files.createFile(path);
+        if (!path.toFile().exists()) Files.createFile(path);
         else if (Files.size(path) > 0) text = "\n" + text;
 
         Files.write(path, text.getBytes(), StandardOpenOption.APPEND);
@@ -97,6 +106,16 @@ public class FileUtils {
 
         if (append && Files.size(path) > 0) Files.write(path, "\n".getBytes(), StandardOpenOption.APPEND);
 
-        Files.write(path, list, StandardOpenOption.CREATE, append? StandardOpenOption.APPEND : StandardOpenOption.TRUNCATE_EXISTING );
+        Files.write(path, list, StandardOpenOption.CREATE, append ? StandardOpenOption.APPEND : StandardOpenOption.TRUNCATE_EXISTING);
     }
+
+    private static String slashify(String path) {
+        String p = path;
+        if (File.separatorChar != '/')
+            p = p.replace(File.separatorChar, '/');
+        if (!p.startsWith("/"))
+            p = "/" + p;
+        return p;
+    }
+
 }

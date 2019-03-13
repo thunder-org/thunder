@@ -11,24 +11,27 @@ public class StringUtils {
 
     public enum CharCodeType {KOREAN, ENG, NUM, ETC}
 
+    private StringUtils() {
+
+    }
+
     public static List<String> splitIgnoringInQuotes(String input, String delim) {
-        Pattern splitSearchPattern = Pattern.compile("[\"" + delim + "]");
         if (input == null) return Collections.emptyList();
 
         List<String> list = new ArrayList<>();
-        Matcher m = splitSearchPattern.matcher(input);
+        Matcher matcher = Pattern.compile("[\"" + delim + "]").matcher(input);
         int pos = 0;
         boolean quoteMode = false;
-        while (m.find()) {
-            String sep = m.group();
+        while (matcher.find()) {
+            String sep = matcher.group();
             if (("\"").equals(sep)) {
                 quoteMode = !quoteMode;
             } else if (!quoteMode && delim.equals(sep)) {
-                int toPos = m.start();
+                int toPos = matcher.start();
                 if (input.charAt(pos) == '\"') pos++;
                 if (input.charAt(toPos - 1) == '\"') toPos--;
                 list.add(input.substring(pos, toPos));
-                pos = m.end();
+                pos = matcher.end();
             }
         }
         if (pos < input.length()) {
@@ -70,8 +73,8 @@ public class StringUtils {
 
     public static boolean isSpecialChar(char ch) {
         return (ch < '\u0030' || ch > '\u0039')
-            || (ch < '\u0041' || ch > '\u005A')
-            || (ch < '\u0061' || ch > '\u007A');
+            && (ch < '\u0041' || ch > '\u005A')
+            && (ch < '\u0061' || ch > '\u007A');
     }
 
     private static final String SPECIAL_CHAR_REGEXP = "[^\uAC00-\uD7A3xfe0-9a-zA-Z\\s]+";
@@ -81,7 +84,7 @@ public class StringUtils {
     }
 
     public static boolean hasWhiteSpace(String input) {
-        return input.indexOf(" ") > 0;
+        return input.indexOf(' ') >= 0;
     }
 
     public static boolean isEnglishChar(char input) {
@@ -115,21 +118,33 @@ public class StringUtils {
         return true;
     }
 
-    private static Pattern urlPattern = Pattern.compile("^(https?):\\/\\/([^:\\/\\s]+)(:([^\\/]*))?((\\/[^\\s/\\/]+)*)?\\/?([^#\\s\\?]*)(\\?([^#\\s]*))?(#(\\w*))?$");
+    private static final Pattern urlPattern = Pattern.compile("((https?|ftp|gopher|telnet|file|Unsure|http):((//)|(\\\\))+[\\w\\d:#@%/;$()~_?\\+-=\\\\\\.&]*)", Pattern.CASE_INSENSITIVE);
 
     public static String removeUrl(String text) {
-        return urlPattern.matcher(text).replaceAll("");
+        Matcher m = urlPattern.matcher(text);
+        int i = 0;
+        while (m.find()) {
+            text = text.replaceAll(m.group(i), "").trim();
+            i++;
+        }
+        return text;
     }
 
-    private static Pattern emailPattern = Pattern.compile("^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
+    private static final Pattern emailPattern = Pattern.compile("([^.@\\s]+)(\\.[^.@\\s]+)*@([^.@\\s]+\\.)+([^.@\\s]+)");
 
     public static String removeEmail(String text) {
-        return emailPattern.matcher(text).replaceAll("");
+        Matcher m = emailPattern.matcher(text);
+        int i = 0;
+        while (m.find()) {
+            text = text.replaceAll(m.group(i), "").trim();
+            i++;
+        }
+        return text;
     }
 
     // all whitespace ([ \t\n\x0B\f\r]) -> " "
     public static String refineAllWhiteSpace(String text) {
-        return text.replaceAll("\\s{2,}", " ");
+        return text.replaceAll("\\s+", " ");
     }
 
 }

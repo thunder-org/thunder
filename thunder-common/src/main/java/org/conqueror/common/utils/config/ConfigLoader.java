@@ -9,11 +9,22 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 
 
+/*
+    load config of typesafe style and trasform to Configuration class
+    utility class
+ */
 public class ConfigLoader {
+
+    private ConfigLoader() {
+    }
+
+    public static Config load(File confFile) {
+        return ConfigFactory.parseFile(confFile).resolve();
+    }
 
     public static Config load(String confFilePath) {
         String confDir = FileUtils.getDirectoryPath(confFilePath);
-        if (confDir != null) return ConfigFactory.parseFile(new File(confFilePath)).resolve();
+        if (confDir != null) return load(new File(confFilePath));
 
         String baseNameOfConfigFile = confFilePath;
 
@@ -21,8 +32,6 @@ public class ConfigLoader {
         if (idx != -1) {
             baseNameOfConfigFile = baseNameOfConfigFile.substring(0, idx);
         }
-
-//        ClassLoaderUtil.addFileToClassPath(new File(confDir), Thread.currentThread().getContextClassLoader());
 
         return ConfigFactory.load(baseNameOfConfigFile);
     }
@@ -34,6 +43,14 @@ public class ConfigLoader {
     public static Configuration build(Class<? extends Configuration> configurationClass, String configFilePath) {
         try {
             return configurationClass.getConstructor(Config.class).newInstance(load(configFilePath));
+        } catch (IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
+            throw new ThunderConfigException(e);
+        }
+    }
+
+    public static Configuration build(Class<? extends Configuration> configurationClass, File configFile) {
+        try {
+            return configurationClass.getConstructor(Config.class).newInstance(load(configFile));
         } catch (IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
             throw new ThunderConfigException(e);
         }
