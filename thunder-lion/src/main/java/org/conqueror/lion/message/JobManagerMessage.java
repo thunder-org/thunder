@@ -1,7 +1,7 @@
 package org.conqueror.lion.message;
 
-import org.conqueror.lion.exceptions.Serialize.SerializableException;
-import org.conqueror.lion.serialize.LionSerializable;
+import org.conqueror.common.exceptions.serialize.SerializableException;
+import org.conqueror.common.serialize.ThunderSerializable;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -62,7 +62,7 @@ public abstract class JobManagerMessage extends JobMasterMessage {
         }
 
         @Override
-        public LionSerializable readObject(DataInput input) {
+        public ThunderSerializable readObject(DataInput input) {
             return null;
         }
 
@@ -136,7 +136,7 @@ public abstract class JobManagerMessage extends JobMasterMessage {
         }
 
         @Override
-        public LionSerializable readObject(DataInput input) {
+        public ThunderSerializable readObject(DataInput input) {
             return new TaskAssignFinishResponse();
         }
 

@@ -5,10 +5,9 @@ import akka.actor.ActorSystem;
 import akka.cluster.client.ClusterClient;
 import akka.cluster.client.ClusterClientSettings;
 import akka.pattern.Patterns;
-import akka.pattern.PatternsCS;
 import akka.util.Timeout;
 import org.conqueror.lion.config.ClientConfig;
-import org.conqueror.lion.message.LionMessage;
+import org.conqueror.lion.message.ThunderMessage;
 import scala.compat.java8.FutureConverters;
 
 import java.io.Closeable;
@@ -45,23 +44,23 @@ public class NodeClusterClient implements Closeable {
         clientSystem.terminate();
     }
 
-    public CompletionStage<Object> askToMaster(LionMessage request) {
+    public CompletionStage<Object> askToMaster(ThunderMessage request) {
         return ask(request, NODE_MASTER_SINGLETON_PATH);
     }
 
-    public CompletionStage<Object> askToWorker(LionMessage request, String nodeWorkerID) {
+    public CompletionStage<Object> askToWorker(ThunderMessage request, String nodeWorkerID) {
         return ask(request, getNodeWorkerPath(nodeWorkerID));
     }
 
-    public CompletionStage<Object> askToWorkers(LionMessage request) {
+    public CompletionStage<Object> askToWorkers(ThunderMessage request) {
         return askToAll(request, NODE_WORKERS_PATH);
     }
 
-    public CompletionStage<Object> ask(LionMessage request, String path) {
+    public CompletionStage<Object> ask(ThunderMessage request, String path) {
         return ask(new ClusterClient.Send(path, request));
     }
 
-    public CompletionStage<Object> askToAll(LionMessage request, String path) {
+    public CompletionStage<Object> askToAll(ThunderMessage request, String path) {
         return ask(new ClusterClient.SendToAll(path, request));
     }
 
@@ -69,19 +68,19 @@ public class NodeClusterClient implements Closeable {
         return FutureConverters.toJava(Patterns.ask(clusterClient, message, timeout));
     }
 
-    public void tellToMaster(LionMessage request, ActorRef sender) {
+    public void tellToMaster(ThunderMessage request, ActorRef sender) {
         tell(request, NODE_MASTER_SINGLETON_PATH, sender);
     }
 
-    public void tellToWorkers(LionMessage request, ActorRef sender, String nodeWorkerID) {
+    public void tellToWorkers(ThunderMessage request, ActorRef sender, String nodeWorkerID) {
         tellToAll(request, getNodeWorkerPath(nodeWorkerID), sender);
     }
 
-    public void tell(LionMessage request, String path, ActorRef sender) {
+    public void tell(ThunderMessage request, String path, ActorRef sender) {
         tell(new ClusterClient.Send(path, request), sender);
     }
 
-    public void tellToAll(LionMessage request, String path, ActorRef sender) {
+    public void tellToAll(ThunderMessage request, String path, ActorRef sender) {
         tell(new ClusterClient.SendToAll(path, request), sender);
     }
 

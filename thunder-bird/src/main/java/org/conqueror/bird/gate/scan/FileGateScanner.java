@@ -16,10 +16,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class FileGateScanner extends GateScanner {
@@ -43,8 +40,8 @@ public class FileGateScanner extends GateScanner {
             scanner = makeFileScanner(fileUri);
             if (scanner != null) {
                 try {
-                    reader = scanner.getReader(scanner.makeFileInfo(fileUri));
-                } catch (InterruptedException | IOException e) {
+                    reader = scanner.getReader(scanner.makeFileInfo(new URI(fileUri)));
+                } catch (InterruptedException | IOException | URISyntaxException e) {
                     throw new ScanException(e);
                 }
             }
@@ -75,10 +72,12 @@ public class FileGateScanner extends GateScanner {
         Parser parser = source.getParser();
 
         try {
-            Map<String, Object> data;
-            while ((data = parser.parse(reader)) != null) {
-                for (DocumentSchema schema : source.getSchemas()) {
-                    docs.add(documentBuilder.buildDocument(schema, data));
+            Collection<Map<String, Object>> data;
+            while (!(data = parser.parse(reader)).isEmpty()) {
+                for (Map<String, Object> datum : data) {
+                    for (DocumentSchema schema : source.getSchemas()) {
+                        docs.add(documentBuilder.buildDocument(schema, datum));
+                    }
                 }
             }
         } catch (Exception e) {
@@ -94,7 +93,7 @@ public class FileGateScanner extends GateScanner {
             URI uri = new URI(fileUri);
             scheme = uri.getScheme();
         } catch (URISyntaxException e) {
-            int eidx = fileUri.indexOf(":");
+            int eidx = fileUri.indexOf(':');
             if (eidx != -1) {
                 scheme = fileUri.substring(0, eidx);
             } else {
@@ -107,9 +106,11 @@ public class FileGateScanner extends GateScanner {
                 case "file":
                     return new LocalFileScanner();
                 case "sftp":
-                    return new RemoteFileScanner();
+                    return new RemoteFileScanner(3);
                 case "hdfs":
                     return new HdfsFileScanner();
+                default:
+                    return null;
             }
         }
 

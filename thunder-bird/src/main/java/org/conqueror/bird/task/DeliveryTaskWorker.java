@@ -4,7 +4,7 @@ import akka.actor.AbstractLoggingActor;
 import akka.actor.ActorRef;
 import org.conqueror.bird.data.messages.BirdMessage;
 import org.conqueror.lion.config.JobConfig;
-import org.conqueror.lion.message.LionMessage;
+import org.conqueror.lion.message.ThunderMessage;
 
 
 public abstract class DeliveryTaskWorker<C extends JobConfig> extends AbstractLoggingActor {
@@ -45,11 +45,11 @@ public abstract class DeliveryTaskWorker<C extends JobConfig> extends AbstractLo
         return config;
     }
 
-    protected void sendToDeliveryTaskManager(LionMessage message) {
+    protected void sendToDeliveryTaskManager(ThunderMessage message) {
         deliveryTaskManager.tell(message, getSelf());
     }
 
-    protected void sendToNextDeliveryTaskManager(LionMessage message) {
+    protected void sendToNextDeliveryTaskManager(ThunderMessage message) {
         deliverTo.tell(message, getSelf());
     }
 

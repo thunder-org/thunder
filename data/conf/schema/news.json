@@ -1,0 +1,61 @@
+{
+    "schema_name": "news",
+    "index_name": "news_ + @{postDate:yyyy-MM-dd HH:mm -> yyyyMM}",
+    "channel": "etc",
+    "fields": {
+        "_id_field": "id",
+        "_put_if_absent": true,
+        "_type": "DOCUMENT",
+        "id": {
+            "type": "string",
+            "index_field_name": "id",
+            "must_exist": true
+        },
+        "postDate": {
+            "type": "datetime",
+            "index_field_name": "post_date",
+            "must_exist": true,
+            "format": "yyyy-MM-dd HH:mm"
+        },
+        "depth": {
+            "type": "integer",
+            "index_field_name": "depth",
+            "must_exist": true
+        },
+        "url": {
+            "type": "string",
+            "index_field_name": "url",
+            "must_exist": true
+        },
+        "title": {
+            "type": "string",
+            "index_field_name": "title",
+            "must_exist": true
+        },
+        "_title": {
+            "index_field_name": "_title",
+            "value": "@{title}",
+            "analysis": "indexterm"
+        },
+        "titleTerms": {
+            "index_field_name": "title_terms",
+            "value": "${_title.indexterm}",
+            "to_type": "string"
+        },
+        "body": {
+            "type": "string",
+            "index_field_name": "body",
+            "must_exist": true
+        },
+        "_body": {
+            "index_field_name": "_body",
+            "value": "@{body}",
+            "analysis": "indexterm"
+        },
+        "bodyTerms": {
+            "index_field_name": "body_terms",
+            "value": "${_body.indexterm}",
+            "to_type": "string"
+        }
+    }
+}

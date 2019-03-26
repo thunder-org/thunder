@@ -2,7 +2,7 @@ package org.conqueror.lion.config;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import org.conqueror.lion.exceptions.Serialize.SerializableException;
+import org.conqueror.common.exceptions.serialize.SerializableException;
 
 import java.io.DataInput;
 import java.io.IOException;

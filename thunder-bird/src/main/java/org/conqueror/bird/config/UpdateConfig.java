@@ -6,7 +6,7 @@ import com.typesafe.config.ConfigValue;
 import org.conqueror.common.utils.config.ConfigLoader;
 import org.conqueror.common.utils.file.FileUtils;
 import org.conqueror.lion.config.JobConfig;
-import org.conqueror.lion.exceptions.Serialize.SerializableException;
+import org.conqueror.common.exceptions.serialize.SerializableException;
 
 import java.io.DataInput;
 import java.io.IOException;

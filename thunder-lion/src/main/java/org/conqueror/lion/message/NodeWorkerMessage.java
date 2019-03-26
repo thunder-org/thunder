@@ -1,12 +1,10 @@
 package org.conqueror.lion.message;
 
-import org.conqueror.lion.exceptions.Serialize.SerializableException;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 
 
-public abstract class NodeWorkerMessage implements LionMessage {
+public abstract class NodeWorkerMessage implements ThunderMessage {
 
     public static abstract class NodeWorkerRequest extends NodeWorkerMessage {
 

@@ -1,0 +1,51 @@
+{
+    "schema_name": "movie",
+    "index_name": "movie_ + @{date:1~5}",
+    "channel": "etc",
+    "fields": {
+        "_id_field": "review_id",
+        "_put_if_absent": true,
+        "_type": "DOCUMENT",
+        "review": {
+            "type": "string",
+            "index_field_name": "review",
+            "must_exist": true
+        },
+        "_review": {
+            "index_field_name": "_review",
+            "value":"@{review}",
+            "analysis":"indexterm"
+        },
+        "review_terms": {
+            "index_field_name": "review_terms",
+            "value": "${_review.indexterm}",
+            "to_type": "string"
+        },
+        "date": {
+            "type": "datetime",
+            "index_field_name": "date",
+            "must_exist": true,
+            "format": "yy.MM.dd"
+        },
+        "rating": {
+            "type": "integer",
+            "index_field_name": "rating",
+            "must_exist": true
+        },
+        "author": {
+            "type": "string",
+            "index_field_name": "author",
+            "must_exist": true
+        },
+        "review_id": {
+            "type": "string",
+            "index_field_name": "review_id",
+            "must_exist": true
+        },
+        "movie_id": {
+            "type": "string",
+            "index_field_name": "movie_id",
+            "must_exist": true
+        }
+    }
+}

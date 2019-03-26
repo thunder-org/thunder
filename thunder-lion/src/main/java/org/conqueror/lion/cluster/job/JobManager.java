@@ -94,7 +94,7 @@ public abstract class JobManager<T extends JobConfig> extends ManagerActor {
     protected void processAssignTask(JobManagerMessage.TaskAssignRequest request) throws Exception {
         JobManagerMessage.TaskAssignResponse response = assignTask(request);
         getSender().tell(response, getSelf());
-//        log().info("task is assigned to {} : {}", getSender().path(), response);
+        log().info("task is assigned to {} : {}", getSender().path(), response);
     }
 
     protected void processFinishTask(JobManagerMessage.TaskManagerFinishRequest request) {

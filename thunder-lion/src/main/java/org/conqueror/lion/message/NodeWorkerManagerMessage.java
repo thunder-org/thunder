@@ -1,15 +1,15 @@
 package org.conqueror.lion.message;
 
 
-import org.conqueror.lion.exceptions.Serialize.SerializableException;
-import org.conqueror.lion.serialize.LionSerializable;
+import org.conqueror.common.exceptions.serialize.SerializableException;
+import org.conqueror.common.serialize.ThunderSerializable;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
 
-public abstract class NodeWorkerManagerMessage implements LionMessage {
+public abstract class NodeWorkerManagerMessage implements ThunderMessage {
 
     public static abstract class NodeWorkerManagerRequest extends NodeWorkerManagerMessage {
 
@@ -170,7 +170,7 @@ public abstract class NodeWorkerManagerMessage implements LionMessage {
         }
 
         @Override
-        public LionSerializable readObject(DataInput input) throws SerializableException {
+        public ThunderSerializable readObject(DataInput input) throws SerializableException {
             try {
                 return new NodeWorkerUnregisterResponse(Result.valueOf(input.readUTF()));
             } catch (IOException e) {

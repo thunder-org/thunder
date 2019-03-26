@@ -1,9 +1,7 @@
 package org.conqueror.cat.utils;
 
-import da.klay.common.pos.Pos;
-import da.klay.core.morphology.analysis.Morph;
-import da.klay.core.morphology.analysis.Morphs;
-import org.apache.commons.lang3.CharSequenceUtils;
+import klay.core.morphology.analysis.Morph;
+import klay.core.morphology.analysis.Morphs;
 import org.conqueror.common.utils.string.StringUtils;
 
 import java.util.ArrayList;
@@ -112,6 +110,9 @@ public class MorphUtils {
 
     public static final char[] APOSTROPHE1 = new char[]{'\''};
     public static final char[] APOSTROPHE2 = new char[]{'`'};
+
+    private MorphUtils() {
+    }
 
     public static boolean equalsIn(CharSequence pos, CharSequence... compPoses) {
         return equalsIn(pos, (Iterable<? extends CharSequence>) Arrays.asList(compPoses));

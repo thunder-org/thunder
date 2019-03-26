@@ -27,12 +27,12 @@ public class CrawlTaskManager extends TaskManager<CrawlConfig> {
 
     @Override
     protected void prepareJob() throws Exception {
-        System.out.println("[start] crawl-task-manager");
+        log().info("[start] crawl-task-manager");
     }
 
     @Override
     protected void finishJob() throws Exception {
-        System.out.println("[end] crawl-task-manager");
+        log().info("[end] crawl-task-manager");
     }
 
     protected void processExtractedUrl(UrlInfos urls) {

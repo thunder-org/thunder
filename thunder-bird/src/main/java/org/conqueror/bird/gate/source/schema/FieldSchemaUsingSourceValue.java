@@ -1,9 +1,8 @@
 package org.conqueror.bird.gate.source.schema;
 
 import org.conqueror.bird.exceptions.schema.SchemaException;
-import org.conqueror.lion.exceptions.Serialize.SerializableException;
-import org.conqueror.lion.serialize.LionSerializable;
-import org.conqueror.lion.serialize.LionSerializer;
+import org.conqueror.common.exceptions.serialize.SerializableException;
+import org.conqueror.common.serialize.ThunderSerializable;
 import org.joda.time.DateTime;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
@@ -378,7 +377,7 @@ public class FieldSchemaUsingSourceValue extends FieldSchema {
     public void writeObject(DataOutput output) throws SerializableException {
         try {
             output.writeUTF(getSrcFieldName());
-            LionSerializable.writeSerializableObject(output, getValues());
+            ThunderSerializable.writeSerializableObject(output, getValues());
             output.writeInt(getFieldNumber());
         } catch (IOException e) {
             throw new SerializableException(e);
@@ -386,9 +385,9 @@ public class FieldSchemaUsingSourceValue extends FieldSchema {
     }
 
     @Override
-    public LionSerializable readObject(DataInput input) throws SerializableException {
+    public ThunderSerializable readObject(DataInput input) throws SerializableException {
         try {
-            return FieldSchemaUsingSourceValue.build(input.readUTF(), LionSerializable.readSerializableObject(input), input.readInt());
+            return FieldSchemaUsingSourceValue.build(input.readUTF(), ThunderSerializable.readSerializableObject(input), input.readInt());
         } catch (SchemaException | IOException e) {
             throw new SerializableException(e);
         }

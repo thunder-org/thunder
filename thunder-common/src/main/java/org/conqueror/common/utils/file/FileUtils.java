@@ -6,10 +6,9 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -91,6 +90,14 @@ public class FileUtils {
         Files.write(path, text.getBytes(), StandardOpenOption.APPEND);
     }
 
+    public static void writeContent(String filePath, String text, StandardOpenOption ... options) throws IOException {
+        writeContent(FileSystems.getDefault().getPath(filePath), text, options);
+    }
+
+    public static void writeContent(Path filePath, String text, StandardOpenOption ... options) throws IOException {
+        Files.write(filePath, text.getBytes(StandardCharsets.UTF_8), options);
+    }
+
     public static List<String> makeLinesToList(String filePath) throws IOException {
         return makeLinesToList(filePath, Charset.defaultCharset());
     }
@@ -107,6 +114,24 @@ public class FileUtils {
         if (append && Files.size(path) > 0) Files.write(path, "\n".getBytes(), StandardOpenOption.APPEND);
 
         Files.write(path, list, StandardOpenOption.CREATE, append ? StandardOpenOption.APPEND : StandardOpenOption.TRUNCATE_EXISTING);
+    }
+
+    public static void createDirectory(String dirPath) throws IOException {
+        Path path = FileSystems.getDefault().getPath(dirPath);
+
+        if (!path.toFile().exists()) Files.createDirectory(path);
+    }
+
+    public static void createDirectory(String parent, String ... child) throws IOException {
+        Path path = FileSystems.getDefault().getPath(parent);
+
+        if (!path.toFile().exists()) Files.createDirectory(path);
+
+        if (child.length == 1) {
+            createDirectory(Paths.get(parent, child[0]).toAbsolutePath().toString());
+        } else if (child.length > 1) {
+            createDirectory(Paths.get(parent, child[0]).toAbsolutePath().toString(), Arrays.copyOfRange(child, 1, child.length));
+        }
     }
 
     private static String slashify(String path) {

@@ -1,8 +1,8 @@
 package org.conqueror.drone.data.messages;
 
 import org.conqueror.drone.data.url.URLInfo;
-import org.conqueror.lion.exceptions.Serialize.SerializableException;
-import org.conqueror.lion.message.LionMessage;
+import org.conqueror.common.exceptions.serialize.SerializableException;
+import org.conqueror.lion.message.ThunderMessage;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class UrlInfos implements LionMessage<UrlInfos> {
+public class UrlInfos implements ThunderMessage<UrlInfos> {
 
     private final List<URLInfo> sources;
 

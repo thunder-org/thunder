@@ -1,13 +1,14 @@
 package org.conqueror.lion.serialize;
 
-import org.conqueror.lion.exceptions.Serialize.SerializableException;
+import org.conqueror.common.serialize.ThunderSerializable;
+import org.conqueror.common.exceptions.serialize.SerializableException;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
 
-public class SerializableObject implements LionSerializable<SerializableObject> {
+public class SerializableObject implements ThunderSerializable<SerializableObject> {
 
     private final String text;
 

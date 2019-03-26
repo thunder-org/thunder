@@ -5,10 +5,14 @@ import akka.actor.Props;
 import org.conqueror.bird.config.IndexConfig;
 import org.conqueror.bird.data.messages.analysis.AnalysisTaskFinishRequest;
 import org.conqueror.bird.data.messages.analysis.Documents;
+import org.conqueror.common.utils.date.DateTimeUtils;
 import org.conqueror.lion.config.JobConfig;
+import org.joda.time.DateTime;
 
 
 public class AnalysisTaskManager extends DeliveryTaskManager<IndexConfig> {
+
+    private DateTime startTime;
 
     public static Props props(JobConfig jobConfig, ActorRef taskManager, ActorRef indexTaskManager) {
         return Props.create(AnalysisTaskManager.class, jobConfig, taskManager, indexTaskManager);
@@ -25,11 +29,13 @@ public class AnalysisTaskManager extends DeliveryTaskManager<IndexConfig> {
 
     @Override
     protected void prepareJob() throws Exception {
-
+        startTime = DateTime.now();
     }
 
     @Override
     protected void finishJob() throws Exception {
+        log().info("elapsed time : {}", DateTimeUtils.getDurationString((DateTime.now().getMillis() - startTime.getMillis()) / 1000));
+
         getTaskManager().tell(new AnalysisTaskFinishRequest(), getSelf());
     }
 

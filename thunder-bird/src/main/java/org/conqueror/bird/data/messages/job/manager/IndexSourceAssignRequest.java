@@ -1,6 +1,6 @@
 package org.conqueror.bird.data.messages.job.manager;
 
-import org.conqueror.lion.exceptions.Serialize.SerializableException;
+import org.conqueror.common.exceptions.serialize.SerializableException;
 import org.conqueror.lion.message.JobManagerMessage;
 
 import java.io.DataInput;

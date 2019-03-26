@@ -1,11 +1,10 @@
 package org.conqueror.lion.cluster.job;
 
 import akka.actor.ActorRef;
-import org.conqueror.lion.config.JobConfig;
 import org.conqueror.lion.config.TestJobConfig;
-import org.conqueror.lion.exceptions.Serialize.SerializableException;
+import org.conqueror.common.exceptions.serialize.SerializableException;
 import org.conqueror.lion.message.JobManagerMessage;
-import org.conqueror.lion.serialize.LionSerializable;
+import org.conqueror.common.serialize.ThunderSerializable;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -41,7 +40,7 @@ public class TestJobManager extends JobManager<TestJobConfig> {
         }
 
         @Override
-        public LionSerializable readObject(DataInput input) throws SerializableException {
+        public ThunderSerializable readObject(DataInput input) throws SerializableException {
             try {
                 return new TestTaskAssignResponse(input.readUTF());
             } catch (IOException e) {

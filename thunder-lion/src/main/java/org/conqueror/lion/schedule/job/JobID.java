@@ -1,16 +1,15 @@
 package org.conqueror.lion.schedule.job;
 
-import org.conqueror.lion.exceptions.Serialize.SerializableException;
-import org.conqueror.lion.serialize.LionSerializable;
+import org.conqueror.common.exceptions.serialize.SerializableException;
+import org.conqueror.common.serialize.ThunderSerializable;
 import org.jetbrains.annotations.NotNull;
-import org.mapdb.Serializer;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
 
-public class JobID implements LionSerializable<JobID>, Comparable<JobID> {
+public class JobID implements ThunderSerializable<JobID>, Comparable<JobID> {
 
 	private static final Integer NOT_A_JOB_ID = -1;
 
@@ -79,10 +78,6 @@ public class JobID implements LionSerializable<JobID>, Comparable<JobID> {
 		} catch (IOException e) {
 			throw new SerializableException(e.getMessage(), e.getCause());
 		}
-	}
-
-	public static Serializer<JobID> getSerializer() {
-		return LionSerializable.getSerializer(JobID.class);
 	}
 
 	public static JobID getEmptyInstance() {

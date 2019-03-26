@@ -10,6 +10,10 @@ public class CrawlJobClient {
     public static void main(String[] args) {
         String clientConfigName = "G:\\workspace\\thunder\\data\\conf\\job\\client.conf";
         String jobConfigName = "G:\\workspace\\thunder\\data\\conf\\job\\drone.conf";
+        if (args.length == 2) {
+           clientConfigName = args[0];
+           jobConfigName = args[1];
+        }
         NodeClusterClient client = new NodeClusterClient(clientConfigName);
         client.askToMaster(new ScheduleManagerMessage.JobRegisterRequest(new CrawlConfig(jobConfigName)))
         .thenAccept(response -> client.close());

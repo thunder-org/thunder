@@ -4,7 +4,7 @@ import akka.actor.ActorRef;
 import org.conqueror.lion.cluster.job.TestJobManager;
 import org.conqueror.lion.config.JobConfig;
 import org.conqueror.lion.config.TestJobConfig;
-import org.conqueror.lion.exceptions.Serialize.SerializableException;
+import org.conqueror.common.exceptions.serialize.SerializableException;
 import org.conqueror.lion.message.JobManagerMessage;
 
 import java.io.DataInput;

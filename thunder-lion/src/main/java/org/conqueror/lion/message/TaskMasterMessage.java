@@ -4,15 +4,15 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.serialization.Serialization;
 import org.conqueror.lion.config.JobConfig;
-import org.conqueror.lion.exceptions.Serialize.SerializableException;
-import org.conqueror.lion.serialize.LionSerializable;
+import org.conqueror.common.exceptions.serialize.SerializableException;
+import org.conqueror.common.serialize.ThunderSerializable;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
 
-public abstract class TaskMasterMessage implements LionMessage {
+public abstract class TaskMasterMessage implements ThunderMessage {
 
 
     public static abstract class TaskMasterRequest extends TaskMasterMessage {
@@ -75,7 +75,7 @@ public abstract class TaskMasterMessage implements LionMessage {
         }
 
         @Override
-        public LionSerializable readObject(DataInput input) throws SerializableException {
+        public ThunderSerializable readObject(DataInput input) throws SerializableException {
             try {
                 return new TaskMasterAssignResponse(input.readUTF(), input.readUTF());
             } catch (IOException e) {

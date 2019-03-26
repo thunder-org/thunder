@@ -1,7 +1,7 @@
 package org.conqueror.bird.data.messages.index;
 
 import org.conqueror.es.client.index.source.IndexContent;
-import org.conqueror.lion.exceptions.Serialize.SerializableException;
+import org.conqueror.common.exceptions.serialize.SerializableException;
 
 import java.io.DataInput;
 import java.io.DataOutput;

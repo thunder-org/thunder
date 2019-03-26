@@ -1,0 +1,49 @@
+{
+    "settings": {
+        "number_of_shards": 1,
+        "number_of_replicas": 0,
+        "refresh_interval": "10s"
+    },
+    "mappings": {
+        "DOCUMENT": {
+            "properties": {
+                "review": {
+                    "type": "text",
+                    "store": true,
+                    "index": false
+                },
+                "review_terms": {
+                    "type": "text",
+                    "store": true,
+                    "index": true,
+                    "analyzer": "whitespace"
+                },
+                "date": {
+                    "type": "date",
+                    "store": true,
+                    "index": true
+                },
+                "rating": {
+                    "type": "integer",
+                    "store": true,
+                    "index": true
+                },
+                "author": {
+                    "type": "keyword",
+                    "store": true,
+                    "index": true
+                },
+                "review_id": {
+                    "type": "keyword",
+                    "store": true,
+                    "index": true
+                },
+                "movie_id": {
+                    "type": "keyword",
+                    "store": true,
+                    "index": true
+                }
+            }
+        }
+    }
+}

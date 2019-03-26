@@ -64,11 +64,23 @@ public class ScheduleManager extends NodeComponentActor {
     }
 
     private void processRegisterJob(ScheduleManagerMessage.JobRegisterRequest request) throws JobScheduleException {
-        registerJob(request.getConfig());
+        boolean succ = true;
+        try {
+            registerJob(request.getConfig());
+        } catch (JobScheduleException e) {
+            succ = false;
+        }
+        getSender().tell(new ScheduleManagerMessage.JobRegisterResponse(succ), getSelf());
     }
 
     private void processRemoveJob(ScheduleManagerMessage.JobRemoveRequest request) throws JobScheduleException {
-        unregisterJob(request.getConfig());
+        boolean succ = true;
+        try {
+            unregisterJob(request.getConfig());
+        } catch (JobScheduleException e) {
+            succ = false;
+        }
+        getSender().tell(new ScheduleManagerMessage.JobRemoveResponse(succ), getSelf());
     }
 
     public void registerJob(JobConfig config) throws JobScheduleException {
@@ -79,13 +91,11 @@ public class ScheduleManager extends NodeComponentActor {
 
         scheduler.registerJob(ScheduledMessagingJob.class, config.getSchedule(), config.getJobID(), config.getJobGroup(), config.getJobDescription(), jobData);
         log().info("job was scheduled - job-id : {}, job-name : {}, schedule-exp : {}", config.getJobID(), config.getName(), config.getSchedule());
-        getSender().tell(new ScheduleManagerMessage.JobRegisterResponse(), getSelf());
     }
 
     public void unregisterJob(JobConfig config) throws JobScheduleException {
         scheduler.removeJob(config.getJobID());
         log().info("scheduled job was removed - job-id : {}, job-name : {}, schedule-exp : {}", config.getJobID(), config.getName(), config.getSchedule());
-        getSender().tell(new ScheduleManagerMessage.JobRemoveResponse(), getSelf());
     }
 
 }

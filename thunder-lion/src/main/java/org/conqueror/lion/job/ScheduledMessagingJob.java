@@ -1,7 +1,7 @@
 package org.conqueror.lion.job;
 
 import akka.actor.ActorRef;
-import org.conqueror.lion.message.LionMessage;
+import org.conqueror.lion.message.ThunderMessage;
 import org.conqueror.lion.schedule.job.JobID;
 import org.conqueror.lion.schedule.job.ScheduledJob;
 import org.quartz.JobDataMap;
@@ -22,7 +22,7 @@ public class ScheduledMessagingJob extends ScheduledJob {
     protected void doJob(JobID jobID, JobDataMap data) {
         ActorRef sender = (ActorRef) data.get(SenderKey);
         ActorRef receiver = (ActorRef) data.get(ReceiverKey);
-        LionMessage message = (LionMessage) data.get(MessageKey);
+        ThunderMessage message = (ThunderMessage) data.get(MessageKey);
 
         receiver.tell(message, sender);
     }

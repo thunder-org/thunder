@@ -19,4 +19,12 @@ public abstract class TestClass {
         return new File(targetDirectory.toFile(), fileName);
     }
 
+    protected File getResourceDirectory() {
+        return resourceDirectory.toFile();
+    }
+
+    protected File getTargetDirectory() {
+        return targetDirectory.toFile();
+    }
+
 }

@@ -1,15 +1,15 @@
 package org.conqueror.lion.message;
 
 import org.conqueror.lion.config.JobConfig;
-import org.conqueror.lion.exceptions.Serialize.SerializableException;
-import org.conqueror.lion.serialize.LionSerializable;
+import org.conqueror.common.exceptions.serialize.SerializableException;
+import org.conqueror.common.serialize.ThunderSerializable;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
 
-public abstract class JobMasterMessage implements LionMessage {
+public abstract class JobMasterMessage implements ThunderMessage {
 
 
     public static abstract class JobMasterRequest extends JobMasterMessage {
@@ -47,7 +47,7 @@ public abstract class JobMasterMessage implements LionMessage {
         }
 
         @Override
-        public LionSerializable readObject(DataInput input) throws SerializableException {
+        public ThunderSerializable readObject(DataInput input) throws SerializableException {
             String className = null;
             try {
                 className = input.readUTF();

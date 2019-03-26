@@ -1,12 +1,12 @@
 package org.conqueror.lion.message;
 
-import org.conqueror.lion.exceptions.Serialize.SerializableException;
+import org.conqueror.common.exceptions.serialize.SerializableException;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 
 
-public abstract class TaskManagerMessage implements LionMessage {
+public abstract class TaskManagerMessage implements ThunderMessage {
 
     public static abstract class TaskManagerRequest extends TaskManagerMessage {
 

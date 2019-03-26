@@ -2,7 +2,7 @@ package org.conqueror.bird.gate.source;
 
 import org.conqueror.bird.gate.parser.Parser;
 import org.conqueror.bird.gate.source.schema.DocumentSchema;
-import org.conqueror.lion.exceptions.Serialize.SerializableException;
+import org.conqueror.common.exceptions.serialize.SerializableException;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -11,6 +11,7 @@ import java.io.IOException;
 
 public class FileGateSource extends GateSource {
 
+    private int number;
     private final String fileUri;
     private int hashCode = 0;
 
@@ -24,8 +25,22 @@ public class FileGateSource extends GateSource {
         this.fileUri = fileUri;
     }
 
+    public FileGateSource(String fileUri, DocumentSchema[] schemas, Parser parser, int number) {
+        super(schemas, parser);
+        this.fileUri = fileUri;
+        setNumber(number);
+    }
+
     public String getFileUri() {
         return fileUri;
+    }
+
+    public int getNumber() {
+        return number;
+    }
+
+    public void setNumber(int number) {
+        this.number = number;
     }
 
     @Override
@@ -39,6 +54,7 @@ public class FileGateSource extends GateSource {
             string.append(schema.getSchemaName());
         }
         string.append("], parser=").append(parser);
+        string.append(", number =").append(number);
         string.append('}');
 
         return string.toString();

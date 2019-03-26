@@ -123,11 +123,11 @@ public class NodeWorker extends NodeActor {
         getContext().stop(getSelf());
     }
 
-    protected void tellToMaster(LionMessage message) {
+    protected void tellToMaster(ThunderMessage message) {
         nodeMasterProxy.tell(message, getSelf());
     }
 
-    protected void forwardToMaster(LionMessage message) {
+    protected void forwardToMaster(ThunderMessage message) {
         nodeMasterProxy.forward(message, getContext());
     }
 

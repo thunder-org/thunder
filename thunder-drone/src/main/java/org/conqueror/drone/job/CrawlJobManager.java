@@ -46,6 +46,7 @@ public class CrawlJobManager extends JobManager<CrawlConfig> {
         table = domain.replace('.', '_');
     }
 
+    @Override
     public Receive createReceive() {
         return super.createReceive().orElse(receiveBuilder()
             .match(UrlInfos.class, this::processExtractedUrls)
@@ -58,7 +59,7 @@ public class CrawlJobManager extends JobManager<CrawlConfig> {
 
     @Override
     protected void prepareJob() throws Exception {
-        System.out.println("[start] crawl-job-manager");
+        log().info("[start] crawl-job-manager");
 
         createGroupsTable();
         insertGroup(group, domain);
@@ -69,7 +70,7 @@ public class CrawlJobManager extends JobManager<CrawlConfig> {
 
     @Override
     protected void finishJob() throws Exception {
-        System.out.println("[end] crawl-job-manager");
+        log().info("[end] crawl-job-manager");
     }
 
     @Override
@@ -83,31 +84,32 @@ public class CrawlJobManager extends JobManager<CrawlConfig> {
 
         List<URLInfo> sources = assignSources(size);
 
-        if (sources.size() == 0) {
+        if (sources.isEmpty()) {
             urls = getUrls(table, lastID);
             sources = assignSources(size);
         }
 
-        if (sources.size() > 0) {
+        if (!sources.isEmpty()) {
             if (urls.previous()) {
                 lastID = urls.getInt("id");
                 log().info("last ID : " + lastID);
             }
             setStatusOfRequestingTaskManagers(getSender(), false);
+
+            return new CrawlSourceAssignResponse(sources);
         } else {
             setStatusOfRequestingTaskManagers(getSender(), true);
             if (isAllTaskManagerWaiting()) {
                 return new JobManagerMessage.TaskAssignFinishResponse();
             }
             log().info("send waiting message to job-manager : {}", getSender());
-            return new JobManagerMessage.TaskAssignWaitingResponse(getConfig().getRequsetWaitingTimeSec());
-        }
 
-        return new CrawlSourceAssignResponse(sources);
+            return new JobManagerMessage.TaskAssignWaitingResponse(getConfig().getRequestWaitingTimeSec());
+        }
     }
 
     protected void processExtractedUrls(UrlInfos urls) throws SQLException {
-        System.out.println(urls);
+        log().info(urls.toString());
         for (URLInfo urlInfo : urls.getSources()) {
             db.insert(String.format("INSERT INTO %s (url, depth) SELECT '%s', '%s' FROM DUAL WHERE NOT EXISTS (SELECT * FROM %s WHERE url = '%s')"
                 , table, urlInfo.getUrl(), urlInfo.getDepth(), table, urlInfo.getUrl()));
@@ -132,7 +134,7 @@ public class CrawlJobManager extends JobManager<CrawlConfig> {
     private List<URLInfo> assignSources(int size) throws SQLException {
         List<URLInfo> sources = new ArrayList<>(size);
         while (urls.next()) {
-            sources.add(new URLInfo(domain, urls.getString("url"), urls.getInt("depth")));
+            sources.add(new URLInfo(urls.getInt("id"), domain, urls.getString("url"), urls.getInt("depth")));
             if (sources.size() == size) break;
         }
         return sources;

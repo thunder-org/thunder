@@ -5,7 +5,7 @@ import akka.actor.ActorRef;
 import akka.actor.Props;
 import org.conqueror.lion.config.JobConfig;
 import org.conqueror.lion.message.JobManagerMessage;
-import org.conqueror.lion.message.LionMessage;
+import org.conqueror.lion.message.ThunderMessage;
 import org.conqueror.lion.message.TaskManagerMessage;
 import scala.concurrent.duration.Duration;
 
@@ -54,21 +54,21 @@ public abstract class TaskWorker<C extends JobConfig, T extends JobManagerMessag
         return config;
     }
 
-    protected void sendToTaskManager(LionMessage message) {
+    protected void sendToTaskManager(ThunderMessage message) {
         taskManager.tell(message, getSelf());
     }
 
     // task-manager에 자신(task-worker)를 종료해달라고 요청
-    private void processFinishTask(JobManagerMessage.TaskAssignFinishResponse response) {
+    protected void processFinishTask(JobManagerMessage.TaskAssignFinishResponse response) {
         taskManager.tell(new TaskManagerMessage.TaskWorkerFinishRequest(), getSelf());
     }
 
-    private void processWaitingTask(JobManagerMessage.TaskAssignWaitingResponse response) {
+    protected void processWaitingTask(JobManagerMessage.TaskAssignWaitingResponse response) {
         getContext().getSystem().scheduler().scheduleOnce(Duration.create(response.getWaitingSec(), TimeUnit.SECONDS),
             this::requestTask, getContext().getSystem().getDispatcher());
     }
 
-    private void processAssignedTask(JobManagerMessage.TaskAssignResponse response) throws Exception {
+    protected void processAssignedTask(JobManagerMessage.TaskAssignResponse response) throws Exception {
         //noinspection unchecked
         work((T) response);
 
@@ -76,7 +76,7 @@ public abstract class TaskWorker<C extends JobConfig, T extends JobManagerMessag
         requestTask();
     }
 
-    private void requestTask() {
+    protected void requestTask() {
         taskManager.tell(createTaskAssignRequest(), getSelf());
     }
 

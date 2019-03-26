@@ -17,7 +17,7 @@ public class KomoranKeywordAnalyzerTest {
     public void setUp() throws Exception {
         KeywordAnalyzerConfig config = new KeywordAnalyzerConfig(ConfigFactory.parseString(
             "analyzer {\n" +
-                "   conf-path = \"conf/komoran.conf\"\n" +
+                "   conf-file-path = \"G:\\\\workspace\\\\thunder\\\\data\\\\conf\\\\analyzer\\\\komoran.conf\"\n" +
                 "   refine {\n" +
                 "       remove-url = true\n" +
                 "       remove-email = true\n" +
@@ -32,7 +32,7 @@ public class KomoranKeywordAnalyzerTest {
 
     @Test
     public void analyze() {
-        KeywordResult result = analyzer.analyze("밀리언 달러 베이비랑 바람과 함께 사라지다랑 뭐가 더 재밌었어?");
+        KeywordResult result = analyzer.analyze("");
         for (String term : result.getTerms()) {
             System.out.println(term);
         }

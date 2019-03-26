@@ -1,7 +1,8 @@
 package org.conqueror.lion.serialize;
 
 import akka.serialization.JSerializer;
-import org.conqueror.lion.exceptions.Serialize.SerializableException;
+import org.conqueror.common.serialize.ThunderSerializable;
+import org.conqueror.common.exceptions.serialize.SerializableException;
 
 import java.io.*;
 
@@ -26,11 +27,11 @@ public class LionSerializer extends JSerializer {
     @Override
     public byte[] toBinary(Object obj) {
         try {
-            if (obj instanceof LionSerializable) {
+            if (obj instanceof ThunderSerializable) {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 try {
                     try (ObjectOutputStream out = new ObjectOutputStream(baos)) {
-                        ((LionSerializable) obj).writeObject(out);
+                        ((ThunderSerializable) obj).writeObject(out);
                     }
                 } catch (IOException e) {
                     throw new SerializableException(e);
@@ -51,7 +52,7 @@ public class LionSerializer extends JSerializer {
         ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
         try {
             try (ObjectInputStream in = new ObjectInputStream(bais)) {
-                return ((LionSerializable) clazz.newInstance()).readObject(in);
+                return ((ThunderSerializable) clazz.newInstance()).readObject(in);
             }
         } catch (IOException | InstantiationException | IllegalAccessException | SerializableException e) {
             throw new RuntimeException(e.getMessage(), e);

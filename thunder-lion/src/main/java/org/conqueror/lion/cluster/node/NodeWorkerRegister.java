@@ -4,7 +4,7 @@ import akka.actor.AbstractLoggingActor;
 import akka.actor.ActorRef;
 import akka.actor.Cancellable;
 import akka.actor.Props;
-import org.conqueror.lion.message.LionMessage;
+import org.conqueror.lion.message.ThunderMessage;
 import org.conqueror.lion.message.NodeWorkerManagerMessage;
 import org.conqueror.lion.message.NodeWorkerMessage;
 
@@ -81,7 +81,7 @@ public class NodeWorkerRegister extends AbstractLoggingActor {
         nodeMasterProxy.tell(request, nodeWorker);
     }
 
-    protected void tellToNode(LionMessage message) {
+    protected void tellToNode(ThunderMessage message) {
         nodeWorker.tell(message, getSelf());
     }
 

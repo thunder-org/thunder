@@ -1,7 +1,7 @@
 package org.conqueror.bird.data.messages.analysis;
 
 import org.conqueror.bird.gate.document.Document;
-import org.conqueror.lion.exceptions.Serialize.SerializableException;
+import org.conqueror.common.exceptions.serialize.SerializableException;
 
 import java.io.DataInput;
 import java.io.DataOutput;

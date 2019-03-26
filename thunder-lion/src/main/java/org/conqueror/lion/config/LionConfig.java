@@ -1,6 +1,5 @@
 package org.conqueror.lion.config;
 
-import akka.remote.transport.AkkaProtocolSettings;
 import akka.util.Timeout;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;

@@ -8,13 +8,17 @@ import org.conqueror.bird.data.messages.index.IndexContentTaskFinishRequest;
 import org.conqueror.bird.index.IndexInformation;
 import org.conqueror.bird.index.source.IndexContentQueue;
 import org.conqueror.bird.index.source.IndexContentQueueMap;
+import org.conqueror.common.utils.date.DateTimeUtils;
 import org.conqueror.es.client.ESConnector;
 import org.conqueror.es.client.ESExecutor;
 import org.conqueror.lion.config.JobConfig;
 import org.conqueror.lion.message.JobManagerMessage;
+import org.joda.time.DateTime;
 
 
 public class IndexContentTaskManager extends DeliveryTaskManager<IndexConfig> {
+
+    private DateTime startTime;
 
     private final IndexContentQueueMap indexContentQueueMap;
 
@@ -46,11 +50,13 @@ public class IndexContentTaskManager extends DeliveryTaskManager<IndexConfig> {
 
     @Override
     protected void prepareJob() throws Exception {
-
+        startTime = DateTime.now();
     }
 
     @Override
     protected void finishJob() throws Exception {
+        log().info("elapsed time : {}", DateTimeUtils.getDurationString((DateTime.now().getMillis() - startTime.getMillis()) / 1000));
+
         connector.close();
         getTaskManager().tell(new IndexContentTaskFinishRequest(), getSelf());
     }

@@ -7,11 +7,11 @@ import java.io.DataOutput;
 
 public abstract class NodeMasterMessage {
 
-    public static abstract class NodeMasterRequest implements LionMessage {
+    public static abstract class NodeMasterRequest implements ThunderMessage {
 
     }
 
-    public static abstract class NodeMasterResponse implements LionMessage {
+    public static abstract class NodeMasterResponse implements ThunderMessage {
 
     }
 

@@ -2,7 +2,7 @@ package org.conqueror.bird.gate.source.schema;
 
 import org.conqueror.bird.data.BirdData;
 import org.conqueror.bird.exceptions.schema.SchemaException;
-import org.conqueror.lion.exceptions.Serialize.SerializableException;
+import org.conqueror.common.exceptions.serialize.SerializableException;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.ParseException;

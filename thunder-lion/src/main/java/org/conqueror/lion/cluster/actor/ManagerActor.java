@@ -5,7 +5,7 @@ import akka.actor.ActorRef;
 import akka.actor.OneForOneStrategy;
 import akka.actor.SupervisorStrategy;
 import org.conqueror.lion.config.JobConfig;
-import org.conqueror.lion.message.LionMessage;
+import org.conqueror.lion.message.ThunderMessage;
 import scala.concurrent.duration.Duration;
 
 import java.util.concurrent.TimeUnit;
@@ -43,11 +43,11 @@ public abstract class ManagerActor extends AbstractLoggingActor {
         );
     }
 
-    protected void tellToMaster(LionMessage message) {
+    protected void tellToMaster(ThunderMessage message) {
         getMaster().tell(message, getSelf());
     }
 
-    protected void forwardToMaster(LionMessage message) {
+    protected void forwardToMaster(ThunderMessage message) {
         getMaster().forward(message, getContext());
     }
 

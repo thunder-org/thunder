@@ -1,5 +1,6 @@
 package org.conqueror.cat.analysis;
 
+import com.typesafe.config.ConfigFactory;
 import org.conqueror.cat.config.NGramConfig;
 import org.conqueror.common.utils.config.ConfigLoader;
 import org.junit.After;
@@ -17,7 +18,7 @@ public class NGramAnalyzerTest {
 
     @Before
     public void setUp() throws Exception {
-        analyzer = new NGramAnalyzer(new NGramConfig("analyzer.conf"));
+        analyzer = new NGramAnalyzer(new NGramConfig(ConfigFactory.parseString("ngrams.number = 2")));
     }
 
     @Test

@@ -2,17 +2,17 @@ package org.conqueror.lion.config;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigRenderOptions;
+import org.conqueror.common.exceptions.serialize.SerializableException;
 import org.conqueror.common.utils.config.ConfigLoader;
 import org.conqueror.common.utils.config.Configuration;
-import org.conqueror.lion.exceptions.Serialize.SerializableException;
+import org.conqueror.lion.message.ThunderMessage;
 import org.conqueror.lion.schedule.job.JobID;
-import org.conqueror.lion.serialize.LionSerializable;
 
 import java.io.DataOutput;
 import java.io.IOException;
 
 
-public abstract class JobConfig<T extends JobConfig> extends Configuration implements LionSerializable<T> {
+public abstract class JobConfig<T extends JobConfig> extends Configuration implements ThunderMessage<T> {
 
     public final Config config;
 

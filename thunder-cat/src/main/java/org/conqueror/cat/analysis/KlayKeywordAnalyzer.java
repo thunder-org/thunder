@@ -1,8 +1,8 @@
 package org.conqueror.cat.analysis;
 
-import da.klay.core.Klay;
-import da.klay.core.morphology.analysis.Morph;
-import da.klay.core.morphology.analysis.Morphs;
+import klay.core.Klay;
+import klay.core.morphology.analysis.Morph;
+import klay.core.morphology.analysis.Morphs;
 import org.conqueror.cat.config.KeywordAnalyzerConfig;
 
 import java.nio.file.Paths;

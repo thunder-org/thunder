@@ -6,6 +6,7 @@ import org.conqueror.common.utils.config.Configuration;
 import org.conqueror.common.utils.config.Loader;
 import org.conqueror.common.utils.file.FileUtils;
 
+import java.nio.file.Paths;
 import java.util.Objects;
 
 
@@ -16,7 +17,7 @@ public class KomoranConfig extends Configuration {
     private String modelDirPath = null;
 
     public KomoranConfig(String configFile) {
-        this(ConfigLoader.load(configFile));
+        this(ConfigLoader.load(Paths.get(configFile).toString()));
     }
 
     public KomoranConfig(Config config) {

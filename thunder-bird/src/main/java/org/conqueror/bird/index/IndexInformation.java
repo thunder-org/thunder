@@ -1,7 +1,7 @@
 package org.conqueror.bird.index;
 
 import org.conqueror.bird.data.BirdData;
-import org.conqueror.lion.exceptions.Serialize.SerializableException;
+import org.conqueror.common.exceptions.serialize.SerializableException;
 
 import java.io.DataInput;
 import java.io.DataOutput;

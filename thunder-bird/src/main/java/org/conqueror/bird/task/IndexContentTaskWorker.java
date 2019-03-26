@@ -41,11 +41,10 @@ public class IndexContentTaskWorker extends DeliveryTaskWorker<IndexConfig> {
     protected BirdMessage work(Object data) {
         if (data instanceof IndexContentQueue) {
             IndexContentQueue queue = (IndexContentQueue) data;
-            while (queue.remainElementsSize() > 0) {
-                IndexContent content = queue.take();
-                System.out.println(content);
-            }
-//            int failures = index(queue.getIndexName(), indexInfo.getMapping(queue.getMappingName()), queue.getQueue());
+//            while (queue.remainElementsSize() > 0) {
+//                IndexContent content = queue.take();
+//            }
+            int failures = index(queue.getIndexName(), indexInfo.getMapping(queue.getMappingName()), queue.getQueue());
         }
 
         return null;

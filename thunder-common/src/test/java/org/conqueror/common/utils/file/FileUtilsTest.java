@@ -12,6 +12,9 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,8 +28,7 @@ public class FileUtilsTest extends TestClass {
     private String testDirPath = testFile.getParentFile().getAbsolutePath();
     private String testFilePath = testFile.getAbsolutePath();
     private String testFileName = testFile.getName();
-    private String fileContent = "abcdefg\r\n1234567890";
-    private URL testFileURL = testFile.toURL();
+    private URL testFileURL = testFile.toURI().toURL();
 
     public FileUtilsTest() throws MalformedURLException {
     }
@@ -45,6 +47,7 @@ public class FileUtilsTest extends TestClass {
 
     @Test
     public void test() throws IOException {
+        String fileContent = "abcdefg\r\n1234567890";
 
         List<String> testFileContentLines = new ArrayList<>(2);
         testFileContentLines.add("abcdefg");
@@ -116,6 +119,19 @@ public class FileUtilsTest extends TestClass {
             FileUtils.makeLinesToList(writeTestFile.getAbsolutePath())
             , is(writeTestFileContentLines)
         );
+    }
+
+    @Test
+    public void createDirctory() throws IOException {
+        Path path = Paths.get(getTargetDirectory().getAbsolutePath(), "a", "b", "c");
+        FileUtils.createDirectory(getTargetDirectory().getAbsolutePath(), "a", "b", "c");
+        Assert.assertTrue(Files.exists(path));
+        path = Paths.get(getTargetDirectory().getAbsolutePath(), "a", "b", "c");
+        Files.delete(path);
+        path = Paths.get(getTargetDirectory().getAbsolutePath(), "a", "b");
+        Files.delete(path);
+        path = Paths.get(getTargetDirectory().getAbsolutePath(), "a");
+        Files.delete(path);
     }
 
     @After

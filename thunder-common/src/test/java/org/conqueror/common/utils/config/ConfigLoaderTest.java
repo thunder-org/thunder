@@ -40,7 +40,7 @@ public class ConfigLoaderTest extends TestClass {
         Assert.assertEquals(new Integer(100), Configuration.getIntegerFromConfig(config, "values.integer-value", true));
         Assert.assertEquals(new Long(100000000000L), Configuration.getLongFromConfig(config, "values.long-value", true));
         Assert.assertEquals(new Double(10000000.1234), Configuration.getDoubleFromConfig(config, "values.double-value", true));
-        Assert.assertEquals(new String[]{"a1", "a2", "a3"}, Configuration.getStringListFromConfig(config, "values.stringlist-value", true).toArray(new String[0]));
+        Assert.assertArrayEquals(new String[]{"a1", "a2", "a3"}, Configuration.getStringListFromConfig(config, "values.stringlist-value", true).toArray(new String[0]));
         Assert.assertEquals(formatter.parseDateTime("20190308"), Configuration.getDateTimeFromConfig(config, "values.datetime-value", formatter, true));
         Assert.assertEquals(true, Configuration.getBooleanFromConfig(config, "values.boolean-value", true));
     }

@@ -6,6 +6,8 @@ import kr.co.shineware.nlp.komoran.model.Token;
 import org.conqueror.cat.config.KeywordAnalyzerConfig;
 import org.conqueror.cat.config.KomoranConfig;
 
+import java.util.ArrayList;
+
 
 public class KomoranKeywordAnalyzer extends KeywordAnalyzer {
 
@@ -23,8 +25,12 @@ public class KomoranKeywordAnalyzer extends KeywordAnalyzer {
 
     @Override
     public Iterable getMorphs(String text) {
-        KomoranResult analyzeResultList = komoran.analyze(text);
-        return analyzeResultList.getTokenList();
+        try {
+            KomoranResult analyzeResultList = komoran.analyze(text);
+            return analyzeResultList.getTokenList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
     }
 
     @Override

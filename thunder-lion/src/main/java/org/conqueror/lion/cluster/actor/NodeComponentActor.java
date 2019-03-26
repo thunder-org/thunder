@@ -5,7 +5,7 @@ import akka.actor.OneForOneStrategy;
 import akka.actor.SupervisorStrategy;
 import org.conqueror.lion.config.NodeConfig;
 import org.conqueror.lion.message.IDIssuerMessage;
-import org.conqueror.lion.message.LionMessage;
+import org.conqueror.lion.message.ThunderMessage;
 import scala.concurrent.duration.Duration;
 
 import java.util.concurrent.TimeUnit;
@@ -48,11 +48,11 @@ public abstract class NodeComponentActor extends IDActor {
         );
     }
 
-    protected void tellToNode(LionMessage message) {
+    protected void tellToNode(ThunderMessage message) {
         getNode().tell(message, getSelf());
     }
 
-    protected void forwardToNode(LionMessage message) {
+    protected void forwardToNode(ThunderMessage message) {
         getNode().forward(message, getContext());
     }
 

@@ -2,6 +2,8 @@ package org.conqueror.common.utils.config;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigParseOptions;
+import com.typesafe.config.ConfigSyntax;
 import org.conqueror.common.exceptions.ThunderConfigException;
 import org.conqueror.common.utils.file.FileUtils;
 
@@ -38,6 +40,18 @@ public class ConfigLoader {
 
     public static Config parse(String config) {
         return ConfigFactory.parseString(config);
+    }
+
+    public static Config parseJson(String json) {
+        return ConfigFactory.parseString(json, ConfigParseOptions.defaults().setSyntax(ConfigSyntax.JSON)).resolve();
+    }
+
+    public static Config parse(String config, ConfigSyntax syntax) {
+        return ConfigFactory.parseString(config, ConfigParseOptions.defaults().setSyntax(syntax));
+    }
+
+    public static Config merge(Config config1, Config config2) {
+        return config1.withFallback(config2).resolve();
     }
 
     public static Configuration build(Class<? extends Configuration> configurationClass, String configFilePath) {

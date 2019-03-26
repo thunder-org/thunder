@@ -4,7 +4,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.conqueror.common.utils.config.ConfigLoader;
 import org.conqueror.lion.config.JobConfig;
-import org.conqueror.lion.exceptions.Serialize.SerializableException;
+import org.conqueror.common.exceptions.serialize.SerializableException;
 
 import java.io.DataInput;
 import java.io.IOException;
@@ -18,6 +18,10 @@ public class CrawlConfig extends JobConfig<CrawlConfig> {
     private String password = null;
     private int sizeOfUrlBuffer = 0;
 
+    /* crawled contents */
+    private String rootDirectory = null;
+    private int numberOfPages = 0;
+
     /* crawling site */
     private String group = null;
     private String domain = null;
@@ -25,11 +29,12 @@ public class CrawlConfig extends JobConfig<CrawlConfig> {
     private int numberOfSources = 0;
     private int depth = 0;  // 0:infinite, 1~:n-depth
     private boolean includeFragment = false;
+    private int intervalSecs = 0;
 
     /* selenium */
     private String chromeWebDriver = null;
 
-    private int requsetWaitingTimeSec = 0;
+    private int requestWaitingTimeSec = 0;
 
     public CrawlConfig() {
         super();
@@ -50,16 +55,20 @@ public class CrawlConfig extends JobConfig<CrawlConfig> {
         setPassword(getStringFromConfig(config, "job.crawl.url.db.password", true));
         setSizeOfUrlBuffer(getIntegerFromConfig(config, "job.crawl.url.buffer.size", 1000));
 
+        setRootDirectory(getStringFromConfig(config, "job.crawl.page.root-directory", null));
+        setNumberOfPages(getIntegerFromConfig(config, "job.crawl.page.file.page-size", 100));
+
         setGroup(getStringFromConfig(config, "job.crawl.site.group", true));
         setDomain(getStringFromConfig(config, "job.crawl.site.domain", true));
         setSeed(getStringFromConfig(config, "job.crawl.site.seed", true));
         setNumberOfSources(getIntegerFromConfig(config, "job.crawl.site.source-number", 10));
         setDepth(getIntegerFromConfig(config, "job.crawl.site.filter.depth", true));
         setIncludeFragment(getBooleanFromConfig(config, "job.crawl.site.url.include-fragment", true));
+        setIntervalSecs(getIntegerFromConfig(config, "job.crawl.site.visit.interval", 0));
 
         setChromeWebDriver(getStringFromConfig(config, "job.crawl.selenium.webdriver.chrome.driver", true));
 
-        setRequsetWaitingTimeSec(getIntegerFromConfig(config, "job.crawl.request.waiting-time", 10));
+        setRequestWaitingTimeSec(getIntegerFromConfig(config, "job.crawl.request.waiting-time", 10));
     }
 
     public String getJdbcUrl() {
@@ -92,6 +101,22 @@ public class CrawlConfig extends JobConfig<CrawlConfig> {
 
     public void setSizeOfUrlBuffer(int sizeOfUrlBuffer) {
         this.sizeOfUrlBuffer = sizeOfUrlBuffer;
+    }
+
+    public String getRootDirectory() {
+        return rootDirectory;
+    }
+
+    public void setRootDirectory(String rootDirectory) {
+        this.rootDirectory = rootDirectory;
+    }
+
+    public int getNumberOfPages() {
+        return numberOfPages;
+    }
+
+    public void setNumberOfPages(int numberOfPages) {
+        this.numberOfPages = numberOfPages;
     }
 
     public String getGroup() {
@@ -142,6 +167,14 @@ public class CrawlConfig extends JobConfig<CrawlConfig> {
         this.includeFragment = includeFragment;
     }
 
+    public int getIntervalSecs() {
+        return intervalSecs;
+    }
+
+    public void setIntervalSecs(int intervalSecs) {
+        this.intervalSecs = intervalSecs;
+    }
+
     public String getChromeWebDriver() {
         return chromeWebDriver;
     }
@@ -150,12 +183,12 @@ public class CrawlConfig extends JobConfig<CrawlConfig> {
         this.chromeWebDriver = chromeWebDriver;
     }
 
-    public int getRequsetWaitingTimeSec() {
-        return requsetWaitingTimeSec;
+    public int getRequestWaitingTimeSec() {
+        return requestWaitingTimeSec;
     }
 
-    public void setRequsetWaitingTimeSec(int requsetWaitingTimeSec) {
-        this.requsetWaitingTimeSec = requsetWaitingTimeSec;
+    public void setRequestWaitingTimeSec(int requestWaitingTimeSec) {
+        this.requestWaitingTimeSec = requestWaitingTimeSec;
     }
 
     @Override

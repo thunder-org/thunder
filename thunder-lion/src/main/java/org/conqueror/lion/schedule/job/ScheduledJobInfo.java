@@ -1,20 +1,19 @@
 package org.conqueror.lion.schedule.job;
 
-import org.conqueror.lion.exceptions.Serialize.SerializableException;
+import org.conqueror.common.exceptions.serialize.SerializableException;
 import org.conqueror.lion.schedule.JobScheduler.ScheduleType;
-import org.conqueror.lion.serialize.LionSerializable;
-import org.mapdb.Serializer;
+import org.conqueror.common.serialize.ThunderSerializable;
 import org.quartz.*;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-import static org.conqueror.lion.serialize.LionSerializable.readSerializableObject;
-import static org.conqueror.lion.serialize.LionSerializable.writeSerializableObject;
+import static org.conqueror.common.serialize.ThunderSerializable.readSerializableObject;
+import static org.conqueror.common.serialize.ThunderSerializable.writeSerializableObject;
 
 
-public class ScheduledJobInfo implements LionSerializable<ScheduledJobInfo> {
+public class ScheduledJobInfo implements ThunderSerializable<ScheduledJobInfo> {
 
     private static final ScheduledJobInfo EmptyScheduledJobInfo = new ScheduledJobInfo();
 
@@ -130,11 +129,7 @@ public class ScheduledJobInfo implements LionSerializable<ScheduledJobInfo> {
         }
     }
 
-    public static Serializer<ScheduledJobInfo> getSerializer() {
-        return LionSerializable.getSerializer(ScheduledJobInfo.class);
-    }
-
-    public static ScheduledJobInfo getEmptyScheduledJobInfo() {
+    public static ScheduledJobInfo getEmptyInstance() {
         return EmptyScheduledJobInfo;
     }
 

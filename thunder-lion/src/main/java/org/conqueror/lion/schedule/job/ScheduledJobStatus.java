@@ -1,15 +1,14 @@
 package org.conqueror.lion.schedule.job;
 
-import org.conqueror.lion.exceptions.Serialize.SerializableException;
-import org.conqueror.lion.serialize.LionSerializable;
-import org.mapdb.Serializer;
+import org.conqueror.common.exceptions.serialize.SerializableException;
+import org.conqueror.common.serialize.ThunderSerializable;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
 
-public class ScheduledJobStatus implements LionSerializable<ScheduledJobStatus>, Cloneable {
+public class ScheduledJobStatus implements ThunderSerializable<ScheduledJobStatus>, Cloneable {
 
     private static final ScheduledJobStatus EmptyScheduledJobStatus = new ScheduledJobStatus();
 
@@ -84,10 +83,6 @@ public class ScheduledJobStatus implements LionSerializable<ScheduledJobStatus>,
         } catch (IOException e) {
             throw new SerializableException(e.getMessage(), e.getCause());
         }
-    }
-
-    public static Serializer<ScheduledJobStatus> getSerializer() {
-        return LionSerializable.getSerializer(ScheduledJobStatus.class);
     }
 
     public static ScheduledJobStatus getEmptyInstance() {

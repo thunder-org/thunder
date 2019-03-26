@@ -1,0 +1,35 @@
+{
+    "settings": {
+        "number_of_shards": 1,
+        "number_of_replicas": 0,
+        "refresh_interval": "60s"
+    },
+    "mappings": {
+        "DOCUMENT": {
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "store": true,
+                    "index": true
+                },
+                "document": {
+                    "type": "text",
+                    "store": true,
+                    "index": true,
+                    "analyzer": "whitespace"
+                },
+                "document_terms": {
+                    "type": "text",
+                    "store": true,
+                    "index": true,
+                    "analyzer": "whitespace"
+                },
+                "label": {
+                    "type": "integer",
+                    "store": true,
+                    "index": true
+                }
+            }
+        }
+    }
+}

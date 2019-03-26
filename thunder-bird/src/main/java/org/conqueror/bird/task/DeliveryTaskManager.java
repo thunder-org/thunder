@@ -78,12 +78,18 @@ public abstract class DeliveryTaskManager<T extends JobConfig> extends ManagerAc
         }
     }
 
+    private int remainStopTries = 5;
+
     protected void processFinishTask(JobManagerMessage.TaskAssignFinishResponse response) {
-        /*
-            This will cause the routee to stop.
-            After all routees have stopped the router will itself be stopped automatically.
-         */
-        workerRouter.tell(new Broadcast(PoisonPill.getInstance()), getSelf());
+        if (remainStopTries-- > 0) {
+            getSelf().tell(response, getSender());
+        } else {
+            /*
+                This will cause the routee to stop.
+                After all routees have stopped the router will itself be stopped automatically.
+             */
+            workerRouter.tell(new Broadcast(PoisonPill.getInstance()), getSelf());
+        }
     }
 
     protected void processAssignTask(Object taskSource) {

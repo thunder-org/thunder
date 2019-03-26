@@ -2,8 +2,8 @@ package org.conqueror.bird.gate.source.schema;
 
 import org.conqueror.bird.analysis.AnalysisResult;
 import org.conqueror.bird.gate.document.Document;
-import org.conqueror.lion.exceptions.Serialize.SerializableException;
-import org.conqueror.lion.serialize.LionSerializable;
+import org.conqueror.common.exceptions.serialize.SerializableException;
+import org.conqueror.common.serialize.ThunderSerializable;
 import org.joda.time.DateTime;
 import org.json.simple.JSONObject;
 
@@ -108,7 +108,7 @@ public class FieldSchemaUsingIndexingFieldData extends FieldSchemaUsingOtherFiel
     @Override
     public FieldSchemaUsingIndexingFieldData readObject(DataInput input) throws SerializableException {
         try {
-            JSONObject values = LionSerializable.readSerializableObject(input);
+            JSONObject values = ThunderSerializable.readSerializableObject(input);
             int fieldNumber = input.readInt();
 
             return build(values, fieldNumber);

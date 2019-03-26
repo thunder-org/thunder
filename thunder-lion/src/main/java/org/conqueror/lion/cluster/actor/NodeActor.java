@@ -6,7 +6,7 @@ import akka.cluster.client.ClusterClientReceptionist;
 import akka.cluster.pubsub.DistributedPubSub;
 import akka.cluster.pubsub.DistributedPubSubMediator;
 import org.conqueror.lion.config.NodeConfig;
-import org.conqueror.lion.message.LionMessage;
+import org.conqueror.lion.message.ThunderMessage;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 import scala.concurrent.duration.Duration;
 
@@ -95,7 +95,7 @@ public abstract class NodeActor extends IDActor {
         getMediator().tell(new DistributedPubSubMediator.Unsubscribe(topic, getSelf()), getSelf());
     }
 
-    protected void publish(String topic, LionMessage message) {
+    protected void publish(String topic, ThunderMessage message) {
         getMediator().forward(new DistributedPubSubMediator.Publish(topic, message), getContext());
     }
 

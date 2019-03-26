@@ -26,7 +26,7 @@ public class HdfsFileInfoBuilder extends FileInfoBuilder {
         for (String uri : uriList) {
             try {
                 fileInfos.add(new HdfsFileInfo(uri));
-            } catch (InterruptedException | IOException e) {
+            } catch (IOException | InterruptedException e) {
                 throw new ParseException(e);
             }
         }
@@ -38,17 +38,17 @@ public class HdfsFileInfoBuilder extends FileInfoBuilder {
     }
 
     @Override
-    protected String[] getFilePathsInDirectory(String dirPath, String fileRegexp) {
+    protected String[] getFilePathsInDirectory(String dirPath, String fileRegexp) throws ParseException {
         try {
             HdfsFile dir = new HdfsFileInfo(dirPath).getFile();
             if (dir.isDirectory()) {
                 return toUriStringList(dir.getChildren(false), fileRegexp);
             }
-        } catch (IllegalArgumentException | IOException | InterruptedException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | IOException e) {
+            throw new ParseException(e);
         }
 
-        return null;
+        return new String[0];
     }
 
     private static String[] toUriStringList(List<HdfsFile> files, String fileRegexp) {

@@ -37,7 +37,9 @@ public class IndexJobManager extends JobManager<IndexConfig> {
     protected JobManagerMessage.TaskAssignResponse assignTask(JobManagerMessage.TaskAssignRequest request) throws Exception {
         int size = ((IndexSourceAssignRequest) request).getSize();
         List<GateSource> sources = gateSourceDistributor.takeGateSources(size);
-        if (sources.isEmpty()) return new JobManagerMessage.TaskAssignFinishResponse();
+        if (sources.isEmpty()) {
+            return new JobManagerMessage.TaskAssignFinishResponse();
+        }
 
         return new IndexSourceAssignResponse(sources);
     }

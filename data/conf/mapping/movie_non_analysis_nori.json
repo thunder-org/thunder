@@ -1,0 +1,61 @@
+{
+    "settings": {
+        "number_of_shards": 1,
+        "number_of_replicas": 0,
+        "refresh_interval": "10s",
+        "index": {
+            "analysis": {
+                "analyzer": {
+                    "nori_analyzer": {
+                        "tokenizer": "nori_tokenizer",
+                        "filter": [
+                            "posfilter"
+                        ]
+                    }
+                },
+                "filter": {
+                    "posfilter": {
+                        "type": "nori_part_of_speech"
+                    }
+                }
+            }
+        }
+    },
+    "mappings": {
+        "DOCUMENT": {
+            "properties": {
+                "review": {
+                    "type": "text",
+                    "store": true,
+                    "index": true,
+                    "analyzer": "nori_analyzer"
+                },
+                "date": {
+                    "type": "date",
+                    "store": true,
+                    "index": true
+                },
+                "rating": {
+                    "type": "integer",
+                    "store": true,
+                    "index": true
+                },
+                "author": {
+                    "type": "keyword",
+                    "store": true,
+                    "index": true
+                },
+                "review_id": {
+                    "type": "keyword",
+                    "store": true,
+                    "index": true
+                },
+                "movie_id": {
+                    "type": "keyword",
+                    "store": true,
+                    "index": true
+                }
+            }
+        }
+    }
+}

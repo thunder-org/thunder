@@ -385,24 +385,24 @@ public class WebBrowser implements Closeable {
             if (!element.isDisplayed() || (includedElements != null && includedElements.contains(element))) continue;
 
             String text = element.getText().trim().toLowerCase(Locale.ENGLISH).replaceAll("\n\r", " ");
-            if (text == null || text.length() == 0) continue;
+            if (text.length() == 0) continue;
 
             boolean selected = true;
             try {
-                if (hasNDepthChildren(element, 0, attempts)) {
-                    selected = true;
-                } else if (hasNDepthChildren(element, 1, attempts)) {
-                    for (WebElement child : findChildElements(element, attempts)) {
-                        String childText = child.getText().trim().toLowerCase(Locale.ENGLISH).replaceAll("\n\r", " ");
-                        if (text.length() == childText.length()) {
-                            selected = false;
-                            break;
-                        } else if (includedElements != null && text.contains(childText)) {
-                            includedElements.add(child);
+                if (!hasNDepthChildren(element, 0, attempts)) {
+                    if (hasNDepthChildren(element, 1, attempts)) {
+                        for (WebElement child : findChildElements(element, attempts)) {
+                            String childText = child.getText().trim().toLowerCase(Locale.ENGLISH).replaceAll("\n\r", " ");
+                            if (text.length() == childText.length()) {
+                                selected = false;
+                                break;
+                            } else if (includedElements != null && text.contains(childText)) {
+                                includedElements.add(child);
+                            }
                         }
+                    } else {
+                        selected = false;
                     }
-                } else {
-                    selected = false;
                 }
             } catch (NoSuchElementException e) {
                 selected = false;

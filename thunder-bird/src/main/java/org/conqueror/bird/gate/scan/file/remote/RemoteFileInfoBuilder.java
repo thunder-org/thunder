@@ -7,7 +7,9 @@ import org.conqueror.bird.exceptions.parse.ParseException;
 import org.conqueror.bird.gate.scan.file.FileInfoBuilder;
 import org.conqueror.common.utils.file.remote.RemoteFileInfo;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -29,7 +31,7 @@ public class RemoteFileInfoBuilder extends FileInfoBuilder {
             }
 
             return fileInfos;
-        } catch (FileSystemException e) {
+        } catch (FileSystemException | URISyntaxException e) {
             throw new ParseException(e);
         }
     }
@@ -61,10 +63,10 @@ public class RemoteFileInfoBuilder extends FileInfoBuilder {
                 }
                 fileInfo.close();
             }
-        } catch (FileSystemException e) {
+        } catch (FileSystemException | URISyntaxException e) {
             throw new ParseException(e);
         }
-        return null;
+        return new String[0];
     }
 
     private static String[] toUriStringList(FileObject[] files, String fileRegexp)

@@ -1,13 +1,19 @@
 package org.conqueror.lion.cluster.node;
 
 import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
 import akka.actor.Props;
 import org.conqueror.lion.cluster.actor.NodeActor;
+import org.conqueror.lion.cluster.api.rest.HttpService;
+import org.conqueror.lion.cluster.api.rest.router.message.MessageServiceRouter;
 import org.conqueror.lion.cluster.id.IDIssuer;
 import org.conqueror.lion.cluster.job.JobMaster;
 import org.conqueror.lion.cluster.schedule.ScheduleManager;
+import org.conqueror.lion.config.HttpServiceConfig;
 import org.conqueror.lion.config.NodeConfig;
 import org.conqueror.lion.message.*;
+
+import java.lang.reflect.InvocationTargetException;
 
 import static org.conqueror.lion.cluster.node.Path.*;
 import static org.conqueror.lion.cluster.node.PubSubTopic.NODE_WORKER_TOPIC;
@@ -22,6 +28,7 @@ public class NodeMaster extends NodeActor {
     private ActorRef nodeWorkerManager;
     private ActorRef scheduleManager;
     private ActorRef jobMaster;
+    private HttpService httpService;
 
     public static Props props(NodeConfig config) {
         return Props.create(NodeMaster.class, config);
@@ -69,6 +76,7 @@ public class NodeMaster extends NodeActor {
         nodeWorkerManager = createComponentActor(NodeWorkerManager.class, NODE_WORKER_MANAGER_NAME);
         scheduleManager = createComponentActor(ScheduleManager.class, SCHEDULER_MANAGER_NAME);
         jobMaster = createComponentActor(JobMaster.class, JOB_MASTER_NAME);
+        httpService = createHttpService();
 
         publish(NODE_WORKER_TOPIC, new NodeWorkerMessage.NodeWorkerReregisterRequest());
     }
@@ -90,9 +98,27 @@ public class NodeMaster extends NodeActor {
 
     @Override
     public void postStop() throws Exception {
+        if (httpService != null) httpService.close();
         super.postStop();
 
         log().info("[NODE-MASTER] stopped");
+    }
+
+    private HttpService createHttpService() {
+        HttpServiceConfig config = new HttpServiceConfig(getConfig().getConfig());
+        httpService = new HttpService(getSystem(), getSelf(), config);
+        String apiServiceClass = config.getApiServiceClass();
+        if (apiServiceClass != null) {
+            try {
+                httpService.open((MessageServiceRouter) Class.forName(apiServiceClass)
+                    .getConstructor(ActorSystem.class, ActorRef.class, NodeConfig.class, long.class)
+                    .newInstance(getSystem(), getSelf(), getConfig(), config.getMessageTimeout()));
+                return httpService;
+            } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
+                log().error("http service class not found : {}", apiServiceClass);
+            }
+        }
+        return null;
     }
 
     /*

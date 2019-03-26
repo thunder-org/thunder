@@ -2,8 +2,8 @@ package org.conqueror.bird.gate.document;
 
 import org.conqueror.bird.data.BirdData;
 import org.conqueror.bird.gate.source.schema.DocumentSchema;
-import org.conqueror.lion.exceptions.Serialize.SerializableException;
-import org.conqueror.lion.serialize.LionSerializable;
+import org.conqueror.common.exceptions.serialize.SerializableException;
+import org.conqueror.common.serialize.ThunderSerializable;
 import org.joda.time.DateTime;
 
 import java.io.DataInput;
@@ -169,7 +169,7 @@ public class Document implements BirdData {
             for (Object value : fieldValues) {
                 if (!(value instanceof Serializable))
                     throw new SerializableException("field value is not serializable");
-                LionSerializable.writeSerializableObject(output, (Serializable) value);
+                ThunderSerializable.writeSerializableObject(output, (Serializable) value);
             }
         } catch (IOException e) {
             throw new SerializableException(e);
@@ -184,7 +184,7 @@ public class Document implements BirdData {
             int fieldSize = input.readInt();
             Object[] fieldValues = new Object[fieldSize];
             for (int fieldNum = 0; fieldNum < fieldSize; fieldNum++) {
-                fieldValues[fieldNum] = LionSerializable.readSerializableObject(input);
+                fieldValues[fieldNum] = ThunderSerializable.readSerializableObject(input);
             }
 
             return new Document(indexName, documentSchema, fieldValues);

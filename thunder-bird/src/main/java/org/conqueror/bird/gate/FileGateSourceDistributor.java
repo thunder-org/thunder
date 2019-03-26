@@ -5,7 +5,9 @@ import akka.actor.ActorSystem;
 import org.conqueror.bird.config.IndexConfig;
 import org.conqueror.bird.exceptions.parse.ParseException;
 import org.conqueror.bird.exceptions.schema.SchemaException;
-import org.conqueror.bird.gate.parser.JsonParser;
+import org.conqueror.bird.gate.parser.CSVParser;
+import org.conqueror.bird.gate.parser.JsonArrayParser;
+import org.conqueror.bird.gate.parser.JsonLineParser;
 import org.conqueror.bird.gate.parser.Parser;
 import org.conqueror.bird.gate.scan.FileGateScanner;
 import org.conqueror.bird.gate.scan.file.FileInfoBuilder;
@@ -37,8 +39,9 @@ public class FileGateSourceDistributor extends GateSourceDistributor {
             List<GateSource> sources = addToGateSources(gateSources, fileInfo);
             getLogger().info("gate-source expression:{}", fileInfo);
             if (sources != null) {
+                int num = 0;
                 for (GateSource source : sources) {
-                    getLogger().info("\t-> gate-source : {}", source);
+                    getLogger().info("\t-> {} gate-source : {}", ++num, source);
                 }
             } else {
                 getLogger().info("\t-> null");
@@ -49,7 +52,7 @@ public class FileGateSourceDistributor extends GateSourceDistributor {
     @Override
     public List<GateSource> takeGateSources(int size) {
         List<GateSource> sources = new ArrayList<>(size);
-        for (int num=0; num<size; num++) {
+        for (int num = 0; num < size; num++) {
             if (gateSources.isEmpty()) break;
             sources.add(gateSources.poll());
         }
@@ -57,7 +60,7 @@ public class FileGateSourceDistributor extends GateSourceDistributor {
     }
 
     private List<GateSource> addToGateSources(Collection<GateSource> gateSources, String fileInfo) throws ParseException, SchemaException {
-        String[] segments = fileInfo.split(";");     // [file|...];[json|...];schemaName1,...;mappingName1,...;file://path
+        String[] segments = fileInfo.split(";");     // [file|...];[json-line|json-array|csv-[,| |...]|...];schemaName1,...;mappingName1,...;file://path
         if (segments.length != 5) throw new ParseException("failed to parse a gate source expression : " + fileInfo);
 
         String type = segments[0];
@@ -89,7 +92,23 @@ public class FileGateSourceDistributor extends GateSourceDistributor {
             return null;
         }
 
-        Parser parser = fileType.equalsIgnoreCase("json") ? JsonParser.getInstance() : null;
+        String[] fileTypes = fileType.split("-");
+        String fileFormat = fileTypes[0];
+        String detailFormat = fileTypes[1];
+
+        Parser parser;
+        switch (fileFormat) {
+            case "json":
+                parser = detailFormat.equals("line")? JsonLineParser.getInstance()
+                    : detailFormat.equals("array")? parser = JsonArrayParser.getInstance()
+                    : null;
+                break;
+            case "csv":
+                parser = new CSVParser(detailFormat);
+                break;
+            default:
+                parser = null;
+        }
 
         String[] schemaNames = schemaNameExp.split(",");
         String[] mappingNames = mappingNameExp.split(",");
@@ -106,8 +125,9 @@ public class FileGateSourceDistributor extends GateSourceDistributor {
 
         List<String> fileUris = fileInfoBuilder.toFileUris(fileUriExp);
         List<GateSource> resources = new ArrayList<>(fileUris.size());
+        int number = 0;
         for (String fileUri : fileUris) {
-            resources.add(new FileGateSource(fileUri, schemas, parser));
+            resources.add(new FileGateSource(fileUri, schemas, parser, ++number));
         }
 
         return resources;

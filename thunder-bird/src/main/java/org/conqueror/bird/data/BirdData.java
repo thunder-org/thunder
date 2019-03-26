@@ -1,8 +1,8 @@
 package org.conqueror.bird.data;
 
-import org.conqueror.lion.message.LionMessage;
+import org.conqueror.lion.message.ThunderMessage;
 
 
-public interface BirdData extends LionMessage {
+public interface BirdData extends ThunderMessage {
 
 }

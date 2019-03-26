@@ -3,7 +3,7 @@ package org.conqueror.bird.gate.source;
 import org.conqueror.bird.data.BirdData;
 import org.conqueror.bird.gate.parser.Parser;
 import org.conqueror.bird.gate.source.schema.DocumentSchema;
-import org.conqueror.lion.exceptions.Serialize.SerializableException;
+import org.conqueror.common.exceptions.serialize.SerializableException;
 
 import java.io.DataOutput;
 import java.io.IOException;

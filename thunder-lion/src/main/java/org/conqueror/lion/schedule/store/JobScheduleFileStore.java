@@ -1,8 +1,8 @@
 package org.conqueror.lion.schedule.store;
 
-import org.conqueror.lion.db.JobDatabase;
-import org.conqueror.lion.db.table.ScheduledJobTable;
-import org.conqueror.lion.exceptions.db.DBException;
+//import org.conqueror.lion.db.JobDatabase;
+//import org.conqueror.db.table.ScheduledJobTable;
+//import org.conqueror.db.exceptions.db.DBException;
 import org.conqueror.lion.exceptions.schedule.JobScheduleException;
 import org.conqueror.lion.schedule.JobScheduler.ScheduleType;
 import org.conqueror.lion.schedule.job.JobID;
@@ -19,8 +19,9 @@ import java.util.Objects;
 import static org.conqueror.lion.schedule.job.ScheduledJobStatus.*;
 
 
-public class JobScheduleFileStore implements JobScheduleStore {
+public class JobScheduleFileStore /*implements JobScheduleStore*/ {
 
+    /*
     private final JobDatabase db;
     private ScheduledJobTable jobs = null;
 
@@ -143,5 +144,6 @@ public class JobScheduleFileStore implements JobScheduleStore {
         }
         db.commit();
     }
+    */
 
 }

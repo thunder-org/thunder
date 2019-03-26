@@ -1,7 +1,7 @@
 package org.conqueror.bird.gate.source.schema;
 
-import org.conqueror.lion.exceptions.Serialize.SerializableException;
-import org.conqueror.lion.serialize.LionSerializable;
+import org.conqueror.common.exceptions.serialize.SerializableException;
+import org.conqueror.common.serialize.ThunderSerializable;
 import org.json.simple.JSONObject;
 
 import java.io.DataInput;
@@ -89,7 +89,7 @@ public class FieldSchemaUsingOtherFieldValue extends FieldSchema {
     @Override
     public void writeObject(DataOutput output) throws SerializableException {
         try {
-            LionSerializable.writeSerializableObject(output, getValues());
+            ThunderSerializable.writeSerializableObject(output, getValues());
             output.writeInt(getFieldNumber());
         } catch (IOException e) {
             throw new SerializableException(e);
@@ -99,7 +99,7 @@ public class FieldSchemaUsingOtherFieldValue extends FieldSchema {
     @Override
     public FieldSchemaUsingOtherFieldValue readObject(DataInput input) throws SerializableException {
         try {
-            JSONObject values = LionSerializable.readSerializableObject(input);
+            JSONObject values = ThunderSerializable.readSerializableObject(input);
             int fieldNumber = input.readInt();
 
             return build(values, fieldNumber);

@@ -16,7 +16,6 @@ public class NodeSystem {
     }
 
     public static void main(String[] args) {
-//        NodeSystem.start("G:\\workspace\\thunder\\thunder-lion\\src\\main\\resources\\node-1.conf");
         NodeSystem.start(args[0]);
     }
 

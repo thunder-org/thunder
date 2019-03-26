@@ -3,6 +3,7 @@ package org.conqueror.bird.gate.scan.file;
 import org.apache.commons.lang.StringUtils;
 import org.conqueror.bird.exceptions.parse.ParseException;
 import org.conqueror.common.utils.date.DateTimeUtils;
+import org.conqueror.common.utils.date.DateTimeUtils.TimeUnit;
 import org.conqueror.common.utils.file.FileInfo;
 
 import java.text.SimpleDateFormat;
@@ -136,22 +137,22 @@ public abstract class FileInfoBuilder {
     }
 
     private void applyHourRange(String input, List<String> dests) throws ParseException {
-        applyDateRange(input, dests, RANGE_HOUR, Calendar.HOUR_OF_DAY);
+        applyDateRange(input, dests, RANGE_HOUR, TimeUnit.HOUR);
     }
 
     private void applyDayRange(String input, List<String> dests) throws ParseException {
-        applyDateRange(input, dests, RANGE_DATE, Calendar.DATE);
+        applyDateRange(input, dests, RANGE_DATE, TimeUnit.DAY);
     }
 
     private void applyMonthRange(String input, List<String> dests) throws ParseException {
-        applyDateRange(input, dests, RANGE_MONTH, Calendar.MONTH);
+        applyDateRange(input, dests, RANGE_MONTH, TimeUnit.MONTH);
     }
 
     private void applyYearRange(String input, List<String> dests) throws ParseException {
-        applyDateRange(input, dests, RANGE_YEAR, Calendar.YEAR);
+        applyDateRange(input, dests, RANGE_YEAR, TimeUnit.YEAR);
     }
 
-    private void applyDateRange(String input, List<String> dests, String tag, int dateType) throws ParseException {
+    private void applyDateRange(String input, List<String> dests, String tag, TimeUnit unit) throws ParseException {
         SimpleDateFormat formatter = new SimpleDateFormat();
         int idx, sidx, ridx, didx, eidx;
 
@@ -169,8 +170,8 @@ public abstract class FileInfoBuilder {
             try {
                 Date sDate = formatter.parse(sdate);
                 Date eDate = formatter.parse(edate);
-                for (Date date = sDate; date.compareTo(eDate) <= 0; date = DateTimeUtils.plusDate(date, 1, dateType)) {
-                    applyDateRange(input.substring(0, idx) + formatter.format(date) + input.substring(eidx + 1), dests, tag, dateType);
+                for (Date date = sDate; date.compareTo(eDate) <= 0; date = DateTimeUtils.plusDate(date, 1, unit)) {
+                    applyDateRange(input.substring(0, idx) + formatter.format(date) + input.substring(eidx + 1), dests, tag, unit);
                 }
             } catch (java.text.ParseException e) {
                 throw new ParseException(e);
@@ -219,9 +220,7 @@ public abstract class FileInfoBuilder {
             dirPath = input.substring(0, dirEidx);
 
             String[] list = getFilePathsInDirectory(dirPath, pattern);
-            if (list != null) {
-                Collections.addAll(dests, list);
-            }
+            Collections.addAll(dests, list);
         } else {
             dests.add(input);
         }

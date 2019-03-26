@@ -1,7 +1,7 @@
 package org.conqueror.es.client.index.source;
 
-import org.conqueror.lion.exceptions.Serialize.SerializableException;
-import org.conqueror.lion.message.LionMessage;
+import org.conqueror.common.exceptions.serialize.SerializableException;
+import org.conqueror.lion.message.ThunderMessage;
 import org.elasticsearch.common.bytes.BytesArray;
 import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -13,7 +13,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 
-public class IndexContent implements LionMessage {
+public class IndexContent implements ThunderMessage {
 
     private final String indexName;
     private final String mappingName;
