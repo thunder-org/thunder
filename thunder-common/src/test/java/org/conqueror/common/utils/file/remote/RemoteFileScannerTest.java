@@ -28,18 +28,20 @@ public class RemoteFileScannerTest extends TestClass {
     private final File testDir = getResourceFile("local-files");
     private final File testFile1 = getResourceFile("local-files/local-file-test1.txt");
     private final File testFile2 = getResourceFile("local-files/local-file-test2.txt");
-    private FileInfo dirInfo;
-    private FileInfo file1Info;
-    private FileInfo file2Info;
+    private FileInfo dirInfo = null;
+    private FileInfo file1Info = null;
+    private FileInfo file2Info = null;
 
     private SshServer sshd;
 
     private final String server = "localhost";
     private final String remoteDirPath = "/" + testDir.getName();
 
-    private final URI remoteDirURI = new URI("sftp://" + MyPasswordAuthenticator.USER + ':' + MyPasswordAuthenticator.PASSWORD + '@' + server + ":22" + remoteDirPath);
-    private final URI remoteFile1URI = new URI("sftp://" + MyPasswordAuthenticator.USER + ':' + MyPasswordAuthenticator.PASSWORD + '@' + server + ":22" + remoteDirPath + '/' + testFile1.getName());
-    private final URI remoteFile2URI = new URI("sftp://" + MyPasswordAuthenticator.USER + ':' + MyPasswordAuthenticator.PASSWORD + '@' + server + ":22" + remoteDirPath + '/' + testFile2.getName());
+    private static final int sshTestPort = 8239;
+
+    private final URI remoteDirURI = new URI("sftp://" + MyPasswordAuthenticator.USER + ':' + MyPasswordAuthenticator.PASSWORD + '@' + server + ":" + sshTestPort + remoteDirPath);
+    private final URI remoteFile1URI = new URI("sftp://" + MyPasswordAuthenticator.USER + ':' + MyPasswordAuthenticator.PASSWORD + '@' + server + ":" + sshTestPort + remoteDirPath + '/' + testFile1.getName());
+    private final URI remoteFile2URI = new URI("sftp://" + MyPasswordAuthenticator.USER + ':' + MyPasswordAuthenticator.PASSWORD + '@' + server + ":" + sshTestPort + remoteDirPath + '/' + testFile2.getName());
 
     public RemoteFileScannerTest() throws URISyntaxException {
     }
@@ -126,11 +128,11 @@ public class RemoteFileScannerTest extends TestClass {
 
     @After
     public void tearDown() throws Exception {
-        dirInfo.close();
-        file1Info.close();
-        file2Info.close();
+        if (dirInfo != null) dirInfo.close();
+        if (file1Info != null) file1Info.close();
+        if (file2Info != null) file2Info.close();
 
-        sshd.close();
+        if (sshd.isStarted()) sshd.close();
     }
 
     private void setupSSHServer() throws IOException {
@@ -141,7 +143,7 @@ public class RemoteFileScannerTest extends TestClass {
         sshd.setKeyPairProvider(new SimpleGeneratorHostKeyProvider());
         sshd.setSubsystemFactories(Collections.singletonList(new SftpSubsystemFactory()));
         sshd.setCommandFactory(new ProcessShellCommandFactory());
-        sshd.setPort(22);
+        sshd.setPort(sshTestPort);
 
         sshd.start();
     }

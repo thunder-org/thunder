@@ -34,9 +34,9 @@ public class HdfsFileScannerTest extends TestClass {
         Configuration conf = new Configuration();
         conf.set(MiniDFSCluster.HDFS_MINIDFS_BASEDIR, baseDir.getAbsolutePath());
 
-        MiniDFSCluster.Builder builder = new MiniDFSCluster.Builder(conf);
-        MiniDFSCluster hdfsCluster = builder.build();
-        hdfsCluster.getFileSystem().copyFromLocalFile(new Path(testFile1.getAbsolutePath()), new Path("hdfs://localhost:"+ hdfsCluster.getNameNodePort() + "/"));
+//        MiniDFSCluster.Builder builder = new MiniDFSCluster.Builder(conf);
+//        MiniDFSCluster hdfsCluster = builder.build();
+//        hdfsCluster.getFileSystem().copyFromLocalFile(new Path(testFile1.getAbsolutePath()), new Path("hdfs://localhost:"+ hdfsCluster.getNameNodePort() + "/"));
 //        String hdfsURI = "hdfs://localhost:"+ hdfsCluster.getNameNodePort() + "/";
     }
 
