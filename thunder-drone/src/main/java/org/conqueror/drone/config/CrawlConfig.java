@@ -18,6 +18,9 @@ public class CrawlConfig extends JobConfig<CrawlConfig> {
     private String password = null;
     private int sizeOfUrlBuffer = 0;
 
+    /* crawling */
+    private String pageCrawlerClass = null;
+
     /* crawled contents */
     private String rootDirectory = null;
     private int numberOfPages = 0;
@@ -54,6 +57,8 @@ public class CrawlConfig extends JobConfig<CrawlConfig> {
         setUser(getStringFromConfig(config, "job.crawl.url.db.user", true));
         setPassword(getStringFromConfig(config, "job.crawl.url.db.password", true));
         setSizeOfUrlBuffer(getIntegerFromConfig(config, "job.crawl.url.buffer.size", 1000));
+
+        setPageCrawlerClass(getStringFromConfig(config, "job.page-crawler.class", true));
 
         setRootDirectory(getStringFromConfig(config, "job.crawl.page.root-directory", null));
         setNumberOfPages(getIntegerFromConfig(config, "job.crawl.page.file.page-size", 100));
@@ -101,6 +106,14 @@ public class CrawlConfig extends JobConfig<CrawlConfig> {
 
     public void setSizeOfUrlBuffer(int sizeOfUrlBuffer) {
         this.sizeOfUrlBuffer = sizeOfUrlBuffer;
+    }
+
+    public String getPageCrawlerClass() {
+        return pageCrawlerClass;
+    }
+
+    public void setPageCrawlerClass(String pageCrawlerClass) {
+        this.pageCrawlerClass = pageCrawlerClass;
     }
 
     public String getRootDirectory() {

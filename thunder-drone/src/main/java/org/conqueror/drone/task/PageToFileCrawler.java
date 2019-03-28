@@ -1,11 +1,13 @@
 package org.conqueror.drone.task;
 
 import akka.actor.ActorRef;
+import akka.actor.Cancellable;
+import akka.event.LoggingAdapter;
 import org.conqueror.common.utils.file.FileUtils;
+import org.conqueror.drone.config.CrawlConfig;
 import org.conqueror.drone.data.url.URLInfo;
-import org.conqueror.lion.config.JobConfig;
+import org.conqueror.drone.selenium.webdriver.WebBrowser;
 import org.json.simple.JSONObject;
-import org.jsoup.Jsoup;
 import org.openqa.selenium.WebElement;
 
 import java.io.IOException;
@@ -14,12 +16,13 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
 
-public class CrawlToFileTaskWorker extends CrawlTaskWorker {
+public class PageToFileCrawler extends PageCrawler {
 
-    public CrawlToFileTaskWorker(JobConfig config, ActorRef taskManager) {
-        super(config, taskManager);
+    public PageToFileCrawler(int number, Cancellable beforeSchedule, WebBrowser browser, LoggingAdapter logger, URLInfo urlInfo, CrawlConfig config, ActorRef taskManager, ActorRef taskWorker) {
+        super(number, beforeSchedule, browser, logger, urlInfo, config, taskManager, taskWorker);
     }
 
+    @Override
     protected void savePageSource(URLInfo urlInfo) {
         if (getConfig().getRootDirectory() == null) return;
 

@@ -66,46 +66,5 @@ public class IndexConfigTest extends TestClass {
         System.out.println(jsonConfig);
         IndexConfig indexConfig = new IndexConfig(nodeConfig.getConfig(), jsonConfig);
         Assert.assertEquals("index-test", indexConfig.getName());
-        Assert.assertEquals("{\n" +
-            "    \"schema_name\": \"movie\",\n" +
-            "    \"index_name\": \"movie_ + @{date:1~8}\",\n" +
-            "    \"channel\": \"etc\",\n" +
-            "    \"fields\": {\n" +
-            "        \"_id_field\": \"review_id\",\n" +
-            "        \"_put_if_absent\": true,\n" +
-            "        \"_type\": \"DOCUMENT\",\n" +
-            "        \"review\": {\n" +
-            "            \"type\": \"string\",\n" +
-            "            \"index_field_name\": \"review\",\n" +
-            "            \"must_exist\": true\n" +
-            "        },\n" +
-            "        \"date\": {\n" +
-            "            \"type\": \"datetime\",\n" +
-            "            \"index_field_name\": \"date\",\n" +
-            "            \"must_exist\": true,\n" +
-            "            \"format\": \"yy.MM.dd\"\n" +
-            "        },\n" +
-            "        \"rating\": {\n" +
-            "            \"type\": \"integer\",\n" +
-            "            \"index_field_name\": \"rating\",\n" +
-            "            \"must_exist\": true\n" +
-            "        },\n" +
-            "        \"author\": {\n" +
-            "            \"type\": \"string\",\n" +
-            "            \"index_field_name\": \"author\",\n" +
-            "            \"must_exist\": true\n" +
-            "        },\n" +
-            "        \"review_id\": {\n" +
-            "            \"type\": \"string\",\n" +
-            "            \"index_field_name\": \"review_id\",\n" +
-            "            \"must_exist\": true\n" +
-            "        },\n" +
-            "        \"movie_id\": {\n" +
-            "            \"type\": \"string\",\n" +
-            "            \"index_field_name\": \"movie_id\",\n" +
-            "            \"must_exist\": true\n" +
-            "        }\n" +
-            "    }\n" +
-            "}\n", indexConfig.getSchema("movie"));
     }
 }

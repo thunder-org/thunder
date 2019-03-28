@@ -58,6 +58,10 @@ public abstract class TaskWorker<C extends JobConfig, T extends JobManagerMessag
         taskManager.tell(message, getSelf());
     }
 
+    protected ActorRef getTaskManager() {
+        return taskManager;
+    }
+
     // task-manager에 자신(task-worker)를 종료해달라고 요청
     protected void processFinishTask(JobManagerMessage.TaskAssignFinishResponse response) {
         taskManager.tell(new TaskManagerMessage.TaskWorkerFinishRequest(), getSelf());

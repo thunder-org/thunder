@@ -13,11 +13,11 @@
     <modules>
         <module>thunder-common</module>
         <module>thunder-lion</module>
-        <module>thunder-bird</module>
         <module>thunder-cat</module>
-        <!--<module>thunder-peacock</module>-->
         <module>es-client</module>
         <module>thunder-drone</module>
+        <module>thunder-bird</module>
+        <module>thunder-peacock</module>
         <!--<module>map-db</module>-->
     </modules>
 
