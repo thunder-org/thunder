@@ -61,18 +61,21 @@ public abstract class PageCrawler implements Runnable {
 
     protected void crawl(URLInfo urlInfo) {
         log().info("visit url : {}, id : {}", urlInfo.getUrl(), urlInfo.getId());
-        browser.visit(urlInfo.getUrl());
-        browser.waitForPageLoad();
+        try {
+            browser.visit(urlInfo.getUrl());
+//        browser.waitForPageLoad();
 
-        savePageSource(urlInfo);
+            savePageSource(urlInfo);
 
-        // extract urls
-        if (getConfig().getDepth() == 0 || urlInfo.getDepth() < getConfig().getDepth()) {
-            List<URLInfo> childUrls = extractChildUrls(urlInfo);
-            sendToTaskManager(new UrlInfos(childUrls));
+            // extract urls
+            if (getConfig().getDepth() == 0 || urlInfo.getDepth() < getConfig().getDepth()) {
+                List<URLInfo> childUrls = extractChildUrls(urlInfo);
+                sendToTaskManager(new UrlInfos(childUrls));
+            }
+
+        } finally {
+            taskWorker.tell(new PageCrawlingEnd(getNumber()), taskWorker);
         }
-
-        taskWorker.tell(new PageCrawlingEnd(getNumber()), taskWorker);
     }
 
     protected abstract void savePageSource(URLInfo urlInfo);
@@ -135,7 +138,7 @@ public abstract class PageCrawler implements Runnable {
         if (onclick != null || (url != null && url.startsWith("javascript"))) {
             WebDriver driver = browser.getDriver();
             browser.executeJavascript("arguments[0].click();", anchor);
-            browser.waitForPageLoad();
+//            browser.waitForPageLoad();
 
             // opened in new window/tab
             String currentWindowHandle = driver.getWindowHandle();
