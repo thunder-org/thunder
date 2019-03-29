@@ -1,8 +1,8 @@
 <?xml version= "1.0" encoding ="UTF-8"?>
 <Configuration>
     <Appenders>
-        <RollingFile name="RollingFile" fileName="/root/peacock-log/peacock.log"
-                     filePattern="/root/peacock-log/$${date:yyyy-MM}/peacock-%d{MM-dd-yyyy}-%i.log.gz">
+        <RollingFile name="RollingFile" fileName="/home/dwayne_shim/peacock-log/peacock.log"
+                     filePattern="/home/dwayne_shim/peacock-log/$${date:yyyy-MM}/peacock-%d{MM-dd-yyyy}-%i.log.gz">
             <PatternLayout>
                 <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
             </PatternLayout>

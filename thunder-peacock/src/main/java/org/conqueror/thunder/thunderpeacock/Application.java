@@ -5,6 +5,7 @@ import lombok.extern.log4j.Log4j;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.web.client.RestTemplate;
@@ -12,7 +13,7 @@ import org.springframework.web.client.RestTemplate;
 @Log4j2
 @SpringBootApplication
 @PropertySource("classpath:peacock.properties")
-public class Application {
+public class Application extends SpringBootServletInitializer {
 
     @Bean
     public ObjectMapper objectMapper() {
